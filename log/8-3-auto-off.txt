@@ -1,0 +1,468 @@
+# cmd: roslaunch ooxx chassis_search.launch
+# start: 1970-01-01 08:03:51
+# host: ubuntu
+# cwd: /home/ubuntu/experiment_ws
+# log: /home/ubuntu/experiment_ws/src/ooxx/log/8-3-auto-off.txt
+# label: auto-off
+---
+[INFO] [239.533235]: FSM init: build=20260706-corridor-commit-lifecycle mode=occupancy_grid initial_state=PLAN_NEXT global_planner=True
+[INFO] [239.538647]: Mission search | mode=occupancy_grid | config=/home/ubuntu/experiment_ws/src/ooxx/config/mission.yaml
+[INFO] [239.541443]: Targets: {'red/circle': 2, 'blue/rectangle': 1}
+[INFO] [239.545379]: Vision backend: topic (camera via target_detector node)
+[INFO] [239.647904]: Occupancy grid centered on start (0.00, 0.00), size=12.0 m
+[INFO] [239.650650]: Start pose recorded: (0.00, 0.00, yaw=0.0 deg)
+[INFO] [239.824104]: FSM handler: PLAN_NEXT (mode=occupancy_grid tick=3)
+[INFO] [240.044461]: PLAN_NEXT pose=(0.00, 0.00, yaw=0.0 deg) grid=(75,75) in_bounds=True map visited=1 free=447 unknown=21975 frontiers=68
+[INFO] [240.284920]: Frontier pick: frontiers=68 candidates_raw=68 candidates=66 blocked_skipped=0 min_dist_skipped=2 path_rejected=0 path_found=True waypoints=4 astar_eval=1 escape=False blocked_goals=0
+[INFO] [240.288258]: PLAN_NEXT: frontier (1.52, -1.20) path=4 wp (idx=1)
+[INFO] [240.290097]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [240.473664]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.00, 0.00, yaw=0.0 deg) wp=1/4 obs=clear score=0.00 center=1.71 wide=1.32 stress=0
+[INFO] [240.476176]: FSM tick #4 remain in MOVE_TO_GOAL
+[INFO] [240.658292]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.01, -0.00, yaw=-2.6 deg) wp=1/4 obs=clear score=0.80 center=1.72 wide=1.32 stress=0
+[INFO] [240.662017]: FSM tick #5 remain in MOVE_TO_GOAL
+[INFO] [240.846328]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.04, -0.00, yaw=-6.2 deg) wp=1/4 obs=clear score=0.80 center=1.81 wide=1.40 stress=0
+[INFO] [241.037731]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.05, -0.00, yaw=-9.5 deg) wp=1/4 obs=clear score=0.79 center=1.79 wide=1.79 stress=0
+[INFO] [241.228421]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.07, -0.01, yaw=-11.5 deg) wp=1/4 obs=clear score=0.79 center=1.77 wide=1.77 stress=0
+[INFO] [241.419134]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.09, -0.02, yaw=-13.4 deg) wp=1/4 obs=clear score=0.79 center=1.75 wide=1.75 stress=0
+[INFO] [241.613895]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.11, -0.03, yaw=-15.4 deg) wp=1/4 obs=clear score=0.79 center=1.74 wide=1.73 stress=0
+[INFO] [241.616796]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.11,-0.03,yaw=-15) cmd=/controller/cmd_vel
+[INFO] [243.598583]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.34, -0.18, yaw=-35.4 deg) wp=1/4 obs=clear score=0.00 center=1.61 wide=1.13 stress=0
+[INFO] [243.602747]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.34,-0.18,yaw=-35) cmd=/controller/cmd_vel
+[INFO] [245.587110]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.62,-0.40,yaw=-38) cmd=/controller/cmd_vel
+[INFO] [247.575623]: Navigator: PassageMode not armed because score=0.00<0.40 (score=0.00 wide=0.50 center=0.54 L=0.48 R=0.58 head=0°)
+[INFO] [247.580141]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.84, -0.58, yaw=-38.4 deg) wp=1/4 obs=clear score=0.00 center=0.54 wide=0.50 stress=0
+[INFO] [247.583181]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.84,-0.58,yaw=-38) cmd=/controller/cmd_vel
+[INFO] [249.033511]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.92,-0.64,yaw=-38) cmd=/controller/cmd_vel
+[INFO] [250.306597]: Navigator: PassageMode not armed because score=0.21<0.40 (score=0.21 wide=0.37 center=0.40 L=0.49 R=0.28 head=0°)
+[INFO] [250.311002]: FSM handler: MOVE_TO_GOAL status=hold pose=(0.95, -0.67, yaw=-38.4 deg) wp=1/4 obs=clear score=0.21 center=0.40 wide=0.37 stress=1
+[INFO] [250.313977]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.95,-0.67,yaw=-38) cmd=/controller/cmd_vel
+[INFO] [250.798302]: Passage nudge: rotate -4.8 deg toward goal (stress=3)
+[INFO] [251.307837]: Passage nudge: rotate -2.7 deg toward goal (stress=4)
+[INFO] [254.031904]: FSM MOVE_TO_GOAL -> PLAN_NEXT | nav blocked, backoff & replan
+[INFO] [254.035478]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.81,-0.55,yaw=-40) cmd=/controller/cmd_vel
+[INFO] [255.258652]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [256.735160]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.87, -0.61, yaw=-61.6 deg) wp=0/5 obs=clear score=0.00 center=0.34 wide=0.31 stress=0
+[INFO] [256.739307]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.87,-0.61,yaw=-62) cmd=/controller/cmd_vel
+[INFO] [256.897774]: Navigator: PassageMode not armed because score=0.00<0.40 (score=0.00 wide=0.31 center=0.33 L=0.46 R=0.57 head=67°)
+[INFO] [257.645281]: Boundary hit (1) type=narrow_passage
+[INFO] [257.649252]: LocalPlanner: 记录边界候选偏角 0°
+[INFO] [257.673024]: Recovery(boundary_narrow_passage): 入口基线 center=0.29
+[INFO] [257.675314]: LocalPlanner: FailureMemory 记录 (0.87,-0.61) 偏角=0° 原因=narrow_passage
+[INFO] [257.677493]: FSM MOVE_TO_GOAL -> RECOVERY | boundary_narrow_passage
+[INFO] [260.413548]: Recovery(boundary_narrow_passage): unified level=0 back=0.10m turn=-25deg
+[INFO] [260.721919]: ooxx status: state=RECOVERY scan=True odom=True pose=(0.85,-0.51,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [260.882423]: Recovery(boundary_narrow_passage): 通道可通行，继续
+[INFO] [260.885152]: LocalPlanner: 恢复后刷新方向惩罚 偏角=0°
+[INFO] [260.887049]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [262.375807]: Navigator: CorridorCommit start entry_yaw=-101.2° open=right pose=(0.85,-0.51) L=0.49 R=0.51 err=-0.03 strafe=0.000 gap
+[INFO] [262.379904]: PLAN_NEXT: passage mode armed after replan
+[INFO] [262.382151]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [262.553058]: Navigator: CorridorCommit L=0.48 R=1.20 err=-0.72 strafe=-0.051 v=0.054
+[INFO] [263.739914]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.78, -0.56, yaw=-101.2 deg) wp=0/5 obs=clear score=0.75 center=1.53 wide=1.53 stress=0
+[INFO] [263.743912]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.78,-0.56,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [265.402182]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.68,-0.63,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [265.860254]: Navigator: CorridorCommit L=0.46 R=0.59 err=-0.13 strafe=-0.051 v=0.054
+[INFO] [267.117145]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.57, -0.71, yaw=-101.2 deg) wp=0/5 obs=clear score=0.79 center=1.38 wide=0.52 stress=0
+[INFO] [267.121413]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.57,-0.71,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [268.629913]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.53,-0.78,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [268.927154]: Navigator: CorridorCommit L=0.42 R=0.28 err=0.13 strafe=0.051 v=0.054
+[INFO] [270.155836]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.58, -0.87, yaw=-101.2 deg) wp=0/5 obs=clear score=0.15 center=0.41 wide=0.34 stress=0
+[INFO] [270.160093]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.58,-0.87,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [271.688344]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.64,-0.97,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [271.994597]: Navigator: CorridorCommit L=0.42 R=0.18 err=0.24 strafe=0.051 v=0.054
+[INFO] [273.276449]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.71, -1.07, yaw=-101.2 deg) wp=0/5 obs=clear score=0.26 center=1.40 wide=1.07 stress=0
+[INFO] [273.280669]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.71,-1.07,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [275.090323]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.78,-1.18,yaw=-101) cmd=/controller/cmd_vel
+[INFO] [275.481797]: Navigator: CorridorCommit done reason=timeout dist=0.70 ticks=80 entry_yaw=-101.2° open=right channel=False final_L=0.47 final_R=0.29 final_err=0.18
+[INFO] [277.001772]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.75, -1.33, yaw=-123.0 deg) wp=0/5 obs=clear score=0.05 center=1.06 wide=1.06 stress=0
+[INFO] [277.006166]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.75,-1.33,yaw=-124) cmd=/controller/cmd_vel
+[INFO] [278.618081]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.63,-1.44,yaw=-142) cmd=/controller/cmd_vel
+[INFO] [280.156078]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.54, -1.56, yaw=-115.4 deg) wp=1/5 obs=clear score=0.75 center=0.75 wide=0.75 stress=0
+[INFO] [280.160260]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.54,-1.56,yaw=-115) cmd=/controller/cmd_vel
+[INFO] [281.729091]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.50,-1.71,yaw=-89) cmd=/controller/cmd_vel
+[INFO] [283.246746]: FSM handler: MOVE_TO_GOAL status=align pose=(0.52, -1.82, yaw=-57.1 deg) wp=1/5 obs=clear score=0.26 center=0.34 wide=0.34 stress=0
+[INFO] [283.250676]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.52,-1.82,yaw=-56) cmd=/controller/cmd_vel
+[INFO] [283.571907]: Navigator: PassageMode not armed because score=0.00<0.40 (score=0.00 wide=0.34 center=0.34 L=0.49 R=0.56 head=19°)
+[INFO] [284.717597]: Passage nudge: rotate -5.0 deg toward goal (stress=3)
+[INFO] [285.036167]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.52,-1.82,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [285.362420]: Passage nudge: rotate -10.0 deg toward goal (stress=4)
+[INFO] [288.693157]: FSM MOVE_TO_GOAL -> PLAN_NEXT | nav blocked, backoff & replan
+[INFO] [289.569436]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [289.739513]: Recovery(unknown): rotate -30 deg (attempt 1/5)
+[INFO] [290.924700]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [291.826211]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [291.984697]: Recovery(unknown): rotate -60 deg (attempt 2/5)
+[INFO] [294.320250]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [295.201478]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [295.203514]: ooxx status: state=RECOVERY scan=True odom=True pose=(0.39,-1.69,yaw=-132) cmd=/controller/cmd_vel
+[INFO] [295.349576]: Recovery(unknown): rotate -90 deg (attempt 3/5)
+[INFO] [298.884890]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [299.677512]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [299.679478]: 运行统计(60s): 边界=1 恢复=1 角落停滞=0 目标拉黑=0 均速=0.06m/s 覆盖率=4%
+[INFO] [299.772680]: Recovery(unknown): rotate 120 deg (attempt 4/5)
+[INFO] [303.863326]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [304.735493]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [304.884830]: FSM RECOVERY -> EXPLORE | recovery exhausted
+[INFO] [305.032909]: LocalPlanner: 首次重规划应用方向惩罚 偏角=0°
+[INFO] [305.160908]: LocalPlanner score breakdown (Clr=clearance Ali=alignment Unk=unknown):
+  0° TOTAL=+0.339  Clr=+0.175 Ali=+0.022 Unk=+0.110 Pro=+0.032 Lat=+0.000 Cur=-0.000 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.08 unk=0.85
+  +20° TOTAL=+0.296  Clr=+0.175 Ali=+0.015 Unk=+0.110 Pro=+0.032 Lat=-0.025 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.08 unk=0.85
+  -20° TOTAL=+0.402  Clr=+0.219 Ali=+0.019 Unk=+0.110 Pro=+0.040 Lat=+0.025 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.35 unk=0.85
+  +35° TOTAL=+0.685  Clr=+0.627 Ali=+0.035 Unk=+0.143 Pro=+0.060 Lat=-0.025 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000 dist=0.12  d=3.00 unk=1.00
+  -35° TOTAL=+0.427  Clr=+0.236 Ali=+0.015 Unk=+0.143 Pro=+0.044 Lat=+0.025 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.45 unk=1.00
+  +50° TOTAL=+0.301  Clr=+0.235 Ali=+0.008 Unk=+0.110 Pro=+0.043 Lat=-0.025 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.45 unk=0.85
+  -50° TOTAL=+0.384  Clr=+0.235 Ali=+0.008 Unk=+0.143 Pro=+0.043 Lat=+0.025 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.45 unk=1.00
+  +70° TOTAL=+0.051  Clr=+0.182 Ali=+0.000 Unk=+0.000 Pro=+0.034 Lat=-0.025 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.12 unk=0.00
+  -70° TOTAL=+0.307  Clr=+0.236 Ali=+0.000 Unk=+0.143 Pro=+0.044 Lat=+0.025 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.45 unk=1.00
+Selected: +35° goal=(0.79,-4.66) d=3.00 TOTAL=+0.685
+[INFO] [305.787395]: FSM handler: EXPLORE pose=(0.37, -1.74, yaw=-109.4 deg) has_goal=True
+[INFO] [305.804457]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.37,-1.75,yaw=-109) cmd=/controller/cmd_vel
+[INFO] [306.109434]: Navigator: PassageMode not armed because score=0.00<0.40 (score=0.00 wide=0.50 center=0.50 L=0.49 R=0.57 head=24°)
+[INFO] [307.285642]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.34,-1.84,yaw=-97) cmd=/controller/cmd_vel
+[INFO] [308.830624]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.35,-1.93,yaw=-86) cmd=/controller/cmd_vel
+[INFO] [310.195302]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.36,-2.08,yaw=-81) cmd=/controller/cmd_vel
+[INFO] [311.000986]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=1.51 wide=1.51 stress=0
+[INFO] [311.547834]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.37,-2.15,yaw=-81) cmd=/controller/cmd_vel
+[INFO] [312.952552]: FSM handler: EXPLORE pose=(0.39, -2.23, yaw=-80.6 deg) has_goal=True
+[INFO] [312.970898]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.39,-2.23,yaw=-81) cmd=/controller/cmd_vel
+[INFO] [314.442704]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.40,-2.31,yaw=-81) cmd=/controller/cmd_vel
+[INFO] [315.386081]: Navigator: PassageMode not armed because score=0.26<0.40 (score=0.26 wide=1.28 center=1.28 L=0.33 R=0.26 head=0°)
+[INFO] [316.047717]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.41,-2.40,yaw=-81) cmd=/controller/cmd_vel
+[INFO] [317.111788]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=1.19 wide=1.19 stress=0
+[INFO] [317.868684]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.43,-2.49,yaw=-81) cmd=/controller/cmd_vel
+[INFO] [319.741873]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.46,-2.78,yaw=-80) cmd=/controller/cmd_vel
+[INFO] [321.181425]: FSM handler: EXPLORE pose=(0.50, -3.02, yaw=-80.1 deg) has_goal=True
+[INFO] [321.197948]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.50,-3.03,yaw=-80) cmd=/controller/cmd_vel
+[INFO] [322.425692]: Navigator: PassageMode not armed because score=0.00<0.40 (score=0.00 wide=0.46 center=0.46 L=0.50 R=0.58 head=0°)
+[INFO] [322.430439]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.53,-3.17,yaw=-80) cmd=/controller/cmd_vel
+[INFO] [323.094587]: NavFeedback: status=RUNNING exec_cost=0.07 reason=center center=0.40 wide=0.40 stress=2
+[INFO] [323.655908]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.53,-3.19,yaw=-80) cmd=/controller/cmd_vel
+[INFO] [324.197075]: Boundary hit (2) type=front_wall
+[INFO] [324.201093]: LocalPlanner: 记录边界候选偏角 35°
+[INFO] [324.225669]: Recovery(boundary_front_wall): 入口基线 center=0.40
+[INFO] [324.227831]: LocalPlanner: FailureMemory 记录 (0.53,-3.19) 偏角=35° 原因=front_wall
+[INFO] [324.230133]: FSM EXPLORE -> RECOVERY | boundary_front_wall
+[INFO] [324.774889]: Recovery: alternate turn side (last attempt used same side)
+[INFO] [326.979791]: Recovery(boundary_front_wall): unified level=0 back=0.10m turn=25deg
+[INFO] [327.251398]: ooxx status: state=RECOVERY scan=True odom=True pose=(0.52,-3.09,yaw=-57) cmd=/controller/cmd_vel
+[INFO] [331.111652]: Recovery(boundary_front_wall): unified level=1 back=0.18m turn=-35deg
+[INFO] [331.140999]: Recovery(boundary_front_wall): 判定成功 level=1 center=0.53 entry=0.40 gain=0.13 disp=0.18m
+[INFO] [331.145681]: LocalPlanner: 恢复后刷新方向惩罚 偏角=35°
+[INFO] [331.149321]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [332.266322]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [332.388819]: Recovery(unknown): rotate -30 deg (attempt 1/5)
+[INFO] [333.574330]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [334.787644]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [334.887702]: Recovery(unknown): rotate -60 deg (attempt 2/5)
+[INFO] [337.223192]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [338.292486]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [338.390669]: Recovery(unknown): rotate 90 deg (attempt 3/5)
+[INFO] [341.875565]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [342.823460]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [342.825766]: ooxx status: state=RECOVERY scan=True odom=True pose=(0.42,-2.94,yaw=-89) cmd=/controller/cmd_vel
+[INFO] [342.948143]: Recovery(unknown): rotate -120 deg (attempt 4/5)
+[INFO] [347.038366]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [347.973713]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [348.092232]: FSM RECOVERY -> EXPLORE | recovery exhausted
+[INFO] [348.204520]: LocalPlanner: 首次重规划应用方向惩罚 偏角=35°
+[INFO] [348.370788]: LocalPlanner score breakdown (Clr=clearance Ali=alignment Unk=unknown):
+  0° TOTAL=+0.383  Clr=+0.174 Ali=+0.067 Unk=+0.110 Pro=+0.032 Lat=+0.000 Cur=-0.000 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.07 unk=0.85
+  +20° TOTAL=+0.131  Clr=+0.171 Ali=+0.047 Unk=+0.110 Pro=+0.031 Lat=-0.084 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13  d=1.05 unk=0.85
+  -20° TOTAL=+0.298  Clr=+0.155 Ali=+0.043 Unk=+0.000 Pro=+0.029 Lat=+0.084 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=0.95 unk=0.00
+  +35° TOTAL=-0.017  Clr=+0.171 Ali=+0.033 Unk=+0.000 Pro=+0.031 Lat=-0.084 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13  d=1.05 unk=0.00
+  -35° TOTAL=+0.237  Clr=+0.137 Ali=+0.027 Unk=+0.000 Pro=+0.025 Lat=+0.084 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=0.84 unk=0.00
+  +50° TOTAL=-0.064  Clr=+0.174 Ali=+0.019 Unk=+0.000 Pro=+0.032 Lat=-0.084 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13  d=1.07 unk=0.00
+  -50° TOTAL=+0.179  Clr=+0.129 Ali=+0.014 Unk=+0.000 Pro=+0.024 Lat=+0.084 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=0.79 unk=0.00
+  +70° TOTAL=+0.157  Clr=+0.201 Ali=+0.000 Unk=+0.143 Pro=+0.037 Lat=-0.084 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.23 unk=1.00
+  -70° TOTAL=+0.108  Clr=+0.139 Ali=+0.000 Unk=+0.000 Pro=+0.026 Lat=+0.084 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=0.85 unk=0.00
+Selected: +70° goal=(-0.24,-3.98) d=1.23 TOTAL=+0.157
+[INFO] [348.861662]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.76 wide=0.50 center=0.51 L=0.48 R=1.60 head=64°)
+[INFO] [349.069498]: FSM handler: EXPLORE pose=(0.35, -2.93, yaw=178.9 deg) has_goal=True
+[INFO] [349.085218]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.35,-2.93,yaw=179) cmd=/controller/cmd_vel
+[INFO] [350.020355]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.32,-2.93,yaw=-162) cmd=/controller/cmd_vel
+[INFO] [350.744914]: Navigator: PassageMode not armed because score=0.33<0.40 (score=0.33 wide=0.43 center=0.43 L=0.47 R=0.46 head=26°)
+[INFO] [350.936964]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.32,-2.93,yaw=-143) cmd=/controller/cmd_vel
+[INFO] [351.417654]: NavFeedback: status=RUNNING exec_cost=0.15 reason=center center=0.44 wide=0.43 stress=3
+[INFO] [351.934073]: Navigator: CorridorCommit start entry_yaw=-138.3° open=left pose=(0.32,-2.93) L=0.49 R=0.48 err=0.01 strafe=0.000 gap
+[INFO] [351.937779]: Navigator: PassageMode auto-arm score=0.49 wide=0.43 center=0.44 L=0.49 R=0.48 goal_yaw=-138.3° channel=False
+[INFO] [351.940100]: Navigator: CorridorCommit L=0.49 R=0.48 err=0.01 strafe=0.000 v=0.054
+[INFO] [352.037093]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.31,-2.93,yaw=-138) cmd=/controller/cmd_vel
+[INFO] [352.994520]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.28,-2.97,yaw=-138) cmd=/controller/cmd_vel
+[INFO] [353.726712]: Navigator: CorridorCommit L=0.49 R=0.49 err=-0.00 strafe=0.000 v=0.054
+[INFO] [353.897479]: FSM handler: EXPLORE pose=(0.24, -3.00, yaw=-138.3 deg) has_goal=True
+[INFO] [353.913762]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.24,-3.00,yaw=-138) cmd=/controller/cmd_vel
+[INFO] [354.797164]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.20,-3.03,yaw=-138) cmd=/controller/cmd_vel
+[INFO] [355.215893]: NavFeedback: status=RUNNING exec_cost=0.17 reason=center center=0.31 wide=0.31 stress=0
+[INFO] [355.450079]: Navigator: CorridorCommit L=0.47 R=0.38 err=0.09 strafe=0.051 v=0.054
+[INFO] [355.607249]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.18,-3.07,yaw=-138) cmd=/controller/cmd_vel
+[INFO] [355.677943]: Boundary hit (3) type=front_wall
+[INFO] [355.680633]: LocalPlanner: 记录边界候选偏角 70°
+[INFO] [355.704007]: Recovery(boundary_front_wall): 入口基线 center=0.31
+[INFO] [355.705758]: LocalPlanner: FailureMemory 记录 (0.18,-3.08) 偏角=70° 原因=front_wall
+[INFO] [355.707682]: FSM EXPLORE -> RECOVERY | boundary_front_wall
+[INFO] [358.273456]: Recovery(boundary_front_wall): unified level=0 back=0.10m turn=25deg
+[INFO] [358.808797]: Recovery: alternate turn side (last attempt used same side)
+[INFO] [362.214330]: Recovery(boundary_front_wall): unified level=1 back=0.18m turn=-35deg
+[INFO] [362.242185]: Recovery(boundary_front_wall): 判定成功 level=1 center=0.50 entry=0.31 gain=0.19 disp=0.18m
+[INFO] [362.386311]: LocalPlanner: 恢复后刷新方向惩罚 偏角=70°
+[INFO] [362.390021]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [362.392439]: 运行统计(60s): 边界=2 恢复=2 角落停滞=0 目标拉黑=0 均速=0.06m/s 覆盖率=7%
+[INFO] [363.280528]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [363.283028]: ooxx status: state=RECOVERY scan=True odom=True pose=(0.33,-2.85,yaw=-147) cmd=/controller/cmd_vel
+[INFO] [363.371841]: Recovery(unknown): rotate 30 deg (attempt 1/5)
+[INFO] [364.557404]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [365.483546]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [365.585614]: Recovery(unknown): rotate 60 deg (attempt 2/5)
+[INFO] [367.920606]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [368.878984]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [369.034651]: Recovery(unknown): rotate 90 deg (attempt 3/5)
+[INFO] [372.519617]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [373.620568]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [373.826028]: Recovery(unknown): rotate -120 deg (attempt 4/5)
+[INFO] [378.054565]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [378.973369]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [379.109355]: FSM RECOVERY -> EXPLORE | recovery exhausted
+[INFO] [379.247475]: LocalPlanner: 首次重规划应用方向惩罚 偏角=70°
+[INFO] [379.410858]: LocalPlanner score breakdown (Clr=clearance Ali=alignment Unk=unknown):
+  0° TOTAL=+0.482  Clr=+0.253 Ali=+0.040 Unk=+0.143 Pro=+0.047 Lat=+0.000 Cur=-0.000 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.55 unk=1.00
+  +20° TOTAL=+0.458  Clr=+0.257 Ali=+0.029 Unk=+0.143 Pro=+0.047 Lat=-0.007 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.58 unk=1.00
+  -20° TOTAL=+0.467  Clr=+0.253 Ali=+0.029 Unk=+0.143 Pro=+0.047 Lat=+0.007 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.55 unk=1.00
+  +35° TOTAL=+0.453  Clr=+0.279 Ali=+0.022 Unk=+0.143 Pro=+0.051 Lat=-0.007 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.72 unk=1.00
+  -35° TOTAL=+0.413  Clr=+0.235 Ali=+0.019 Unk=+0.143 Pro=+0.043 Lat=+0.007 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.45 unk=1.00
+  +50° TOTAL=+0.329  Clr=+0.329 Ali=+0.015 Unk=+0.143 Pro=+0.060 Lat=-0.007 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.14 dist=0.00  d=2.03 unk=1.00
+  -50° TOTAL=+0.319  Clr=+0.195 Ali=+0.009 Unk=+0.143 Pro=+0.036 Lat=+0.007 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.20 unk=1.00
+  +70° TOTAL=+0.292  Clr=+0.492 Ali=+0.000 Unk=+0.143 Pro=+0.060 Lat=-0.007 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.14 dist=0.12  d=3.00 unk=1.00
+  -70° TOTAL=+0.073  Clr=+0.174 Ali=+0.000 Unk=+0.000 Pro=+0.032 Lat=+0.007 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.07 unk=0.00
+Selected: +70° goal=(3.28,-3.38) d=3.00 TOTAL=+0.292
+[INFO] [379.424971]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.33,-2.85,yaw=-80) cmd=/controller/cmd_vel
+[INFO] [380.904481]: FSM handler: EXPLORE pose=(0.38, -2.98, yaw=-55.6 deg) has_goal=True
+[INFO] [380.921483]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.38,-2.98,yaw=-55) cmd=/controller/cmd_vel
+[INFO] [382.451274]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.53,-3.10,yaw=-32) cmd=/controller/cmd_vel
+[WARN] [239.548986]: 未收到雷达数据，请确认 /scan 有输出（可先 roslaunch lidar lidar_filter.launch）
+[WARN] [251.719325]: Goal failure (1.52, -1.20) reason=clear count=1 total=1
+[WARN] [251.723377]: Nav blocked (1/3 before strong recovery) obs=clear score=0.19 exclude_r=0.75m escalation=1
+[WARN] [254.026810]: Blocked region added center=(1.52, -1.20) radius=0.55m (regions=1)
+[WARN] [260.441554]: Recovery(boundary_narrow_passage): 效果不足 center=0.29 entry=0.29 gain=-0.00 disp=0.10m escalation=0
+[WARN] [260.445406]: Recovery(boundary_narrow_passage): 升级至 level 1
+[WARN] [275.477431]: Navigator: CorridorCommit abort timeout center=0.92 dist=0.70 ticks=80
+[WARN] [286.240095]: Goal failure (-0.88, -2.88) reason=clear count=1 total=1
+[WARN] [286.381485]: Nav blocked (2/3 before strong recovery) obs=clear score=0.00 exclude_r=0.90m escalation=2
+[WARN] [288.687256]: Blocked region added center=(-0.88, -2.88) radius=0.55m (regions=2)
+[WARN] [289.563269]: Frontier pick: frontiers=41 candidates_raw=41 candidates=35 blocked_skipped=6 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=True blocked_goals=2
+[WARN] [289.567285]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=38)
+[WARN] [291.804438]: Frontier pick: frontiers=41 candidates_raw=41 candidates=35 blocked_skipped=6 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=True blocked_goals=2
+[WARN] [291.823433]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=38)
+[WARN] [295.194940]: Frontier pick: frontiers=40 candidates_raw=40 candidates=34 blocked_skipped=6 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=True blocked_goals=2
+[WARN] [295.199341]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=38)
+[WARN] [299.670662]: Frontier pick: frontiers=40 candidates_raw=40 candidates=34 blocked_skipped=6 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=True blocked_goals=2
+[WARN] [299.674991]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=38)
+[WARN] [303.776411]: rotate_angle closed-loop timeout (16.9 deg left)
+[WARN] [304.729071]: Frontier pick: frontiers=40 candidates_raw=40 candidates=34 blocked_skipped=6 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=True blocked_goals=2
+[WARN] [304.733180]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=38)
+[WARN] [304.882139]: Recovery(unknown): 5 attempts exhausted — clear blocked_goals (2), EXPLORE
+[WARN] [327.009028]: Recovery(boundary_front_wall): 效果不足 center=0.40 entry=0.40 gain=-0.00 disp=0.10m escalation=0
+[WARN] [327.012852]: Recovery(boundary_front_wall): 升级至 level 1
+[WARN] [332.260187]: Frontier pick: frontiers=37 candidates_raw=37 candidates=37 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [332.264132]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=54)
+[WARN] [334.780967]: Frontier pick: frontiers=37 candidates_raw=37 candidates=37 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [334.785271]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=54)
+[WARN] [338.285713]: Frontier pick: frontiers=31 candidates_raw=31 candidates=31 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [338.289872]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=54)
+[WARN] [342.817017]: Frontier pick: frontiers=29 candidates_raw=29 candidates=29 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [342.821066]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=54)
+[WARN] [346.951611]: rotate_angle closed-loop timeout (-17.4 deg left)
+[WARN] [347.967015]: Frontier pick: frontiers=29 candidates_raw=29 candidates=29 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [347.970956]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=54)
+[WARN] [348.088026]: Recovery(unknown): 5 attempts exhausted — clear blocked_goals (0), EXPLORE
+[WARN] [358.294869]: Recovery(boundary_front_wall): 效果不足 center=0.28 entry=0.31 gain=-0.03 disp=0.10m escalation=0
+[WARN] [358.298660]: Recovery(boundary_front_wall): 升级至 level 1
+[WARN] [363.274075]: Frontier pick: frontiers=27 candidates_raw=27 candidates=27 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [363.278109]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=60)
+[WARN] [365.476908]: Frontier pick: frontiers=27 candidates_raw=27 candidates=27 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [365.481325]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=60)
+[WARN] [368.871912]: Frontier pick: frontiers=26 candidates_raw=26 candidates=26 blocked_skipped=0 min_dist_skipped=0 path_rejected=25 path_found=False waypoints=0 astar_eval=25 escape=False blocked_goals=0
+[WARN] [368.876663]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=60)
+[WARN] [373.614344]: Frontier pick: frontiers=23 candidates_raw=23 candidates=23 blocked_skipped=0 min_dist_skipped=0 path_rejected=23 path_found=False waypoints=0 astar_eval=23 escape=False blocked_goals=0
+[WARN] [373.618423]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=60)
+[WARN] [377.829662]: rotate_angle closed-loop timeout (-16.9 deg left)
+[WARN] [378.966376]: Frontier pick: frontiers=23 candidates_raw=23 candidates=23 blocked_skipped=0 min_dist_skipped=0 path_rejected=23 path_found=False waypoints=0 astar_eval=23 escape=False blocked_goals=0
+[WARN] [378.970667]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=60)
+[WARN] [379.106470]: Recovery(unknown): 5 attempts exhausted — clear blocked_goals (0), EXPLORE
+[WARN] [394.971964]: Recovery(boundary_front_wall): 效果不足 center=0.44 entry=0.44 gain=-0.00 disp=0.10m escalation=0
+[WARN] [394.976111]: Recovery(boundary_front_wall): 升级至 level 1
+[WARN] [399.885264]: Frontier pick: frontiers=23 candidates_raw=23 candidates=23 blocked_skipped=0 min_dist_skipped=0 path_rejected=23 path_found=False waypoints=0 astar_eval=23 escape=False blocked_goals=0
+[WARN] [399.889508]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=74)
+[WARN] [402.073821]: Frontier pick: frontiers=23 candidates_raw=23 candidates=23 blocked_skipped=0 min_dist_skipped=0 path_rejected=23 path_found=False waypoints=0 astar_eval=23 escape=False blocked_goals=0
+[WARN] [402.078656]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=74)
+[WARN] [405.577217]: Frontier pick: frontiers=23 candidates_raw=23 candidates=23 blocked_skipped=0 min_dist_skipped=0 path_rejected=23 path_found=False waypoints=0 astar_eval=23 escape=False blocked_goals=0
+[WARN] [405.581097]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=74)
+[WARN] [410.151066]: Frontier pick: frontiers=23 candidates_raw=23 candidates=23 blocked_skipped=0 min_dist_skipped=0 path_rejected=23 path_found=False waypoints=0 astar_eval=23 escape=False blocked_goals=0
+[WARN] [410.155305]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=74)
+[WARN] [414.264026]: rotate_angle closed-loop timeout (17.9 deg left)
+[WARN] [415.253407]: Frontier pick: frontiers=23 candidates_raw=23 candidates=23 blocked_skipped=0 min_dist_skipped=0 path_rejected=23 path_found=False waypoints=0 astar_eval=23 escape=False blocked_goals=0
+[WARN] [415.395117]: PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=True visited=74)
+[INFO] [383.653269]: Navigator: PassageMode not armed because wide=0.70>=0.48 (score=0.47 wide=0.70 center=0.77 L=0.49 R=0.47 head=15°)
+[INFO] [384.091477]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.79,-3.22,yaw=-15) cmd=/controller/cmd_vel
+[INFO] [384.858623]: NavFeedback: status=RUNNING exec_cost=0.01 reason=heading center=0.95 wide=0.82 stress=0
+[INFO] [385.627121]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.98,-3.21,yaw=-4) cmd=/controller/cmd_vel
+[INFO] [387.093498]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.78 wide=0.86 center=0.86 L=1.05 R=0.43 head=0°)
+[INFO] [387.098485]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.12,-3.18,yaw=-5) cmd=/controller/cmd_vel
+[INFO] [388.373626]: FSM handler: EXPLORE pose=(1.26, -3.15, yaw=-6.1 deg) has_goal=True
+[INFO] [388.389940]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.26,-3.15,yaw=-6) cmd=/controller/cmd_vel
+[INFO] [389.464074]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.41,-3.16,yaw=-7) cmd=/controller/cmd_vel
+[INFO] [389.975805]: Navigator: PassageMode not armed because score=0.27<0.40 (score=0.27 wide=0.52 center=0.52 L=0.48 R=0.42 head=0°)
+[INFO] [389.980206]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=0.52 wide=0.52 stress=0
+[INFO] [390.472441]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.48,-3.15,yaw=-7) cmd=/controller/cmd_vel
+[INFO] [391.411241]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.52,-3.14,yaw=-8) cmd=/controller/cmd_vel
+[INFO] [391.873227]: Navigator: PassageMode not armed because score=0.25<0.40 (score=0.25 wide=0.44 center=0.44 L=0.49 R=0.42 head=0°)
+[INFO] [392.226375]: Boundary hit (4) type=front_wall
+[INFO] [392.230030]: LocalPlanner: 记录边界候选偏角 70°
+[INFO] [392.253997]: Recovery(boundary_front_wall): 入口基线 center=0.44
+[INFO] [392.256475]: LocalPlanner: FailureMemory 记录 (1.52,-3.14) 偏角=70° 原因=front_wall
+[INFO] [392.258816]: FSM EXPLORE -> RECOVERY | boundary_front_wall
+[INFO] [392.436376]: ooxx status: state=RECOVERY scan=True odom=True pose=(1.52,-3.14,yaw=-8) cmd=/controller/cmd_vel
+[INFO] [394.943500]: Recovery(boundary_front_wall): unified level=0 back=0.10m turn=25deg
+[INFO] [395.568987]: Recovery: alternate turn side (last attempt used same side)
+[INFO] [399.023817]: Recovery(boundary_front_wall): unified level=1 back=0.18m turn=-35deg
+[INFO] [399.051436]: Recovery(boundary_front_wall): 判定成功 level=1 center=0.54 entry=0.44 gain=0.10 disp=0.18m
+[INFO] [399.055549]: LocalPlanner: 恢复后刷新方向惩罚 偏角=70°
+[INFO] [399.059132]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [399.892083]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [399.990571]: Recovery(unknown): rotate 30 deg (attempt 1/5)
+[INFO] [401.175577]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [402.081663]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [402.084214]: ooxx status: state=RECOVERY scan=True odom=True pose=(1.24,-3.17,yaw=10) cmd=/controller/cmd_vel
+[INFO] [402.215709]: Recovery(unknown): rotate 60 deg (attempt 2/5)
+[INFO] [404.550550]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [405.583423]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [405.754292]: Recovery(unknown): rotate -90 deg (attempt 3/5)
+[INFO] [409.289185]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [410.157406]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [410.260447]: Recovery(unknown): rotate 120 deg (attempt 4/5)
+[INFO] [414.351041]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [415.398209]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [415.577248]: FSM RECOVERY -> EXPLORE | recovery exhausted
+[INFO] [415.751985]: LocalPlanner: 首次重规划应用方向惩罚 偏角=70°
+[INFO] [415.904550]: LocalPlanner score breakdown (Clr=clearance Ali=alignment Unk=unknown):
+  0° TOTAL=+0.609  Clr=+0.599 Ali=+0.070 Unk=+0.000 Pro=+0.060 Lat=+0.000 Cur=-0.000 Col=-0.000 Str=-0.000 Exec=-0.000 dist=0.12  d=3.00 unk=0.00
+  +20° TOTAL=+0.208  Clr=+0.205 Ali=+0.019 Unk=+0.000 Pro=+0.038 Lat=-0.043 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.26 unk=0.00
+  -20° TOTAL=+0.339  Clr=+0.241 Ali=+0.022 Unk=+0.000 Pro=+0.045 Lat=+0.043 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.48 unk=0.00
+  +35° TOTAL=+0.180  Clr=+0.206 Ali=+0.013 Unk=+0.000 Pro=+0.038 Lat=-0.043 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.27 unk=0.00
+  -35° TOTAL=+0.452  Clr=+0.241 Ali=+0.016 Unk=+0.143 Pro=+0.045 Lat=+0.043 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.48 unk=1.00
+  +50° TOTAL=+0.032  Clr=+0.229 Ali=+0.008 Unk=+0.000 Pro=+0.042 Lat=-0.043 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13  d=1.41 unk=0.00
+  -50° TOTAL=+0.447  Clr=+0.273 Ali=+0.010 Unk=+0.143 Pro=+0.050 Lat=+0.043 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.68 unk=1.00
+  +70° TOTAL=+0.228  Clr=+0.388 Ali=+0.000 Unk=+0.143 Pro=+0.060 Lat=-0.043 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13 dist=0.05  d=2.39 unk=1.00
+  -70° TOTAL=+0.350  Clr=+0.257 Ali=+0.000 Unk=+0.143 Pro=+0.047 Lat=+0.043 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.58 unk=1.00
+Selected: 0° goal=(1.64,-0.20) d=3.00 TOTAL=+0.609
+[INFO] [416.283490]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.25,-3.11,yaw=82) cmd=/controller/cmd_vel
+[INFO] [417.991190]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.29,-2.81,yaw=82) cmd=/controller/cmd_vel
+[INFO] [418.604171]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=1.41 wide=1.40 stress=0
+[INFO] [419.490477]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.33,-2.64,yaw=83) cmd=/controller/cmd_vel
+[INFO] [420.940635]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.34,-2.56,yaw=83) cmd=/controller/cmd_vel
+[INFO] [421.430561]: Navigator: PassageMode not armed because score=0.34<0.40 (score=0.34 wide=1.21 center=1.21 L=0.24 R=0.36 head=0°)
+[INFO] [422.480718]: FSM handler: EXPLORE pose=(1.35, -2.48, yaw=82.8 deg) has_goal=True
+[INFO] [422.496855]: 运行统计(60s): 边界=1 恢复=1 角落停滞=0 目标拉黑=0 均速=0.08m/s 覆盖率=11%
+[INFO] [422.499682]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.35,-2.48,yaw=83) cmd=/controller/cmd_vel
+[INFO] [424.138977]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.36,-2.39,yaw=83) cmd=/controller/cmd_vel
+[INFO] [424.846428]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=1.04 wide=1.04 stress=0
+[INFO] [425.921009]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.37,-2.29,yaw=83) cmd=/controller/cmd_vel
+[INFO] [426.300624]: Navigator: PassageMode not armed because score=0.26<0.40 (score=0.26 wide=0.96 center=0.96 L=0.27 R=0.33 head=0°)
+[INFO] [427.993284]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.37,-2.14,yaw=83) cmd=/controller/cmd_vel
+[INFO] [429.748019]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.41,-1.86,yaw=82) cmd=/controller/cmd_vel
+[INFO] [431.179844]: FSM handler: EXPLORE pose=(1.42, -1.77, yaw=82.1 deg) has_goal=True
+[INFO] [431.196426]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.42,-1.77,yaw=82) cmd=/controller/cmd_vel
+[INFO] [431.738243]: NavFeedback: status=RUNNING exec_cost=0.10 reason=center center=0.42 wide=0.42 stress=3
+[INFO] [432.150276]: Navigator: PassageMode not armed because score=0.00<0.40 (score=0.00 wide=0.42 center=0.42 L=0.50 R=0.57 head=0°)
+[INFO] [432.565127]: Boundary hit (5) type=front_wall
+[INFO] [432.568801]: LocalPlanner: 记录边界候选偏角 0°
+[INFO] [432.592526]: Recovery(boundary_front_wall): 入口基线 center=0.42
+[INFO] [432.594772]: LocalPlanner: FailureMemory 记录 (1.42,-1.77) 偏角=0° 原因=front_wall
+[INFO] [432.596984]: FSM EXPLORE -> RECOVERY | boundary_front_wall
+[INFO] [432.825476]: ooxx status: state=RECOVERY scan=True odom=True pose=(1.42,-1.77,yaw=82) cmd=/controller/cmd_vel
+[INFO] [433.234075]: Recovery: alternate turn side (last attempt used same side)
+[INFO] [435.439365]: Recovery(boundary_front_wall): unified level=0 back=0.10m turn=25deg
+[INFO] [439.520867]: Recovery(boundary_front_wall): unified level=1 back=0.18m turn=-35deg
+[INFO] [439.549087]: Recovery(boundary_front_wall): 判定成功 level=1 center=0.52 entry=0.42 gain=0.10 disp=0.18m
+[INFO] [439.553625]: LocalPlanner: 恢复后刷新方向惩罚 偏角=0°
+[INFO] [439.557006]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [440.375024]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [440.533490]: Recovery(unknown): rotate 30 deg (attempt 1/5)
+[INFO] [441.719249]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [442.572180]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [442.752038]: Recovery(unknown): rotate -60 deg (attempt 2/5)
+[INFO] [445.087588]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [445.093311]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(1.45,-2.04,yaw=42) cmd=/controller/cmd_vel
+[INFO] [445.894354]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [446.028657]: Recovery(unknown): rotate 90 deg (attempt 3/5)
+[INFO] [449.513636]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [450.371836]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [450.556571]: Recovery(unknown): rotate -120 deg (attempt 4/5)
+[INFO] [454.648135]: FSM RECOVERY -> PLAN_NEXT | recovery rotate done
+[INFO] [455.428769]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+[INFO] [455.540862]: FSM RECOVERY -> EXPLORE | recovery exhausted
+[INFO] [455.649779]: LocalPlanner: 首次重规划应用方向惩罚 偏角=0°
+[INFO] [455.768505]: LocalPlanner score breakdown (Clr=clearance Ali=alignment Unk=unknown):
+  0° TOTAL=+0.353  Clr=+0.181 Ali=+0.052 Unk=+0.220 Pro=+0.033 Lat=+0.000 Cur=-0.000 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13  d=1.12 unk=1.00
+  +20° TOTAL=+0.446  Clr=+0.215 Ali=+0.044 Unk=+0.220 Pro=+0.040 Lat=+0.073 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13  d=1.32 unk=1.00
+  -20° TOTAL=+0.251  Clr=+0.180 Ali=+0.037 Unk=+0.220 Pro=+0.033 Lat=-0.073 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.13  d=1.11 unk=1.00
+  +35° TOTAL=+0.615  Clr=+0.271 Ali=+0.035 Unk=+0.220 Pro=+0.050 Lat=+0.073 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.67 unk=1.00
+  -35° TOTAL=+0.311  Clr=+0.150 Ali=+0.022 Unk=+0.220 Pro=+0.028 Lat=-0.073 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=0.93 unk=1.00
+  +50° TOTAL=+0.308  Clr=+0.241 Ali=+0.020 Unk=+0.000 Pro=+0.045 Lat=+0.073 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.49 unk=0.00
+  -50° TOTAL=-0.015  Clr=+0.102 Ali=+0.008 Unk=+0.000 Pro=+0.019 Lat=-0.073 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=0.63 unk=0.00
+  +70° TOTAL=+0.220  Clr=+0.241 Ali=+0.000 Unk=+0.000 Pro=+0.045 Lat=+0.073 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.49 unk=0.00
+  -70° INVALID clear=0.26
+Selected: +35° goal=(2.25,-0.57) d=1.67 TOTAL=+0.615
+[INFO] [456.139535]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.48,-2.03,yaw=31) cmd=/controller/cmd_vel
+[INFO] [457.361006]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.52,-1.95,yaw=44) cmd=/controller/cmd_vel
+[INFO] [458.703669]: FSM handler: EXPLORE pose=(1.59, -1.83, yaw=57.9 deg) has_goal=True
+[INFO] [458.720389]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.60,-1.83,yaw=58) cmd=/controller/cmd_vel
+[INFO] [459.587134]: Navigator: PassageMode not armed because wide=0.62>=0.48 (score=0.41 wide=0.62 center=0.70 L=0.49 R=0.42 head=1°)
+[INFO] [459.936168]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.65,-1.71,yaw=62) cmd=/controller/cmd_vel
+[INFO] [460.176093]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=0.67 wide=0.60 stress=0
+[INFO] [461.095266]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.65,-1.63,yaw=61) cmd=/controller/cmd_vel
+[INFO] [461.889324]: Navigator: PassageMode not armed because wide=0.56>=0.48 (score=0.50 wide=0.56 center=0.62 L=0.38 R=0.38 head=0°)
+[INFO] [462.233522]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.68,-1.59,yaw=61) cmd=/controller/cmd_vel
+[INFO] [463.342989]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.69,-1.55,yaw=61) cmd=/controller/cmd_vel
+[INFO] [464.096643]: Navigator: PassageMode not armed because wide=0.51>=0.48 (score=0.40 wide=0.51 center=0.57 L=0.28 R=0.35 head=0°)
+[INFO] [464.414298]: FSM handler: EXPLORE pose=(1.71, -1.52, yaw=60.7 deg) has_goal=True
+[INFO] [464.430877]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.71,-1.52,yaw=61) cmd=/controller/cmd_vel
+[INFO] [464.782641]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=0.54 wide=0.49 stress=0
+[INFO] [465.640282]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.74,-1.48,yaw=61) cmd=/controller/cmd_vel
+[INFO] [466.428733]: Navigator: CorridorCommit start entry_yaw=60.7° open=right pose=(1.75,-1.46) L=0.27 R=0.32 err=-0.05 strafe=0.000 gap
+[INFO] [466.433597]: Navigator: PassageMode auto-arm score=0.43 wide=0.46 center=0.51 L=0.27 R=0.32 goal_yaw=60.7° channel=False
+[INFO] [466.436721]: Navigator: CorridorCommit L=0.27 R=0.32 err=-0.05 strafe=0.000 v=0.054
+[INFO] [466.762243]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.76,-1.44,yaw=61) cmd=/controller/cmd_vel
+[INFO] [467.822338]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.79,-1.39,yaw=61) cmd=/controller/cmd_vel
+[INFO] [468.487844]: Navigator: CorridorCommit L=0.32 R=0.27 err=0.05 strafe=0.000 v=0.054
+[INFO] [468.955514]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.82,-1.34,yaw=61) cmd=/controller/cmd_vel
+[INFO] [469.197906]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=0.40 wide=0.37 stress=0
+[INFO] [470.155880]: FSM handler: EXPLORE pose=(1.81, -1.26, yaw=60.7 deg) has_goal=True
+[INFO] [470.172742]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.81,-1.26,yaw=61) cmd=/controller/cmd_vel
+[INFO] [470.929470]: Navigator: CorridorCommit L=0.35 R=0.24 err=0.11 strafe=0.051 v=0.054
+[INFO] [471.450902]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.80,-1.18,yaw=61) cmd=/controller/cmd_vel
+[INFO] [472.735118]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.79,-1.09,yaw=61) cmd=/controller/cmd_vel
+[INFO] [473.543295]: Navigator: CorridorCommit L=1.72 R=0.26 err=1.46 strafe=0.051 v=0.054
+[INFO] [474.058642]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.76,-0.99,yaw=61) cmd=/controller/cmd_vel
+[INFO] [474.315946]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=0.42 wide=0.38 stress=0
+[INFO] [475.321858]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.74,-0.90,yaw=61) cmd=/controller/cmd_vel
+[INFO] [476.068438]: Navigator: CorridorCommit done reason=timeout dist=0.52 ticks=80 entry_yaw=60.7° open=right channel=False final_L=1.52 final_R=0.30 final_err=1.22
+[INFO] [476.560755]: FSM handler: EXPLORE pose=(1.75, -0.81, yaw=54.5 deg) has_goal=True
+[INFO] [476.576645]: ooxx status: state=EXPLORE scan=True odom=True pose=(1.75,-0.81,yaw=54) cmd=/controller/cmd_vel
+[INFO] [477.244388]: Navigator: PassageMode not armed because commit_cooldown (score=0.19 wide=0.30 center=0.32 L=0.50 R=0.28 head=19°)
+[INFO] [477.549299]: Boundary hit (6) type=front_wall
+[INFO] [477.552929]: LocalPlanner: 记录边界候选偏角 35°
+[INFO] [477.577151]: Recovery(boundary_front_wall): 入口基线 center=0.31
+[INFO] [477.579318]: LocalPlanner: FailureMemory 记录 (1.77,-0.78) 偏角=35° 原因=front_wall
+[INFO] [477.581401]: FSM EXPLORE -> RECOVERY | boundary_front_wall
+[INFO] [477.772226]: ooxx status: state=RECOVERY scan=True odom=True pose=(1.77,-0.78,yaw=42) cmd=/controller/cmd_vel
+[INFO] [480.308221]: Recovery(boundary_front_wall): unified level=0 back=0.10m turn=25deg
+[INFO] [481.078631]: Recovery: alternate turn side (last attempt used same side)
+[INFO] [484.533594]: Recovery(boundary_front_wall): unified level=1 back=0.18m turn=-35deg
+[INFO] [484.562053]: Recovery(boundary_front_wall): 判定成功 level=1 center=0.56 entry=0.31 gain=0.25 disp=0.18m
+[INFO] [484.566014]: LocalPlanner: 恢复后刷新方向惩罚 偏角=35°
+[INFO] [484.569166]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [484.572233]: 运行统计(60s): 边界=2 恢复=2 角落停滞=0 目标拉黑=0 均速=0.05m/s 覆盖率=13%
+[INFO] [485.523725]: FSM PLAN_NEXT -> RECOVERY | no_frontier
+---
+# end: 1970-01-01 08:08:21
+# exit: 120

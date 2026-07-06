@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- 最小底盘搜索：雷达 + 底盘驱动 + 算法。不启动相机/识别。
+     分步启动时勿用本文件起算法 — 会重复启动雷达！请用 ooxx_node.launch -->
+<launch>
+    <arg name="loop_hz" default="20"/>
+    <arg name="scan_topic" default="/scan"/>
+    <arg name="cmd_vel_topic" default="/controller/cmd_vel"/>
+    <arg name="mission_config" default="$(find ooxx)/config/mission.yaml"/>
+    <arg name="launch_lidar" default="true"/>
+    <arg name="launch_chassis" default="true"/>
+    <arg name="lidar_launch" default="$(find lidar)/launch/lidar_filter.launch"/>
+
+    <include if="$(arg launch_lidar)" file="$(arg lidar_launch)"/>
+
+    <node if="$(arg launch_chassis)" name="odom_publisher" pkg="driver" type="robot_controller_node.py" output="screen"/>
+
+    <node name="ooxx" pkg="ooxx" type="ooxx_node.py" output="screen">
+        <param name="mission_config" value="$(arg mission_config)"/>
+        <param name="scan_topic" value="$(arg scan_topic)"/>
+        <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+        <param name="loop_hz" value="$(arg loop_hz)"/>
+    </node>
+</launch>

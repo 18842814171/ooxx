@@ -1,0 +1,79 @@
+
+[ooxx_logrun] 命令: roslaunch ooxx chassis_search.launch
+---
+[INFO] [1691.608057]: FSM init: build=20260707-global-planner mode=occupancy_grid initial_state=GLOBAL_PLAN global_planner=True
+[INFO] [1691.613344]: Mission search | mode=occupancy_grid | config=/home/ubuntu/experiment_ws/src/ooxx/config/mission.yaml
+[INFO] [1691.615672]: Targets: {'red/circle': 2, 'blue/rectangle': 1}
+[INFO] [1691.618580]: Vision backend: topic (camera via target_detector node)
+[INFO] [1692.071447]: ooxx status: state=GLOBAL_PLAN scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1692.571466]: ooxx status: state=GLOBAL_PLAN scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1693.071439]: Occupancy grid centered on start (0.00, 0.00), size=12.0 m
+[INFO] [1693.075590]: Start pose recorded: (0.00, 0.00, yaw=0.0 deg)
+[INFO] [1693.213881]: GlobalPlanner: mode=perimeter visited=1 free=307 unknown=22139 yaw_travel=0deg elapsed=2s
+[INFO] [1693.216869]: Navigator: PerimeterMapping start wall_target=0.25
+[INFO] [1693.218816]: FSM GLOBAL_PLAN -> MOVE_TO_GOAL | global: perimeter
+[INFO] [1693.220631]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1693.340816]: Navigator: CorridorCommit start entry_yaw=0.0° open=left pose=(0.00,0.00) L=0.93 R=0.36 err=0.57 strafe=0.000 channel
+[INFO] [1693.344261]: Navigator: PassageMode auto-arm score=0.64 wide=0.36 center=0.38 L=0.93 R=0.36 goal_yaw=0.0° channel=True
+[INFO] [1693.346305]: Navigator: CorridorCommit L=0.93 R=0.36 err=0.57 strafe=-0.051 v=0.000
+[INFO] [1694.368681]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.00, -0.05, yaw=0.0 deg) wp=0/0 obs=clear score=0.62 center=0.36 wide=0.35 stress=0
+[INFO] [1694.373307]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.00,-0.05,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1695.441352]: Navigator: CorridorCommit L=0.98 R=0.30 err=0.68 strafe=-0.051 v=0.000
+[INFO] [1695.446157]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.00,-0.11,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1695.858605]: Boundary hit (1) type=front_wall
+[INFO] [1695.862038]: LocalPlanner: 记录边界候选偏角 0°
+[INFO] [1695.884458]: Recovery(boundary_front_wall): 入口基线 center=0.30
+[INFO] [1695.886688]: LocalPlanner: FailureMemory 记录 (0.00,-0.13) 偏角=0° 原因=front_wall
+[INFO] [1695.889012]: FSM MOVE_TO_GOAL -> RECOVERY | boundary_front_wall
+[INFO] [1698.631307]: Recovery(boundary_front_wall): unified level=0 back=0.10m turn=25deg
+[INFO] [1699.062036]: ooxx status: state=RECOVERY scan=True odom=True pose=(-0.10,-0.13,yaw=23) cmd=/controller/cmd_vel
+[INFO] [1699.342508]: Recovery: alternate turn side (last attempt used same side)
+[INFO] [1702.797569]: Recovery(boundary_front_wall): unified level=1 back=0.18m turn=-35deg
+[INFO] [1702.812249]: Recovery(boundary_front_wall): 判定成功 level=1 center=0.60 entry=0.30 gain=0.29 disp=0.18m
+[INFO] [1702.815001]: LocalPlanner: 恢复后刷新方向惩罚 偏角=0°
+[INFO] [1702.816964]: FSM RECOVERY -> GLOBAL_PLAN | recovery done, global replan
+[INFO] [1702.935857]: GlobalPlanner: mode=perimeter visited=4 free=656 unknown=21708 yaw_travel=10deg elapsed=11s
+[INFO] [1702.938632]: Navigator: PerimeterMapping start wall_target=0.25
+[INFO] [1702.940549]: FSM GLOBAL_PLAN -> MOVE_TO_GOAL | global: perimeter
+[INFO] [1703.069483]: Navigator: CorridorCommit start entry_yaw=-10.3° open=left pose=(-0.27,-0.20) L=1.21 R=0.30 err=0.91 strafe=0.000 channel
+[INFO] [1703.072006]: Navigator: PassageMode auto-arm score=0.72 wide=0.40 center=0.41 L=1.21 R=0.30 goal_yaw=-10.3° channel=True
+[INFO] [1703.073854]: Navigator: CorridorCommit L=1.21 R=0.30 err=0.91 strafe=-0.051 v=0.000
+[INFO] [1703.318952]: Navigator: CorridorCommit done reason=abort dist=0.00 ticks=3 entry_yaw=-10.3° open=left channel=True final_L=1.21 final_R=0.30 final_err=0.92
+[INFO] [1703.539970]: Boundary hit (2) type=side_wall
+[INFO] [1703.544188]: LocalPlanner: 记录边界候选偏角 0°
+[INFO] [1703.570312]: Recovery(boundary_side_wall): 入口基线 center=0.15
+[INFO] [1703.572610]: LocalPlanner: FailureMemory 记录 (-0.27,-0.22) 偏角=0° 原因=side_wall
+[INFO] [1703.575034]: FSM MOVE_TO_GOAL -> RECOVERY | boundary_side_wall
+[INFO] [1703.928164]: ooxx status: state=RECOVERY scan=True odom=True pose=(-0.27,-0.22,yaw=-10) cmd=/controller/cmd_vel
+[INFO] [1706.459563]: Recovery(boundary_side_wall): unified level=0 back=0.10m turn=25deg
+[INFO] [1706.482495]: Recovery(boundary_side_wall): 判定成功 level=0 center=0.35 entry=0.15 gain=0.20 disp=0.10m
+[INFO] [1706.486370]: LocalPlanner: 恢复后刷新方向惩罚 偏角=0°
+[INFO] [1706.489615]: FSM RECOVERY -> GLOBAL_PLAN | recovery done, global replan
+[INFO] [1706.666173]: GlobalPlanner: mode=perimeter visited=5 free=1516 unknown=20618 yaw_travel=34deg elapsed=15s
+[INFO] [1706.668726]: Navigator: PerimeterMapping start wall_target=0.25
+[INFO] [1706.670535]: FSM GLOBAL_PLAN -> MOVE_TO_GOAL | global: perimeter
+[INFO] [1706.841970]: Navigator: CorridorCommit start entry_yaw=13.5° open=left pose=(-0.37,-0.20) L=1.84 R=0.40 err=1.44 strafe=0.000 channel
+[INFO] [1706.844436]: Navigator: PassageMode auto-arm score=0.80 wide=0.92 center=0.94 L=1.84 R=0.40 goal_yaw=13.5° channel=True
+[INFO] [1706.846178]: Navigator: CorridorCommit L=1.84 R=0.40 err=1.44 strafe=-0.051 v=0.000
+[INFO] [1707.867561]: FSM handler: MOVE_TO_GOAL status=passage pose=(-0.36, -0.25, yaw=13.5 deg) wp=0/0 obs=clear score=0.80 center=0.93 wide=0.93 stress=0
+[INFO] [1707.872189]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.36,-0.25,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1709.587137]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.34,-0.33,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1710.090479]: Navigator: CorridorCommit L=1.94 R=0.30 err=1.64 strafe=-0.051 v=0.000
+[INFO] [1711.244430]: FSM handler: MOVE_TO_GOAL status=passage pose=(-0.32, -0.42, yaw=13.5 deg) wp=0/0 obs=clear score=0.88 center=2.08 wide=0.96 stress=0
+[INFO] [1711.248774]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.32,-0.42,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1712.838599]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.30,-0.49,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1713.310152]: Navigator: CorridorCommit L=2.09 R=0.16 err=1.94 strafe=-0.051 v=0.000
+[INFO] [1714.393021]: FSM handler: MOVE_TO_GOAL status=passage pose=(-0.28, -0.57, yaw=13.5 deg) wp=0/0 obs=clear score=0.92 center=2.08 wide=0.59 stress=0
+[INFO] [1714.397571]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.28,-0.57,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1715.955194]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.27,-0.65,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1716.435551]: Navigator: CorridorCommit L=2.11 R=0.15 err=1.96 strafe=-0.051 v=0.000
+[INFO] [1717.587898]: FSM handler: MOVE_TO_GOAL status=passage pose=(-0.25, -0.73, yaw=13.5 deg) wp=0/0 obs=clear score=0.92 center=1.47 wide=1.47 stress=0
+[INFO] [1717.592250]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.25,-0.73,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1719.115793]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.23,-0.80,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1719.627747]: Navigator: CorridorCommit L=1.90 R=0.30 err=1.60 strafe=-0.051 v=0.000
+[INFO] [1720.856349]: FSM handler: MOVE_TO_GOAL status=passage pose=(-0.21, -0.89, yaw=13.5 deg) wp=0/0 obs=clear score=0.87 center=2.06 wide=0.94 stress=0
+[INFO] [1720.860451]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.21,-0.89,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1722.563698]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.19,-0.98,yaw=14) cmd=/controller/cmd_vel
+[INFO] [1723.069655]: Navigator: CorridorCommit L=2.05 R=0.18 err=1.87 strafe=-0.051 v=0.000
+[INFO] [1724.200279]: FSM handler: MOVE_TO_GOAL status=passage pose=(-0.17, -1.06, yaw=13.5 deg) wp=0/0 obs=clear score=0.91 center=2.01 wide=2.01 stress=0
+[INFO] [1724.204271]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.17,-1.06,yaw=14) cmd=/controller/cmd_vel

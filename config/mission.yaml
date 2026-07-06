@@ -1,0 +1,202 @@
+# Mission configuration — edit colors, shapes, counts without changing Python.
+
+search:
+  mode: occupancy_grid
+  boundary_dist: 0.30
+  front_sector_half_width: 0.22
+  nav_block_half_width: 0.14
+  boundary_confirm_frames: 3
+  creep_speed: 0.06
+  cruise_speed: 0.18
+  turn_speed: 0.45
+  turn_angle_deg: 90
+  wall_follow_duration: 2.0
+  wall_follow_speed: 0.12
+  align_tolerance_deg: 18.0
+  nav_heading_kp: 2.0
+  waypoint_tolerance: 0.10
+  align_timeout_sec: 0.5
+  align_arc_speed: 0.06
+  nav_forward_stop_margin: 0.08   # center < boundary+此值禁止前进（直行挡障）
+  nav_cruise_clear_margin: 0.08   # center/wide 均超 boundary+此值才巡航
+  nav_wide_hold_margin: 0.08      # wide < boundary+此值提前 hold（贴墙）
+  nav_wide_hold_override_center_min: 0.70  # center 超此值忽略 wide hold
+  nav_lateral_block_dist: 0.25    # 侧向距离低于此值时侧移避让
+  robot_radius: 0.15              # 车体等效半径（日志/膨胀参考）
+  robot_half_width: 0.18          # 半车宽（含麦轮外沿）
+  robot_front_overhang: 0.08      # 前向外凸（相机支架等）
+  nav_passage_score_threshold: 0.40  # 缝隙模式入口 passage_score 下限
+  nav_passage_max_ticks: 80         # 缝隙模式最长持续 tick（20Hz≈4s）
+  nav_passage_creep_factor: 0.90    # 缝隙模式速度 = creep × 此系数
+  nav_passage_auto_arm: true        # 正常导航主动进入缝隙模式
+  nav_passage_channel_auto_arm: false  # 块+墙 channel 自动 arm（验收先关，过缝测试再开）
+  nav_passage_wide_max: 0.48        # wide 低于此值才主动 arm
+  nav_passage_side_max: 0.65         # min(L,R) 低于此值视为两侧夹持
+  nav_passage_center_min_ratio: 0.80 # center >= boundary×此值才 arm（对称缝）
+  nav_passage_channel_close_max: 0.55   # 块+墙缝：近侧距离上限
+  nav_passage_channel_open_min: 0.75     # 块+墙缝：远侧距离下限
+  nav_passage_channel_center_min_ratio: 1.15  # 块+墙缝：center 下限（×boundary）
+  nav_passage_channel_heading_max_deg: 35.0    # 保留配置，channel 入口不再因偏角拒绝
+  nav_passage_channel_min_hold_ticks: 15       # channel 最短持有 tick 才允许判定丢失
+  nav_passage_channel_lost_streak: 6           # 连续非 channel 几何帧数才退出
+  nav_passage_channel_exit_yaw_hold_sec: 2.0    # 穿出后短暂锁定原航向便于再入
+  nav_corridor_commit_travel_m: 0.80          # commit 目标前进距离
+  nav_corridor_commit_cooldown_sec: 2.0
+  nav_corridor_commit_arm_confirm_frames: 10    # gap 条件连续成立才 auto-arm
+  nav_corridor_commit_min_hold_ticks: 18        # 进入后承诺期 tick（≈0.9s@20Hz）
+  nav_corridor_commit_min_travel_m: 0.30        # 承诺期内至少前进此距离
+  nav_corridor_commit_abort_yaw_deg: 45.0       # 航向偏差超此值可提前退出
+  nav_corridor_commit_hard_abort_ratio: 0.55    # center < boundary×此值视为撞死可立即 abort
+  nav_open_align_center_min: 0.65    # 前方 center 超此值允许带速 align_arc
+  nav_open_align_arc_speed: 0.10     # 开阔区 align_arc 线速度
+  nav_drive_heading_far_dist: 1.5    # 目标距离超此值放宽航向容差
+  nav_drive_heading_far_deg: 32.0
+  nav_drive_heading_mid_dist: 0.9
+  nav_drive_heading_mid_deg: 28.0
+  recovery_passage_replan_angle_deg: 70.0  # 窄通道恢复后规划 |偏角|上限
+  recovery_passage_replan_rounds: 2        # 窄通道恢复后约束轮数
+  wall_target_dist: 0.25
+  # --- 边界与恢复 ---
+  boundary_pause_sec: 0.25          # 撞墙后停车等待（秒）
+  boundary_turn_deg: 15.0           # 正前方被挡时小角度转向
+  boundary_corner_turn_deg: 25.0    # 角落转向角度
+  boundary_repeat_turn_deg: 35.0    # 同一区域连续撞墙时转向角度
+  boundary_backoff_m: 0.10
+  boundary_spatial_radius: 0.30   # 空间冷却半径（米）
+  boundary_spatial_count: 3      # 半径内撞墙次数达此值则记碰撞代价
+  recovery_backoff_levels: [0.10, 0.18, 0.28]
+  recovery_turn_levels: [25, 35, 55]
+  recovery_success_center_gain: 0.05
+  recovery_success_disp_m: 0.06   # 仅日志参考；成功判定仅看 center_gain
+  recovery_max_escalation: 3
+  recovery_max_level_retries: 2    # level 2 未达 gain 时同级重试次数
+  recovery_replan_max_angle_deg: 35.0  # 恢复后短期规划：|偏角|上限
+  recovery_replan_max_dist_m: 3.0      # 恢复后短期规划：距离上限
+  recovery_replan_rounds: 3            # 恢复后约束持续轮数
+  recovery_escape_angle_deg: 50.0      # 墙角破格：|偏角|下限
+  recovery_escape_center_max: 0.35     # 墙角破格：入口 center 上限
+  recent_collision_penalty: 0.25     # 与最近边界候选偏角相近的方向扣分
+  recent_collision_penalty_deg: 20.0 # 惩罚扇区半宽（度）
+  recent_collision_penalty_sec: 3.0   # 惩罚有效时间（秒），覆盖整轮恢复周期
+  local_replan_interval_sec: 0.35
+  collision_cost_increment: 1.0
+  collision_cost_max: 8.0
+  vision_at_boundary: false
+  explore_stall_sec: 30.0           # 位移停滞超时（秒）；规划失败见 explore_no_candidate_frames
+  explore_no_candidate_frames: 15   # 连续无有效候选约 1.5 秒即进入恢复
+  # --- 局部规划（P2：评分 + Failure Memory）---
+  bootstrap_local_plan: false         # GlobalPlanner 启用时由全局规划替代
+  bootstrap_max_sec: 90.0            # 引导期超时（秒）
+  bootstrap_min_coverage: 0.10      # 超时且覆盖率低于此值则切 Frontier
+  bootstrap_max_boundary: 3         # 引导期边界次数达此值则切 Frontier
+  bootstrap_max_consecutive_recovery: 3  # 连续 Recovery 达此值则切 Frontier
+  bootstrap_stall_coverage_delta: 0.03   # 超时内覆盖率增幅低于此值则切 Frontier
+  local_plan_dist_min: 0.4
+  local_plan_dist_max: 3.0           # 实际距离 = clamp(clearance×2, min, max)
+  local_plan_progress_dist_cap: 2.0  # Pro 评分距离上限，d>2m 额外扣分
+  local_plan_clearance_tie_band: 0.06  # clearance 接近时小偏角优先
+  local_plan_angles: [0, 20, 35, 50, 70]
+  stress_decay_tau: 0.8              # stress 惩罚快速衰减（秒）
+  local_plan_score_clearance: 0.65   # P2b：提高安全距离权重
+  local_plan_score_alignment: 0.07
+  local_plan_score_explore: 0.22
+  local_plan_score_progress: 0.06
+  local_plan_score_curvature: 0.14   # P2：抑制大角
+  local_plan_score_collision: 0.12
+  local_plan_score_stress: 0.08
+  local_plan_score_execution: 0.10
+  failure_memory_penalty: 0.35       # Failure Memory 降权幅度
+  failure_memory_angle_deg: 25.0     # 与失败记录偏角相近则降权
+  failure_memory_radius_m: 0.45      # 失败记录空间半径（米）
+  failure_memory_sec: 45.0           # 失败记录有效时间（秒）
+  failure_memory_max_entries: 8
+  failure_memory_cluster_count: 3    # 同区域 Recovery 次数达此值
+  failure_memory_cluster_radius_m: 0.60  # 聚类半径（米）
+  failure_memory_cluster_penalty: 0.50   # 热区统一降权
+  wall_hug_zero_penalty: 0.25        # clearance 边际时小角度贴墙加罚
+  wall_hug_clearance_margin: 0.12
+  wall_hug_angle_deg: 25.0           # 贴墙加罚覆盖 |偏角| 上限
+  planner_debug: true
+  bootstrap_detour_dist: 0.90        # 兼容旧参数
+  bootstrap_detour_deg: 35.0
+  # --- 运行统计 ---
+  stats_interval_sec: 60.0          # 统计日志输出间隔（秒）
+  max_boundary_events: 80
+  front_angle: 3.14159
+
+map:
+  resolution: 0.08
+  size_m: 12.0
+  goal_tolerance: 0.03
+  coverage_complete_threshold: 0.92
+  use_odom: true
+  odom_topic: /odom_raw
+  return_home: true
+  align_yaw_on_return: true
+  bootstrap_visited: 40
+  astar_unknown_cost: 2.0
+  astar_inflation_cells: 1
+  astar_waypoint_spacing: 0.20
+  astar_max_candidates: 25
+
+boustrophedon:
+  strip_width: 0.30
+  max_lanes: 30
+
+global_planner:
+  enabled: true
+  initial_mode: frontier            # frontier | perimeter | coverage
+  perimeter_enabled: false           # true=调试绕场；false=默认 Frontier 探索
+  perimeter_wall_side: right         # left | right — 绕场贴哪侧墙（仅 perimeter_enabled）
+  perimeter_lost_wall_dist: 0.80      # 超过此距离判定丢墙 → LOST_WALL
+  perimeter_found_wall_dist: 0.65    # 小于此距离判定找到墙 → FOLLOW_WALL
+  perimeter_corner_stuck_ticks: 25   # 拐角原地转超过此 tick 触发 Recovery
+  perimeter_min_visited: 120
+  perimeter_yaw_deg: 340.0
+  perimeter_max_sec: 180.0
+  perimeter_min_coverage: 0.12
+
+targets:
+  - name: target_a
+    color: red
+    shape: circle
+    count: 2
+  - name: target_b
+    color: blue
+    shape: rectangle
+    count: 1
+
+colors:
+  red:
+    lab_min: [0, 150, 130]
+    lab_max: [255, 255, 255]
+  green:
+    lab_min: [47, 0, 135]
+    lab_max: [255, 110, 255]
+  blue:
+    lab_min: [0, 0, 0]
+    lab_max: [255, 136, 120]
+
+shapes:
+  circle:
+    min_circularity: 0.75
+  triangle:
+    vertices: 3
+    epsilon_ratio: 0.04
+  rectangle:
+    vertices: 4
+    min_aspect_ratio: 0.3
+    max_aspect_ratio: 3.0
+
+vision:
+  proc_size: [320, 240]
+  min_contour_area: 50
+  confirm_area: 200
+  debounce_frames: 3
+  dedup_pixel_dist: 40
+  dedup_world_dist: 0.25
+  backend: topic
+
+tracking:
+  enabled: false
+  backend: stub

@@ -1,0 +1,73 @@
+
+[ooxx_logrun] 命令: roslaunch ooxx chassis_search.launch
+---
+[INFO] [2207.680159]: FSM init: build=20260706-nav-arch-fix mode=occupancy_grid initial_state=PLAN_NEXT global_planner=True
+[INFO] [2207.691070]: Mission search | mode=occupancy_grid | config=/home/ubuntu/experiment_ws/src/ooxx/config/mission.yaml
+[INFO] [2207.693306]: Targets: {'red/circle': 2, 'blue/rectangle': 1}
+[INFO] [2207.694925]: Vision backend: topic (camera via target_detector node)
+[INFO] [2208.147597]: ooxx status: state=PLAN_NEXT scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [2208.647752]: ooxx status: state=PLAN_NEXT scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [2209.097854]: Occupancy grid centered on start (0.00, 0.00), size=12.0 m
+[INFO] [2209.102871]: Start pose recorded: (0.00, 0.00, yaw=0.0 deg)
+[INFO] [2209.285702]: FSM handler: PLAN_NEXT (mode=occupancy_grid tick=29)
+[INFO] [2209.501750]: PLAN_NEXT pose=(0.00, 0.00, yaw=0.0 deg) grid=(75,75) in_bounds=True map visited=1 free=368 unknown=22073 frontiers=79
+[INFO] [2209.726504]: Frontier pick: frontiers=79 candidates_raw=79 candidates=77 blocked_skipped=0 min_dist_skipped=2 path_rejected=0 path_found=True waypoints=4 astar_eval=1 escape=False blocked_goals=0
+[INFO] [2209.729312]: PLAN_NEXT: frontier (0.80, -0.64) path=4 wp (idx=1)
+[INFO] [2209.731307]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [2209.891460]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [2211.514187]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.15, -0.04, yaw=-27.2 deg) wp=1/4 obs=clear score=0.00 center=1.02 wide=1.00 stress=0
+[INFO] [2211.518511]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.15,-0.04,yaw=-27) cmd=/controller/cmd_vel
+[INFO] [2212.636779]: Navigator: CorridorCommit start entry_yaw=-41.4° open=right pose=(0.30,-0.14) L=0.48 R=1.62 err=-1.13 strafe=0.000 channel
+[INFO] [2212.640784]: Navigator: PassageMode auto-arm score=0.75 wide=0.44 center=0.94 L=0.48 R=1.62 goal_yaw=-41.4° channel=True
+[INFO] [2212.643242]: Navigator: CorridorCommit L=0.48 R=1.62 err=-1.13 strafe=0.000 v=0.000
+[INFO] [2213.030475]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.15,yaw=-42) cmd=/controller/cmd_vel
+[INFO] [2214.200472]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.66 center=0.38 wide=0.36 stress=0
+[INFO] [2214.204463]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2214.904938]: Navigator: CorridorCommit L=0.49 R=0.32 err=0.17 strafe=0.000 v=0.000
+[INFO] [2215.369340]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2216.675907]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.25 center=0.38 wide=0.36 stress=0
+[INFO] [2216.680237]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2217.380596]: Navigator: CorridorCommit L=0.49 R=0.32 err=0.17 strafe=0.000 v=0.000
+[INFO] [2217.853307]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2219.011343]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.66 center=0.38 wide=0.36 stress=0
+[INFO] [2219.016024]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2219.716630]: Navigator: CorridorCommit L=0.49 R=0.32 err=0.17 strafe=0.000 v=0.000
+[INFO] [2220.185145]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2221.349042]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.66 center=0.38 wide=0.36 stress=0
+[INFO] [2221.353548]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2222.069281]: Navigator: CorridorCommit L=0.48 R=0.32 err=0.17 strafe=0.000 v=0.000
+[INFO] [2222.534759]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2223.693256]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.26 center=0.38 wide=0.36 stress=0
+[INFO] [2223.697633]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2224.409639]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.61 strafe=0.000 v=0.000
+[INFO] [2224.885736]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2226.068003]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.66 center=0.38 wide=0.36 stress=0
+[INFO] [2226.072472]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2226.764488]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.61 strafe=0.000 v=0.000
+[INFO] [2227.227295]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2228.385133]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.66 center=0.38 wide=0.36 stress=0
+[INFO] [2228.389359]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2229.086659]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.61 strafe=0.000 v=0.000
+[INFO] [2229.552328]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2230.747599]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.27 center=0.38 wide=0.37 stress=0
+[INFO] [2230.752093]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2231.448018]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.62 strafe=0.000 v=0.000
+[INFO] [2231.913994]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2233.091996]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.66 center=0.38 wide=0.37 stress=0
+[INFO] [2233.096541]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2233.799956]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.61 strafe=0.000 v=0.000
+[INFO] [2234.282521]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2235.463116]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.27 center=0.38 wide=0.37 stress=0
+[INFO] [2235.467470]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2236.170707]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.61 strafe=0.000 v=0.000
+[INFO] [2236.794878]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2238.003721]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.66 center=0.38 wide=0.37 stress=0
+[INFO] [2238.007918]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2238.725886]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.62 strafe=0.000 v=0.000
+[INFO] [2239.199938]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2240.364846]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.31, -0.16, yaw=-41.4 deg) wp=1/4 obs=clear score=0.27 center=0.38 wide=0.37 stress=0
+[INFO] [2240.370340]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,-0.16,yaw=-41) cmd=/controller/cmd_vel
+[INFO] [2241.092092]: Navigator: CorridorCommit L=0.93 R=0.32 err=0.61 strafe=0.000 v=0.000
+^C^C[ooxx_logrun] 结束 exit=120，已保存 /home/ubuntu/experiment_ws/src/ooxx/log/8-36-45.txt
+╭─  │  ~/experiment_ws                                                                               120 ✘ │ 56s  │ ubuntu@ubuntu │ 08:37:40 
+╰─

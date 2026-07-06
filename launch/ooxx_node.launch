@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- 仅启动算法节点 — 雷达/底盘已在其他终端运行时用（不会再启动雷达！） -->
+<launch>
+    <arg name="loop_hz" default="20"/>
+    <arg name="depth_cam_name" default="astra_camera"/>
+    <arg name="scan_topic" default="/scan"/>
+    <arg name="cmd_vel_topic" default="/controller/cmd_vel"/>
+    <arg name="mission_config" default="$(find ooxx)/config/mission.yaml"/>
+    <arg name="launch_target_detector" default="false"/>
+    <arg name="show_detection_view" default="false"/>
+
+    <node if="$(arg launch_target_detector)" pkg="ooxx" type="target_detector.py" name="target_detector"
+          output="screen">
+        <param name="depth_cam_name" value="$(arg depth_cam_name)"/>
+        <param name="show_debug" value="true"/>
+    </node>
+
+    <node name="ooxx" pkg="ooxx" type="ooxx_node.py" output="screen">
+        <param name="mission_config" value="$(arg mission_config)"/>
+        <param name="scan_topic" value="$(arg scan_topic)"/>
+        <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+        <param name="loop_hz" value="$(arg loop_hz)"/>
+    </node>
+
+    <node if="$(arg show_detection_view)" pkg="image_view" type="image_view" name="detection_view"
+          output="screen">
+        <remap from="image" to="/detection_image"/>
+    </node>
+</launch>

@@ -1,0 +1,78 @@
+
+## 一键运行
+
+cd ~/experiment_ws
+source devel/setup.zsh
+终端1：roscore
+
+### 方式 A：直接运行（不保存日志）
+
+终端2：
+```zsh
+roslaunch ooxx chassis_search.launch
+```
+与带日志方式启动的是同一套 launch，只是终端输出不会写入 log/。
+
+### 方式 B：带日志运行（调试、实车验收推荐）
+
+终端2：
+```zsh
+chmod +x /home/ubuntu/experiment_ws/src/ooxx/scripts/ooxx_logrun.sh
+
+rosrun ooxx ooxx_logrun.sh roslaunch ooxx chassis_search.launch
+```
+→ 自动保存到 log/9-54.txt
+
+带标签（同分钟多次运行不混淆）：
+```zsh
+rosrun ooxx ooxx_logrun.sh p1-test roslaunch ooxx chassis_search.launch
+```
+→ log/9-54-p1-test.txt
+
+**说明**：若方式 A「不行」而方式 B 能跑，通常是环境未 source 或雷达/底盘已在其他终端占用；两种命令本身等价，logrun 不会修复 launch 失败。
+
+终端3：╰─ roslaunch detect_broadcast detect_and_broadcast.launch     
+# C. 分层排查（传感器已在其他终端跑着时用 — 注意不要再起雷达！）
+# 终端 1 — 雷达
+rosrun ooxx ooxx_logrun.sh lidar roslaunch lidar lidar_filter.launch
+# 终端 2 — 底盘
+rosrun ooxx ooxx_logrun.sh chassis rosrun driver robot_controller_node.py
+# 终端 3 — 仅算法（用 ooxx_node.launch，不会重复启动雷达/底盘）
+rosrun ooxx ooxx_logrun.sh ooxx roslaunch ooxx ooxx_node.launch launch_target_detector:=false
+
+## 运行日志
+
+仅方式 B（ooxx_logrun.sh）会写日志。方式 A 不写 log/。
+
+日志文件头会记录完整命令、起止时间、退出码。改脚本后需 catkin_make --pkg ooxx。
+
+## 直接 roslaunch 失败时排查
+
+| 现象 | 常见原因 | 处理 |
+|------|----------|------|
+| `RLException: ... ooxx` 找不到包 | 未编译或未 source | `catkin_make --pkg ooxx && source devel/setup.zsh` |
+| `Error, unexpected error, code: 80008004` | 雷达串口被占或重复启动 | `rosrun ooxx ooxx_cleanup.sh`，只保留一个雷达 launch |
+| 有 /scan 无 /odom_raw | 底盘节点未起 | 确认 chassis_search 里 driver 节点在跑 |
+| 节点秒退、无 FSM init | Python 语法/依赖错误 | 看终端报错；重新 catkin_make |
+| 与 logrun 行为不一致 | 不应出现 | 两者执行同一 roslaunch，先对比是否同一终端、同一 source |
+
+改代码后在小车上务必重新编译：
+cd ~/experiment_ws && catkin_make --pkg ooxx && source devel/setup.zsh
+
+## 部署确认（改代码后必看）
+
+启动后日志应出现 build 标识，确认实车跑的是新版本：
+  FSM init: build=20260707-global-planner ...
+
+## 参数
+
+- 搜索/目标：config/mission.yaml
+- 颜色阈值：config/color_thresholds.yaml
+
+# 调试
+rostopic hz /scan              # 没输出 → 不能正常搜场
+rostopic echo /controller/cmd_vel   # 有输出但车不动 → 底盘驱动问题
+rostopic hz /odom_raw              # 确认底盘驱动在跑
+
+
+

@@ -1,0 +1,54 @@
+# ====================================================================
+# 颜色检测阈值配置
+# 使用 LAB 色彩空间，对光照变化具有更好的鲁棒性
+# ====================================================================
+
+# 检测参数
+detection:
+  frame_width: 320          # 处理帧宽度
+  frame_height: 240          # 处理帧高度
+  gaussian_blur: 3           # 高斯模糊核大小
+  min_contour_area: 200      # 最小轮廓面积（过滤噪声）
+  confirm_frames: 3          # 连续确认帧数
+  detect_frequency: 10       # 检测频率 (Hz)
+
+# 颜色阈值 (LAB颜色空间)
+# L: 亮度通道 (0-255), A: 红绿通道, B: 黄蓝通道
+colors:
+  red:
+    name: "红色"
+    lab_lower: [0, 150, 130]
+    lab_upper: [255, 255, 255]
+    display_bgr: [0, 0, 255]   # BGR格式显示颜色
+    priority: 1                # 检测优先级 (数字越小优先级越高)
+    description: "红色小木块，颜色饱和度高，在LAB空间A通道值较大"
+
+  green:
+    name: "绿色"
+    lab_lower: [47, 0, 135]
+    lab_upper: [255, 110, 255]
+    display_bgr: [0, 255, 0]
+    priority: 2
+    description: "绿色小木块，在LAB空间A通道负值（绿色方向），B通道值较高"
+
+  blue:
+    name: "蓝色"
+    lab_lower: [0, 0, 0]
+    lab_upper: [255, 136, 120]
+    display_bgr: [255, 0, 0]
+    priority: 3
+    description: "蓝色小木块，在LAB空间B通道负值（蓝色方向），A通道和B通道值都较低"
+
+# 形态学处理参数
+morphology:
+  kernel_size: 3             # 形态学操作核大小
+  kernel_shape: "rect"       # 核形状: rect(矩形) / ellipse(椭圆) / cross(十字)
+  erode_iterations: 1        # 腐蚀迭代次数
+  dilate_iterations: 1       # 膨胀迭代次数
+
+# 视觉调试选项
+debug:
+  publish_annotated_image: true   # 是否发布标注后的图像
+  show_console_output: true       # 是否打印检测日志
+  save_detection_snapshot: false  # 是否保存检测快照
+  snapshot_path: "/tmp/detection_snapshots/"

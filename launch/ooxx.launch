@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- 合并版：ooxx_old 底盘搜索 + search_navigation 相机识别 -->
+<launch>
+    <arg name="loop_hz" default="20"/>
+    <!-- 视觉调试：OpenCV 窗口（本车远程桌面可用；比 image_view 更稳） -->
+    <arg name="show_debug" default="true"/>
+    <!-- 可选 image_view（需安装 ros-noetic-image-view 且有 DISPLAY） -->
+    <arg name="show_detection_view" default="false"/>
+    <arg name="depth_cam_name" default="astra_camera"/>
+    <arg name="scan_topic" default="/scan"/>
+    <arg name="mission_config" default="$(find ooxx)/config/mission.yaml"/>
+    <!-- 传感器/底盘可单独启动，便于分层排查 -->
+    <arg name="launch_lidar" default="true"/>
+    <arg name="launch_chassis" default="true"/>
+    <arg name="launch_camera" default="true"/>
+    <arg name="launch_target_detector" default="true"/>
+    <!-- 雷达 launch：默认走 lidar 包（内部 include lidar_driver/ld_lidar.launch） -->
+    <arg name="lidar_launch" default="$(find lidar)/launch/lidar_filter.launch"/>
+    <!-- 相机：与 search_navigation/vision_navigation.launch 一致，仅启动驱动 -->
+    <arg name="camera_launch" default="$(find camera_driver)/launch/depth_cam.launch"/>
+
+    <!-- 启动雷达 -->
+    <include if="$(arg launch_lidar)" file="$(arg lidar_launch)"/>
+
+    <!-- 启动相机 -->
+    <include if="$(arg launch_camera)" file="$(arg camera_launch)">
+        <arg name="astra_camera_name" value="$(arg depth_cam_name)"/>
+    </include>
+
+    <!-- 启动底盘控制节点 -->
+    <node if="$(arg launch_chassis)" name="odom_publisher" pkg="driver" type="robot_controller_node.py" output="screen"/>
+
+    <!-- 颜色识别（RGB->BGR + LAB，对齐 search_navigation） -->
+    <node if="$(arg launch_target_detector)" pkg="ooxx" type="target_detector.py" name="target_detector"
+          output="screen">
+        <param name="depth_cam_name" value="$(arg depth_cam_name)"/>
+        <param name="image_width" value="320"/>
+        <param name="image_height" value="240"/>
+        <param name="min_area" value="200"/>
+        <param name="confirm_frames" value="3"/>
+        <param name="show_debug" value="$(arg show_debug)"/>
+    </node>
+
+    <!-- ooxx_old 底盘搜索主节点 -->
+    <node name="ooxx" pkg="ooxx" type="ooxx_node.py" output="screen">
+        <param name="mission_config" value="$(arg mission_config)"/>
+        <param name="scan_topic" value="$(arg scan_topic)"/>
+        <param name="loop_hz" value="$(arg loop_hz)"/>
+    </node>
+
+    <!-- 可选：image_view 显示 /detection_image（无 DISPLAY 时不会出窗） -->
+    <node if="$(arg show_detection_view)" pkg="image_view" type="image_view" name="detection_view"
+          output="screen">
+        <remap from="image" to="/detection_image"/>
+    </node>
+</launch>

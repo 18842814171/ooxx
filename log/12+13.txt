@@ -1,0 +1,210 @@
+第一次
+
+[INFO] [3678.945218]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.10,0.03,yaw=-5) cmd=/controller/cmd_vel
+[INFO] [3680.470579]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.25,0.05,yaw=-3) cmd=/controller/cmd_vel
+[INFO] [3682.188746]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.43, 0.11, yaw=-5.1 deg) wp=3/6 obs=clear score=0.18 center=0.78 wide=0.74 stress=0
+[INFO] [3682.193215]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.43,0.11,yaw=-5) cmd=/controller/cmd_vel
+[INFO] [3683.893702]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.62,0.11,yaw=-16) cmd=/controller/cmd_vel
+[INFO] [3685.453512]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.89, 0.02, yaw=-18.6 deg) wp=4/6 obs=clear score=0.00 center=0.96 wide=0.96 stress=0
+[INFO] [3685.457859]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.89,0.02,yaw=-19) cmd=/controller/cmd_vel
+[INFO] [3686.701251]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.99,-0.06,yaw=-27) cmd=/controller/cmd_vel
+[INFO] [3688.097316]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(1.10, -0.15, yaw=-15.2 deg) wp=5/6 obs=clear score=0.00 center=0.65 wide=0.65 stress=0
+[INFO] [3688.101682]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.10,-0.15,yaw=-15) cmd=/controller/cmd_vel
+[INFO] [3688.985050]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.88 wide=0.61 center=0.63 L=0.23 R=1.11 head=27°)
+[INFO] [3689.531536]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.24,-0.16,yaw=9) cmd=/controller/cmd_vel
+[INFO] [3690.815538]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(1.36, -0.12, yaw=31.2 deg) wp=6/6 obs=clear score=0.15 center=1.53 wide=1.52 stress=0
+[INFO] [3690.819709]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.36,-0.12,yaw=31) cmd=/controller/cmd_vel
+[INFO] [3692.101970]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.46,-0.03,yaw=54) cmd=/controller/cmd_vel
+[INFO] [3693.451199]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(1.52, 0.09, yaw=76.8 deg) wp=6/6 obs=clear score=0.91 center=1.33 wide=0.38 stress=0
+[INFO] [3693.455623]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.52,0.09,yaw=77) cmd=/controller/cmd_vel
+[INFO] [3693.973791]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.68 wide=0.31 center=0.35 L=0.18 R=1.16 head=132°)
+[INFO] [3694.465242]: Boundary hit (1) type=narrow_passage
+[INFO] [3694.469806]: LocalPlanner: 记录边界候选偏角 0°
+[INFO] [3694.495046]: Recovery(boundary_narrow_passage): 入口基线 center=0.30
+[INFO] [3694.497319]: LocalPlanner: FailureMemory 记录 (1.52,0.13) 偏角=0° 原因=narrow_passage
+[INFO] [3694.499775]: FSM MOVE_TO_GOAL -> RECOVERY | boundary_narrow_passage
+[INFO] [3694.862820]: ooxx status: state=RECOVERY scan=True odom=True pose=(1.52,0.13,yaw=94) cmd=/controller/cmd_vel
+[INFO] [3697.294242]: Recovery(boundary_narrow_passage): unified level=0 back=0.10m turn=-25deg
+[WARN] [3697.448454]: Recovery(boundary_narrow_passage): 效果不足 center=0.27 entry=0.30 gain=-0.03 disp=0.10m escalation=0
+[WARN] [3697.451709]: Recovery(boundary_narrow_passage): 升级至 level 1
+[INFO] [3697.977655]: Recovery(boundary_narrow_passage): 通道可通行，继续
+[INFO] [3697.982635]: LocalPlanner: 恢复后刷新方向惩罚 偏角=0°
+[INFO] [3697.985103]: Navigator: CorridorCommit start entry_yaw=71.1° open=right pose=(1.53,0.03) L=0.18 R=1.31 err=-1.12 strafe=0.000 gap
+[INFO] [3697.987271]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [3698.582096]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3698.713152]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3698.716276]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3699.322296]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3699.455366]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3699.458558]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3700.055057]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3700.060128]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.53,0.03,yaw=71) cmd=/controller/cmd_vel
+[WARN] [3700.189427]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3700.192547]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3700.812295]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3700.950980]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3700.953945]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3701.585003]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3701.720327]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3701.723420]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3702.347910]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3702.621245]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3702.624934]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3703.226795]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3703.359750]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3703.363916]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3703.960586]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3703.964215]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.53,0.03,yaw=71) cmd=/controller/cmd_vel
+[WARN] [3704.095300]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3704.097842]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3704.720166]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3704.857591]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3704.860747]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3705.488373]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3705.628296]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3705.631330]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3706.266686]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3706.403353]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3706.406696]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3707.024534]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3707.154342]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3707.157320]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3707.753026]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3707.865346]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.53,0.03,yaw=71) cmd=/controller/cmd_vel
+[WARN] [3707.994868]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3707.997424]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3708.590586]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3708.723628]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3708.727591]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3709.324026]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3709.456797]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3709.460217]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3710.058382]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3710.188577]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3710.191754]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3710.782570]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3710.911098]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3710.915011]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3711.508733]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3711.513319]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.53,0.03,yaw=71) cmd=/controller/cmd_vel
+[WARN] [3711.642883]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3711.645348]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3712.237000]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3712.366538]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3712.370103]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3712.991729]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3713.157718]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3713.161390]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3713.767860]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3713.900960]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3713.903925]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3714.502863]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3714.635538]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3714.638481]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3715.241540]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3715.245739]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(1.53,0.03,yaw=71) cmd=/controller/cmd_vel
+[WARN] [3715.378561]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3715.381642]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3715.982632]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3716.116813]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3716.119718]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+
+第二次
+
+[INFO] [3744.780130]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.10,-0.03,yaw=5) cmd=/controller/cmd_vel
+[INFO] [3746.109680]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.23,-0.05,yaw=9) cmd=/controller/cmd_vel
+[INFO] [3746.519924]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.89 wide=1.10 center=1.12 L=0.22 R=1.15 head=4°)
+[INFO] [3747.520301]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.38, -0.06, yaw=19.9 deg) wp=2/4 obs=clear score=0.90 center=1.10 wide=1.06 stress=0
+[INFO] [3747.524618]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.38,-0.06,yaw=20) cmd=/controller/cmd_vel
+[INFO] [3748.884085]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.52,-0.03,yaw=34) cmd=/controller/cmd_vel
+[INFO] [3749.283308]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.87 wide=1.13 center=1.16 L=0.25 R=0.86 head=9°)
+[INFO] [3750.206525]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.64, 0.03, yaw=47.9 deg) wp=3/4 obs=clear score=0.85 center=1.02 wide=1.02 stress=0
+[INFO] [3750.313059]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.65,0.03,yaw=49) cmd=/controller/cmd_vel
+[INFO] [3751.540557]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.73,0.12,yaw=65) cmd=/controller/cmd_vel
+[INFO] [3751.779721]: FSM MOVE_TO_GOAL -> PLAN_NEXT | frontier reached, replan
+[INFO] [3752.341530]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3753.196409]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.76, 0.21, yaw=82.3 deg) wp=0/6 obs=clear score=0.85 center=0.82 wide=0.75 stress=0
+[INFO] [3753.200701]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.76,0.21,yaw=82) cmd=/controller/cmd_vel
+[INFO] [3754.138924]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.84 wide=0.47 center=0.47 L=0.25 R=0.90 head=41°)
+[INFO] [3754.371043]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.76,0.33,yaw=102) cmd=/controller/cmd_vel
+[INFO] [3755.466337]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.74, 0.38, yaw=129.1 deg) wp=1/6 obs=clear score=0.00 center=0.47 wide=0.43 stress=0
+[INFO] [3755.561566]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.74,0.39,yaw=130) cmd=/controller/cmd_vel
+[INFO] [3756.592436]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.66,0.46,yaw=147) cmd=/controller/cmd_vel
+[INFO] [3757.756518]: FSM handler: MOVE_TO_GOAL status=creep pose=(0.60, 0.50, yaw=152.7 deg) wp=2/6 obs=clear score=0.16 center=1.18 wide=1.18 stress=0
+[INFO] [3757.761081]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.60,0.50,yaw=153) cmd=/controller/cmd_vel
+[INFO] [3759.233851]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.53,0.53,yaw=153) cmd=/controller/cmd_vel
+[INFO] [3760.347838]: Navigator: PassageMode not armed because score=0.33<0.40 (score=0.33 wide=1.06 center=1.07 L=0.18 R=0.30 head=0°)
+[INFO] [3760.776050]: FSM handler: MOVE_TO_GOAL status=creep pose=(0.46, 0.57, yaw=153.0 deg) wp=2/6 obs=clear score=0.34 center=1.03 wide=1.03 stress=0
+[INFO] [3760.813523]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.46,0.57,yaw=153) cmd=/controller/cmd_vel
+[INFO] [3762.116668]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.39,0.60,yaw=151) cmd=/controller/cmd_vel
+[INFO] [3763.611540]: FSM handler: MOVE_TO_GOAL status=creep pose=(0.32, 0.65, yaw=147.7 deg) wp=3/6 obs=clear score=0.41 center=0.99 wide=0.88 stress=0
+[INFO] [3763.616118]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.32,0.65,yaw=148) cmd=/controller/cmd_vel
+[INFO] [3765.268913]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.22,0.69,yaw=147) cmd=/controller/cmd_vel
+[INFO] [3766.847716]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.07, 0.82, yaw=125.1 deg) wp=4/6 obs=clear score=0.73 center=1.09 wide=0.97 stress=0
+[INFO] [3766.852172]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.07,0.82,yaw=125) cmd=/controller/cmd_vel
+[INFO] [3766.994406]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.73 wide=0.91 center=1.00 L=1.04 R=0.53 head=88°)
+[INFO] [3768.163203]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.02,0.94,yaw=103) cmd=/controller/cmd_vel
+[INFO] [3769.288631]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.01, 1.01, yaw=83.2 deg) wp=4/6 obs=clear score=0.00 center=0.40 wide=0.39 stress=0
+[INFO] [3769.292861]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.01,1.01,yaw=83) cmd=/controller/cmd_vel
+[INFO] [3769.401670]: Navigator: PassageMode not armed because score=0.00<0.40 (score=0.00 wide=0.39 center=0.40 L=0.74 R=0.42 head=95°)
+[INFO] [3770.253533]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.03,1.07,yaw=67) cmd=/controller/cmd_vel
+[INFO] [3770.765038]: Navigator: CorridorCommit start entry_yaw=57.9° open=left pose=(0.03,1.07) L=0.81 R=0.36 err=0.45 strafe=0.000 gap
+[INFO] [3770.768609]: Navigator: PassageMode auto-arm score=0.56 wide=0.33 center=0.33 L=0.81 R=0.36 goal_yaw=57.9° channel=False
+[INFO] [3770.770940]: Navigator: CorridorCommit L=0.81 R=0.36 err=0.45 strafe=0.051 v=0.054
+[INFO] [3770.966571]: FSM handler: MOVE_TO_GOAL status=passage pose=(0.02, 1.08, yaw=57.5 deg) wp=4/6 obs=clear score=0.00 center=0.33 wide=0.33 stress=0
+[INFO] [3770.978100]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.02,1.08,yaw=57) cmd=/controller/cmd_vel
+[WARN] [3771.307220]: Navigator: CorridorCommit abort center=0.31
+[INFO] [3771.311376]: Navigator: CorridorCommit done reason=abort dist=0.03 ticks=9 entry_yaw=57.9° open=left channel=False final_L=0.62 final_R=0.36 final_err=0.26
+[INFO] [3771.623439]: Navigator: PassageMode not armed because commit_cooldown (score=0.55 wide=0.30 center=0.30 L=0.57 R=0.36 head=87°)
+[INFO] [3771.627286]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.02,1.11,yaw=54) cmd=/controller/cmd_vel
+[INFO] [3771.682929]: Boundary hit (1) type=narrow_passage
+[INFO] [3771.685913]: LocalPlanner: 记录边界候选偏角 0°
+[INFO] [3771.708450]: Recovery(boundary_narrow_passage): 入口基线 center=0.30
+[INFO] [3771.710735]: LocalPlanner: FailureMemory 记录 (0.02,1.11) 偏角=0° 原因=narrow_passage
+[INFO] [3771.712822]: FSM MOVE_TO_GOAL -> RECOVERY | boundary_narrow_passage
+[INFO] [3774.265078]: Recovery(boundary_narrow_passage): unified level=0 back=0.10m turn=25deg
+[WARN] [3774.294117]: Recovery(boundary_narrow_passage): 效果不足 center=0.30 entry=0.30 gain=-0.00 disp=0.10m escalation=0
+[WARN] [3774.298309]: Recovery(boundary_narrow_passage): 升级至 level 1
+[INFO] [3774.738311]: Recovery(boundary_narrow_passage): 通道可通行，继续
+[INFO] [3774.742086]: LocalPlanner: 恢复后刷新方向惩罚 偏角=0°
+[INFO] [3774.744172]: Navigator: CorridorCommit start entry_yaw=75.7° open=left pose=(-0.04,1.02) L=0.57 R=0.36 err=0.21 strafe=0.000 gap
+[INFO] [3774.745903]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [3775.395752]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3775.490113]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3775.493323]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3775.495587]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(-0.04,1.02,yaw=76) cmd=/controller/cmd_vel
+[INFO] [3776.162132]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3776.398088]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3776.402658]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3777.050764]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3777.138698]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3777.142030]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3777.775359]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3777.863711]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3777.866766]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3778.507646]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3778.597739]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3778.600553]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3779.235323]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3779.325121]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3779.328255]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3779.330394]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(-0.04,1.02,yaw=76) cmd=/controller/cmd_vel
+[INFO] [3779.968044]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3780.057862]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3780.061487]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3780.688456]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3780.777187]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3780.780294]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3781.414818]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3781.510928]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3781.515763]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3782.197848]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3782.292791]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3782.296208]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3782.967624]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3783.061680]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3783.064505]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3783.066710]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(-0.04,1.02,yaw=76) cmd=/controller/cmd_vel
+[INFO] [3783.739132]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3783.833072]: MOVE_TO_GOAL: no frontier goal — replan
+[INFO] [3783.836947]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan

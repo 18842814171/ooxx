@@ -1,0 +1,421 @@
+
+[ooxx_logrun] 日志 -> /home/ubuntu/experiment_ws/src/ooxx/log/8-52-auto-off.txt
+[ooxx_logrun] 命令: roslaunch ooxx chassis_search.launch
+---
+[INFO] [3156.265294]: FSM init: build=20260706-channel-auto-off mode=occupancy_grid initial_state=PLAN_NEXT global_planner=True
+[INFO] [3156.271602]: Mission search | mode=occupancy_grid | config=/home/ubuntu/experiment_ws/src/ooxx/config/mission.yaml
+[INFO] [3156.274093]: Targets: {'red/circle': 2, 'blue/rectangle': 1}
+[INFO] [3156.277613]: Vision backend: topic (camera via target_detector node)
+[INFO] [3156.730626]: ooxx status: state=PLAN_NEXT scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [3157.230434]: ooxx status: state=PLAN_NEXT scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [3157.630643]: Occupancy grid centered on start (0.00, 0.00), size=12.0 m
+[INFO] [3157.635374]: Start pose recorded: (0.00, 0.00, yaw=0.0 deg)
+[INFO] [3157.771590]: FSM handler: PLAN_NEXT (mode=occupancy_grid tick=28)
+[INFO] [3157.980670]: PLAN_NEXT pose=(0.00, 0.00, yaw=0.0 deg) grid=(75,75) in_bounds=True map visited=1 free=258 unknown=22193 frontiers=86
+[INFO] [3158.201607]: Frontier pick: frontiers=86 candidates_raw=86 candidates=84 blocked_skipped=0 min_dist_skipped=2 path_rejected=0 path_found=True waypoints=4 astar_eval=1 escape=False blocked_goals=0
+[INFO] [3158.205730]: PLAN_NEXT: frontier (0.40, 0.00) path=4 wp (idx=1)
+[INFO] [3158.208030]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3158.444614]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.00,0.00,yaw=1) cmd=/controller/cmd_vel
+[INFO] [3159.545734]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.03, 0.01, yaw=10.8 deg) wp=1/4 obs=clear score=0.23 center=0.88 wide=0.37 stress=0
+[INFO] [3159.549949]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.03,0.01,yaw=11) cmd=/controller/cmd_vel
+[INFO] [3160.548305]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.12,0.06,yaw=14) cmd=/controller/cmd_vel
+[INFO] [3160.651782]: Navigator: PassageMode not armed because channel_auto_arm_disabled (score=0.85 wide=0.70 center=0.71 L=0.94 R=0.29 head=6°)
+[INFO] [3161.519571]: FSM handler: MOVE_TO_GOAL status=drive pose=(0.21, 0.10, yaw=2.0 deg) wp=2/4 obs=clear score=0.00 center=0.69 wide=0.66 stress=0
+[INFO] [3161.665108]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.23,0.10,yaw=-0) cmd=/controller/cmd_vel
+[INFO] [3162.583033]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.30,0.12,yaw=-11) cmd=/controller/cmd_vel
+[INFO] [3163.521047]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.39, 0.10, yaw=-24.4 deg) wp=2/4 obs=clear score=0.15 center=0.81 wide=0.74 stress=0
+[INFO] [3163.525385]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.39,0.10,yaw=-25) cmd=/controller/cmd_vel
+[INFO] [3164.560765]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.47,0.04,yaw=-42) cmd=/controller/cmd_vel
+[INFO] [3165.839594]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.55, -0.06, yaw=-64.2 deg) wp=4/4 obs=clear score=0.06 center=1.21 wide=1.21 stress=0
+[INFO] [3165.843754]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.55,-0.06,yaw=-64) cmd=/controller/cmd_vel
+[INFO] [3167.072267]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.58,-0.18,yaw=-85) cmd=/controller/cmd_vel
+[INFO] [3168.405779]: FSM handler: MOVE_TO_GOAL status=align_arc pose=(0.57, -0.31, yaw=-107.9 deg) wp=4/4 obs=clear score=0.15 center=1.19 wide=1.14 stress=0
+[INFO] [3168.410140]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.57,-0.31,yaw=-109) cmd=/controller/cmd_vel
+[INFO] [3169.706250]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.53,-0.38,yaw=-131) cmd=/controller/cmd_vel
+[INFO] [3169.825352]: Boundary hit (1) type=narrow_passage
+[INFO] [3169.828878]: LocalPlanner: 记录边界候选偏角 0°
+[INFO] [3169.852207]: Recovery(boundary_narrow_passage): 入口基线 center=0.28
+[INFO] [3169.854647]: LocalPlanner: FailureMemory 记录 (0.53,-0.38) 偏角=0° 原因=narrow_passage
+[INFO] [3169.856838]: FSM MOVE_TO_GOAL -> RECOVERY | boundary_narrow_passage
+[INFO] [3172.638504]: Recovery(boundary_narrow_passage): unified level=0 back=0.10m turn=25deg
+[INFO] [3173.303057]: Recovery(boundary_narrow_passage): 通道可通行，继续
+[INFO] [3173.306424]: LocalPlanner: 恢复后刷新方向惩罚 偏角=0°
+[INFO] [3173.308615]: Navigator: CorridorCommit start entry_yaw=-109.6° open=left pose=(0.60,-0.31) L=0.48 R=0.18 err=0.30 strafe=0.000 gap
+[INFO] [3173.310470]: FSM RECOVERY -> PLAN_NEXT | recovery done, replan
+[INFO] [3173.995697]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3174.142397]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3174.144518]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3174.860862]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3175.007084]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3175.723217]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3175.871508]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3176.577992]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3176.712205]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3177.388748]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3177.524833]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3178.207141]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3178.347046]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3178.349586]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3179.028782]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3179.166316]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3179.845909]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3179.983011]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3180.662987]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3180.801849]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3181.476356]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3181.617418]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3182.294030]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3182.431769]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3182.433853]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3183.120516]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3183.396304]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3184.070750]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3184.213212]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3184.943965]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3185.088440]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3185.808364]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3185.954527]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3186.661219]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3186.801124]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3186.803151]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3187.480947]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3187.622833]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3188.303519]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3188.579604]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3189.255675]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3189.393428]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3190.071776]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3190.209106]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3190.902101]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3191.040400]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3191.042366]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3191.746054]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3191.882309]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3192.558518]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3192.695199]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3193.372094]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3193.647336]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3194.326191]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3194.461182]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3195.150611]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3195.292149]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3195.294520]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3195.984227]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3196.124305]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3196.811334]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3196.952399]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3197.629703]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3197.770100]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3198.440419]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3198.714311]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3199.413317]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3199.556730]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3199.559042]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3200.244175]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3200.384463]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3201.080974]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3201.219760]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3201.906724]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3202.045534]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3202.729140]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3202.867341]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3203.552478]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3203.835497]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3203.837860]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3204.543826]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3204.682112]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3205.373726]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3205.516663]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3206.216487]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3206.359665]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3207.052255]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3207.194565]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3207.886342]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3208.028150]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3208.031061]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3208.739333]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3209.019285]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3209.735543]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3209.882657]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3210.605260]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3210.743347]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3211.421165]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3211.557410]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3212.237063]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3212.375828]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3212.378338]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3213.060033]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3213.199369]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3213.873781]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3214.146424]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3214.856303]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3214.996248]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3215.675532]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3215.815718]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3216.495946]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3216.500462]: 运行统计(60s): 边界=1 恢复=1 角落停滞=0 目标拉黑=0 均速=0.04m/s 覆盖率=1%
+[INFO] [3216.643748]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3216.646787]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3217.327244]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3217.464886]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3218.142318]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3218.278375]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3218.962003]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3219.236367]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3219.922524]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3220.062431]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3220.740918]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3220.886874]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3220.889488]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3221.602092]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3221.739139]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3222.425813]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3222.562107]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3223.247131]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3223.386246]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3224.068941]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3224.342608]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3225.031633]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3225.171756]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3225.174479]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3225.853818]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3225.994311]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3226.670271]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3226.813591]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3227.498824]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3227.639393]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3228.323292]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3228.461676]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3229.149293]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3229.425265]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3229.428522]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3230.111419]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3230.251406]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3230.932509]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3231.075132]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3231.756411]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3231.899139]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3232.576896]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3232.717897]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3233.399283]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3233.536257]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3233.538685]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3234.220124]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3234.494612]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3235.174348]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3235.314226]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3236.002675]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3236.145537]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3236.838671]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3236.980553]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3237.676274]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3237.815802]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3237.817712]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3238.519494]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3238.667131]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3239.391293]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3239.673621]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3240.354039]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3240.491512]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3241.181622]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3241.318600]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3241.994923]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3242.135115]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3242.137821]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3242.820449]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3242.961659]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3243.650321]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3243.793712]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3244.496383]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3244.706219]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3245.383468]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3245.521043]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3246.201515]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3246.337731]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3246.340274]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3247.021195]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3247.159903]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3247.846751]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3247.988125]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3248.675914]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3248.815679]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3249.527787]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3249.765046]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3250.471652]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3250.618896]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3250.621237]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3251.297355]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3251.436960]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3252.143016]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3252.277210]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3252.960023]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3253.099911]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3253.810434]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3253.948447]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3254.624127]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3254.897900]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3254.900174]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3255.591501]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3255.734004]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3256.422435]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3256.560469]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3257.234866]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3257.373412]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3258.064066]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3258.199930]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3258.884042]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3259.020460]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3259.022590]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3259.709212]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3259.844560]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3260.537787]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3260.676453]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3261.354219]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3261.493518]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3262.174935]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3262.313441]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3262.996305]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3263.137266]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3263.139804]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3263.823069]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3263.961748]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3264.640008]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3264.916826]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3265.597421]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3265.735524]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3266.419192]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3266.555812]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3267.257893]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3267.400495]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3267.402472]: ooxx status: state=PLAN_NEXT scan=True odom=True pose=(0.60,-0.31,yaw=-110) cmd=/controller/cmd_vel
+[INFO] [3268.106451]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[INFO] [3268.256711]: FSM MOVE_TO_GOAL -> PLAN_NEXT | move without goal, replan
+[INFO] [3268.976473]: FSM PLAN_NEXT -> MOVE_TO_GOAL | frontier goal set
+[WARN] [3156.281408]: 未收到雷达数据，请确认 /scan 有输出（可先 roslaunch lidar lidar_filter.launch）
+[WARN] [3172.791371]: Recovery(boundary_narrow_passage): 效果不足 center=0.25 entry=0.28 gain=-0.03 disp=0.10m escalation=0
+[WARN] [3172.794962]: Recovery(boundary_narrow_passage): 升级至 level 1
+[WARN] [3174.138565]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3175.004110]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3175.867711]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3176.708677]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3177.522044]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3178.343599]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3179.162996]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3179.979833]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3180.798159]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3181.614706]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3182.428528]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3183.393194]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3184.207244]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3185.085185]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3185.950766]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3186.797542]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3187.620004]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3188.575659]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3189.390370]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3190.205911]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3191.036957]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3191.878310]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3192.692415]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3193.643500]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3194.458022]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3195.288765]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3196.121195]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3196.949095]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3197.766937]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3198.711139]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3199.552377]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3200.381204]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3201.216856]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3202.042268]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3202.864544]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3203.831268]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3204.678920]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3205.513542]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3206.356631]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3207.191583]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3208.024735]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3209.015287]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3209.879833]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3210.739927]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3211.554026]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3212.372287]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3213.196217]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3214.142463]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3214.992747]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3215.811834]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3216.639841]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3217.461685]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3218.275160]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3219.232602]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3220.059575]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3220.882788]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3221.735557]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3222.558947]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3223.383202]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3224.339025]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3225.167689]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3225.991336]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3226.810375]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3227.636001]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3228.458426]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3229.420142]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3230.247086]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3231.071865]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3231.895549]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3232.714713]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3233.533257]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3234.490140]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3235.310517]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3236.142336]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3236.977290]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3237.812756]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3238.663934]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3239.670292]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3240.488005]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3241.315636]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3242.131393]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3242.958427]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3243.790860]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3244.702271]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3245.517450]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3246.334410]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3247.156055]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3247.984623]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3248.811736]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3249.761648]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3250.615327]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3251.433649]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3252.273871]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3253.095466]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3253.945098]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3254.894346]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3255.730659]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3256.557601]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3257.369238]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3258.196429]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3259.017251]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3259.841333]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3260.672951]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3261.490825]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3262.310050]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3263.133639]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3263.957845]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3264.777244]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3265.731950]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3266.552548]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3267.397421]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3268.252568]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3269.120921]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3270.069265]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3270.898001]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3271.726274]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3272.548626]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3273.386085]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3274.207108]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3275.168781]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3276.010736]: MOVE_TO_GOAL: no frontier goal — replan
+[WARN] [3276.842900]: MOVE_TO_GOAL: no frontier goal — replan
+^C[ooxx_logrun] 结束 exit=120，已保存 /home/ubuntu/experiment_ws/src/ooxx/log/8-52-auto-off.txt
+╭─  │  ~/experiment_ws                                                                             120 ✘ │ 3m 6s  │ ubuntu@ubuntu │ 08:54:57 
+╰─

@@ -1,0 +1,73 @@
+INFO] [1458.369056]: Mission search | mode=occupancy_grid | config=/home/ubuntu/experiment_ws/src/ooxx/config/mission.yaml
+[INFO] [1458.371102]: Targets: {'red/circle': 2, 'blue/rectangle': 1}
+[INFO] [1458.373900]: Vision backend: topic (camera via target_detector node)
+[INFO] [1458.826617]: ooxx status: state=PLAN_NEXT scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1459.326926]: ooxx status: state=PLAN_NEXT scan=False odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1459.826677]: Occupancy grid centered on start (0.00, 0.00), size=12.0 m
+[INFO] [1459.831605]: Start pose recorded: (0.00, 0.00, yaw=0.0 deg)
+[INFO] [1460.016970]: FSM handler: PLAN_NEXT (mode=occupancy_grid tick=30)
+[INFO] [1460.247071]: PLAN_NEXT pose=(0.00, 0.00, yaw=0.0 deg) grid=(75,75) in_bounds=True map visited=1 free=496 unknown=21915 frontiers=92
+[INFO] [1460.391066]: 建图引导：visited=1，目标=40，直走或局部绕行
+[INFO] [1460.394496]: FSM PLAN_NEXT -> EXPLORE | map bootstrap
+[INFO] [1460.396741]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.00,0.00,yaw=0) cmd=/controller/cmd_vel
+[INFO] [1461.670267]: LocalPlanner score breakdown (Clr=clearance Ali=alignment Unk=unknown):
+  0° TOTAL=+0.522  Clr=+0.278 Ali=+0.050 Unk=+0.143 Pro=+0.051 Lat=+0.000 Cur=-0.000 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.71 unk=1.00
+  +20° TOTAL=+0.589  Clr=+0.433 Ali=+0.050 Unk=+0.143 Pro=+0.060 Lat=-0.006 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000 dist=0.08  d=2.66 unk=1.00
+  -20° TOTAL=+0.424  Clr=+0.218 Ali=+0.028 Unk=+0.143 Pro=+0.040 Lat=+0.006 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.34 unk=1.00
+  +35° TOTAL=+0.550  Clr=+0.433 Ali=+0.035 Unk=+0.143 Pro=+0.060 Lat=-0.006 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000 dist=0.08  d=2.66 unk=1.00
+  -35° TOTAL=+0.392  Clr=+0.218 Ali=+0.020 Unk=+0.143 Pro=+0.040 Lat=+0.006 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.34 unk=1.00
+  +50° TOTAL=+0.489  Clr=+0.397 Ali=+0.020 Unk=+0.143 Pro=+0.060 Lat=-0.006 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000 dist=0.05  d=2.44 unk=1.00
+  -50° TOTAL=+0.404  Clr=+0.291 Ali=+0.015 Unk=+0.110 Pro=+0.054 Lat=+0.006 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.79 unk=0.85
+  +70° TOTAL=+0.356  Clr=+0.303 Ali=+0.000 Unk=+0.143 Pro=+0.056 Lat=-0.006 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.86 unk=1.00
+  -70° TOTAL=+0.178  Clr=+0.171 Ali=+0.000 Unk=+0.110 Pro=+0.031 Lat=+0.006 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.05 unk=0.85
+Selected: +20° goal=(2.50,0.91) d=2.66 TOTAL=+0.589
+[INFO] [1461.881066]: Navigator: CorridorCommit start entry_yaw=1.6° open=left pose=(0.03,0.00) L=0.90 R=0.52 err=0.38 strafe=0.000 channel
+[INFO] [1461.884581]: Navigator: PassageMode auto-arm score=0.73 wide=0.86 center=1.37 L=0.90 R=0.52 goal_yaw=1.6° channel=True
+[INFO] [1461.886876]: Navigator: CorridorCommit L=0.90 R=0.52 err=0.38 strafe=0.000 v=0.000
+[INFO] [1463.389521]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1465.302945]: FSM handler: EXPLORE pose=(0.04, 0.00, yaw=1.7 deg) has_goal=True
+[INFO] [1465.319518]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1465.515315]: Navigator: CorridorCommit L=0.48 R=0.51 err=-0.03 strafe=0.000 v=0.000
+[INFO] [1467.251524]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1469.160120]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1469.360649]: Navigator: CorridorCommit L=0.48 R=0.51 err=-0.03 strafe=0.000 v=0.000
+[INFO] [1469.364197]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=1.32 wide=0.86 stress=0
+[INFO] [1471.137856]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1473.051716]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1473.241793]: Navigator: CorridorCommit L=0.48 R=0.51 err=-0.04 strafe=0.000 v=0.000
+[INFO] [1474.896422]: FSM handler: EXPLORE pose=(0.04, 0.00, yaw=1.6 deg) has_goal=True
+[INFO] [1474.912648]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1476.777226]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1476.969251]: Navigator: CorridorCommit L=0.90 R=0.51 err=0.38 strafe=0.000 v=0.000
+[INFO] [1476.973211]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=1.32 wide=0.86 stress=0
+[INFO] [1478.647925]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1480.520663]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1480.714537]: Navigator: CorridorCommit L=0.90 R=0.51 err=0.38 strafe=0.000 v=0.000
+[INFO] [1482.382485]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1484.290582]: FSM handler: EXPLORE pose=(0.04, 0.00, yaw=1.6 deg) has_goal=True
+[INFO] [1484.307095]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1484.497506]: Navigator: CorridorCommit L=0.90 R=0.52 err=0.38 strafe=0.000 v=0.000
+[INFO] [1484.500694]: NavFeedback: status=RUNNING exec_cost=0.00 reason=heading center=1.32 wide=0.86 stress=0
+[INFO] [1486.206244]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1488.070691]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1488.259735]: Navigator: CorridorCommit L=0.89 R=0.52 err=0.38 strafe=0.000 v=0.000
+[INFO] [1489.949252]: ooxx status: state=EXPLORE scan=True odom=True pose=(0.04,0.00,yaw=2) cmd=/controller/cmd_vel
+[INFO] [1490.696738]: LocalPlanner: FailureMemory 记录 (0.04,0.00) 偏角=20° 原因=explore_stall
+[INFO] [1490.698565]: FSM EXPLORE -> RECOVERY | explore_stall
+[INFO] [1490.884441]: Recovery(explore_stall): rotate 30 deg (attempt 1/5)
+[INFO] [1492.069538]: FSM RECOVERY -> EXPLORE | recovery rotate done
+[INFO] [1493.433481]: LocalPlanner score breakdown (Clr=clearance Ali=alignment Unk=unknown):
+  0° TOTAL=+0.273  Clr=+0.422 Ali=+0.070 Unk=+0.143 Pro=+0.060 Lat=+0.000 Cur=-0.000 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.35 dist=0.07  d=2.59 unk=1.00
+  +20° TOTAL=+0.220  Clr=+0.399 Ali=+0.050 Unk=+0.143 Pro=+0.060 Lat=-0.016 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.35 dist=0.05  d=2.46 unk=1.00
+  -20° TOTAL=+0.608  Clr=+0.422 Ali=+0.050 Unk=+0.143 Pro=+0.060 Lat=+0.016 Cur=-0.011 Col=-0.000 Str=-0.000 Exec=-0.000 dist=0.07  d=2.60 unk=1.00
+  +35° TOTAL=+0.148  Clr=+0.318 Ali=+0.029 Unk=+0.143 Pro=+0.059 Lat=-0.016 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000 fm=0.35  d=1.96 unk=1.00
+  -35° TOTAL=+0.446  Clr=+0.252 Ali=+0.023 Unk=+0.143 Pro=+0.047 Lat=+0.016 Cur=-0.035 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.55 unk=1.00
+  +50° TOTAL=+0.402  Clr=+0.280 Ali=+0.015 Unk=+0.143 Pro=+0.052 Lat=-0.016 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.72 unk=1.00
+  -50° TOTAL=+0.358  Clr=+0.219 Ali=+0.012 Unk=+0.143 Pro=+0.040 Lat=+0.016 Cur=-0.071 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.35 unk=1.00
+  +70° TOTAL=+0.298  Clr=+0.263 Ali=+0.000 Unk=+0.143 Pro=+0.048 Lat=-0.016 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.62 unk=1.00
+  -70° TOTAL=+0.279  Clr=+0.219 Ali=+0.000 Unk=+0.143 Pro=+0.041 Lat=+0.016 Cur=-0.140 Col=-0.000 Str=-0.000 Exec=-0.000  d=1.35 unk=1.00
+Selected: -20° goal=(2.59,0.45) d=2.60 TOTAL=+0.608
+[INFO] [1493.810292]: Navigator: CorridorCommit start entry_yaw=24.5° open=right pose=(0.07,0.02) L=0.47 R=0.92 err=-0.44 strafe=0.000 channel
+[INFO] [1493.814742]: Navigator: PassageMode auto-arm score=0.76 wide=1.29 center=1.29 L=0.47 R=0.92 goal_yaw=24.5° channel=True
+[INFO] [1493.817237]: Navigator: CorridorCommit L=0.47 R=0.92 err=-0.44 strafe=0.000 v=0.000
+

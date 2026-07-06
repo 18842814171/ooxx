@@ -1,0 +1,135 @@
+
+---
+[INFO] [671.739539]: FSM init: build=20260706-perimeter-strafe-fix mode=occupancy_grid initial_state=GLOBAL_PLAN global_planner=True
+[INFO] [671.745024]: Mission search | mode=occupancy_grid | config=/home/ubuntu/experiment_ws/src/ooxx/config/mission.yaml
+[INFO] [671.747248]: Targets: {'red/circle': 2, 'blue/rectangle': 1}
+[INFO] [671.749847]: Vision backend: topic (camera via target_detector node)
+[INFO] [671.802258]: Occupancy grid centered on start (0.00, 0.00), size=12.0 m
+[INFO] [671.804764]: Start pose recorded: (0.00, 0.00, yaw=0.0 deg)
+[INFO] [671.961448]: GlobalPlanner: mode=perimeter visited=1 free=463 unknown=21976 yaw_travel=0deg elapsed=0s
+[INFO] [671.964289]: Navigator: PerimeterMapping start wall_target=0.25
+[INFO] [671.966710]: FSM GLOBAL_PLAN -> MOVE_TO_GOAL | global: perimeter
+[INFO] [672.127167]: Navigator: Perimeter wall=right L=1.89 R=0.35 strafe=0.030 wall_err=0.10 v=0.030
+[INFO] [672.130060]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.00, 0.00, yaw=0.0 deg) wp=0/0 obs=clear score=0.82 center=1.42 wide=1.29 stress=0
+[INFO] [672.132153]: FSM tick #3 remain in MOVE_TO_GOAL
+[INFO] [672.297644]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.00, 0.00, yaw=0.9 deg) wp=0/0 obs=clear score=0.82 center=1.41 wide=1.29 stress=0
+[INFO] [672.301763]: FSM tick #4 remain in MOVE_TO_GOAL
+[INFO] [672.461537]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.01, 0.01, yaw=2.2 deg) wp=0/0 obs=clear score=0.82 center=2.03 wide=1.29 stress=0
+[INFO] [672.464608]: FSM tick #5 remain in MOVE_TO_GOAL
+[INFO] [672.628144]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.01, 0.01, yaw=3.2 deg) wp=0/0 obs=clear score=0.82 center=1.41 wide=0.90 stress=0
+[INFO] [672.793326]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.02, 0.02, yaw=4.5 deg) wp=0/0 obs=clear score=0.82 center=2.03 wide=0.88 stress=0
+[INFO] [672.962156]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.02, 0.02, yaw=5.4 deg) wp=0/0 obs=clear score=0.82 center=2.03 wide=0.88 stress=0
+[INFO] [673.125984]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.03, 0.03, yaw=6.7 deg) wp=0/0 obs=clear score=0.82 center=0.88 wide=0.88 stress=0
+[INFO] [673.299196]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.03, 0.04, yaw=8.0 deg) wp=0/0 obs=clear score=0.81 center=0.86 wide=0.86 stress=0
+[INFO] [673.302895]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.03,0.04,yaw=8) cmd=/controller/cmd_vel
+[INFO] [675.060638]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.07, 0.10, yaw=20.0 deg) wp=0/0 obs=clear score=0.77 center=0.82 wide=0.82 stress=0
+[INFO] [675.064952]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.07,0.10,yaw=20) cmd=/controller/cmd_vel
+[INFO] [675.618686]: Navigator: Perimeter wall=right L=1.75 R=0.45 strafe=0.000 wall_err=0.20 v=0.054
+[INFO] [676.951727]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.17,0.14,yaw=33) cmd=/controller/cmd_vel
+[INFO] [678.841685]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.24, 0.21, yaw=45.9 deg) wp=0/0 obs=clear score=0.75 center=1.11 wide=1.02 stress=0
+[INFO] [678.846018]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.24,0.21,yaw=46) cmd=/controller/cmd_vel
+[INFO] [679.458322]: Navigator: Perimeter wall=right L=1.20 R=0.91 strafe=0.000 wall_err=0.66 v=0.054
+[INFO] [680.804971]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,0.29,yaw=60) cmd=/controller/cmd_vel
+[INFO] [682.699038]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.35, 0.38, yaw=72.5 deg) wp=0/0 obs=clear score=0.00 center=0.91 wide=0.82 stress=0
+[INFO] [682.718704]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.35,0.39,yaw=73) cmd=/controller/cmd_vel
+[INFO] [683.282924]: Navigator: Perimeter wall=right L=0.49 R=0.54 strafe=0.000 wall_err=0.29 v=0.054
+[INFO] [684.598173]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.37,0.49,yaw=86) cmd=/controller/cmd_vel
+[INFO] [686.417842]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.37, 0.58, yaw=97.9 deg) wp=0/0 obs=clear score=0.76 center=1.25 wide=1.25 stress=0
+[INFO] [686.422442]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.37,0.58,yaw=98) cmd=/controller/cmd_vel
+[INFO] [686.937347]: Navigator: Perimeter wall=right L=0.79 R=0.79 strafe=0.000 wall_err=0.54 v=0.054
+[INFO] [688.048394]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.35,0.67,yaw=109) cmd=/controller/cmd_vel
+[INFO] [689.676571]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.31, 0.75, yaw=120.6 deg) wp=0/0 obs=clear score=0.00 center=1.15 wide=1.13 stress=0
+[INFO] [689.681964]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,0.75,yaw=121) cmd=/controller/cmd_vel
+[INFO] [690.117994]: Navigator: Perimeter wall=right L=0.73 R=0.71 strafe=0.000 wall_err=0.46 v=0.054
+[INFO] [691.135946]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.26,0.81,yaw=131) cmd=/controller/cmd_vel
+[INFO] [692.497517]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.21, 0.86, yaw=139.7 deg) wp=0/0 obs=clear score=0.75 center=0.74 wide=0.71 stress=0
+[INFO] [692.501767]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.21,0.87,yaw=140) cmd=/controller/cmd_vel
+[INFO] [692.884996]: Navigator: Perimeter wall=right L=0.47 R=1.06 strafe=0.000 wall_err=0.81 v=0.054
+[INFO] [693.768716]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.16,0.90,yaw=148) cmd=/controller/cmd_vel
+[INFO] [694.920621]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.10, 0.93, yaw=156.7 deg) wp=0/0 obs=clear score=0.75 center=0.51 wide=0.50 stress=0
+[INFO] [694.925766]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.10,0.93,yaw=157) cmd=/controller/cmd_vel
+[INFO] [695.259060]: Navigator: Perimeter wall=right L=0.48 R=0.95 strafe=0.000 wall_err=0.70 v=0.054
+[INFO] [695.973812]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=164) cmd=/controller/cmd_vel
+[INFO] [696.949709]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.06, 0.95, yaw=170.5 deg) wp=0/0 obs=clear score=0.00 center=0.44 wide=0.43 stress=0
+[INFO] [696.953778]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=171) cmd=/controller/cmd_vel
+[INFO] [697.249422]: Navigator: Perimeter wall=right L=0.79 R=0.92 strafe=0.000 wall_err=0.67 v=0.000
+[INFO] [697.934018]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=177) cmd=/controller/cmd_vel
+[INFO] [698.947763]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.06, 0.95, yaw=-175.7 deg) wp=0/0 obs=clear score=0.00 center=0.43 wide=0.43 stress=0
+[INFO] [698.951935]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=-176) cmd=/controller/cmd_vel
+[INFO] [699.271337]: Navigator: Perimeter wall=right L=1.24 R=0.92 strafe=0.000 wall_err=0.67 v=0.000
+[INFO] [700.009343]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=-169) cmd=/controller/cmd_vel
+[INFO] [701.079479]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.06, 0.95, yaw=-161.2 deg) wp=0/0 obs=clear score=0.00 center=0.43 wide=0.43 stress=0
+[INFO] [701.084651]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=-161) cmd=/controller/cmd_vel
+[INFO] [701.406421]: Navigator: Perimeter wall=right L=0.48 R=0.74 strafe=0.000 wall_err=0.49 v=0.000
+[INFO] [702.168304]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=-154) cmd=/controller/cmd_vel
+[INFO] [703.310412]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.06, 0.95, yaw=-145.9 deg) wp=0/0 obs=clear score=0.00 center=0.45 wide=0.44 stress=0
+[INFO] [703.315096]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.95,yaw=-146) cmd=/controller/cmd_vel
+[INFO] [703.666209]: Navigator: Perimeter wall=right L=1.22 R=0.57 strafe=0.000 wall_err=0.32 v=0.000
+[INFO] [704.483374]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.03,0.93,yaw=-138) cmd=/controller/cmd_vel
+[INFO] [705.791139]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(-0.01, 0.88, yaw=-128.8 deg) wp=0/0 obs=clear score=0.78 center=0.50 wide=0.47 stress=0
+[INFO] [705.795579]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.01,0.88,yaw=-129) cmd=/controller/cmd_vel
+[INFO] [706.170359]: Navigator: Perimeter wall=right L=1.30 R=0.42 strafe=0.030 wall_err=0.17 v=0.030
+[INFO] [707.034775]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(-0.02,0.83,yaw=-120) cmd=/controller/cmd_vel
+[INFO] [708.250672]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.00, 0.78, yaw=-111.8 deg) wp=0/0 obs=clear score=0.79 center=0.74 wide=0.64 stress=0
+[INFO] [708.254895]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.00,0.78,yaw=-112) cmd=/controller/cmd_vel
+[INFO] [708.641437]: Navigator: Perimeter wall=right L=1.13 R=0.41 strafe=0.030 wall_err=0.16 v=0.030
+[INFO] [709.576882]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.03,0.73,yaw=-103) cmd=/controller/cmd_vel
+[INFO] [711.097114]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.04, 0.66, yaw=-92.3 deg) wp=0/0 obs=clear score=0.77 center=0.92 wide=0.92 stress=0
+[INFO] [711.101559]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.04,0.66,yaw=-92) cmd=/controller/cmd_vel
+[INFO] [711.518588]: Navigator: Perimeter wall=right L=0.49 R=0.46 strafe=0.000 wall_err=0.21 v=0.054
+[INFO] [712.499912]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.04,0.59,yaw=-83) cmd=/controller/cmd_vel
+[INFO] [713.891759]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.06, 0.51, yaw=-73.2 deg) wp=0/0 obs=clear score=0.75 center=0.79 wide=0.78 stress=0
+[INFO] [713.896225]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.06,0.51,yaw=-73) cmd=/controller/cmd_vel
+[INFO] [714.309722]: Navigator: Perimeter wall=right L=0.84 R=0.51 strafe=0.000 wall_err=0.26 v=0.054
+[INFO] [715.295798]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.09,0.44,yaw=-63) cmd=/controller/cmd_vel
+[INFO] [716.873718]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.13, 0.37, yaw=-52.5 deg) wp=0/0 obs=clear score=0.00 center=0.74 wide=0.72 stress=0
+[INFO] [716.877917]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.13,0.37,yaw=-53) cmd=/controller/cmd_vel
+[INFO] [717.334632]: Navigator: Perimeter wall=right L=2.03 R=0.72 strafe=0.000 wall_err=0.47 v=0.054
+[INFO] [718.344457]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.19,0.31,yaw=-42) cmd=/controller/cmd_vel
+[INFO] [719.727602]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.25, 0.27, yaw=-33.0 deg) wp=0/0 obs=clear score=0.00 center=0.87 wide=0.79 stress=0
+[INFO] [719.731751]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.25,0.27,yaw=-33) cmd=/controller/cmd_vel
+[INFO] [720.138972]: Navigator: Perimeter wall=right L=0.99 R=0.57 strafe=0.000 wall_err=0.32 v=0.054
+[INFO] [721.078641]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,0.23,yaw=-24) cmd=/controller/cmd_vel
+[INFO] [722.439826]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.38, 0.21, yaw=-14.3 deg) wp=0/0 obs=clear score=0.74 center=0.52 wide=0.52 stress=0
+[INFO] [722.444522]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.38,0.21,yaw=-14) cmd=/controller/cmd_vel
+[INFO] [722.821248]: Navigator: Perimeter wall=right L=0.92 R=0.51 strafe=0.000 wall_err=0.26 v=0.054
+[INFO] [723.698722]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.44,0.20,yaw=-6) cmd=/controller/cmd_vel
+[INFO] [724.923600]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.44, 0.20, yaw=2.8 deg) wp=0/0 obs=clear score=0.29 center=0.44 wide=0.44 stress=0
+[INFO] [724.927716]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.44,0.20,yaw=3) cmd=/controller/cmd_vel
+[INFO] [725.304671]: Navigator: Perimeter wall=right L=0.48 R=0.53 strafe=0.000 wall_err=0.28 v=0.000
+[INFO] [726.211947]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.44,0.20,yaw=12) cmd=/controller/cmd_vel
+[INFO] [727.581429]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.44, 0.20, yaw=21.2 deg) wp=0/0 obs=clear score=0.00 center=0.43 wide=0.43 stress=0
+[INFO] [727.585567]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.44,0.20,yaw=21) cmd=/controller/cmd_vel
+[INFO] [728.011959]: Navigator: Perimeter wall=right L=1.65 R=0.61 strafe=0.000 wall_err=0.36 v=0.000
+[INFO] [729.033716]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.44,0.20,yaw=31) cmd=/controller/cmd_vel
+[INFO] [730.577128]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.44, 0.20, yaw=41.7 deg) wp=0/0 obs=clear score=0.00 center=0.46 wide=0.45 stress=0
+[INFO] [730.581796]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.44,0.20,yaw=42) cmd=/controller/cmd_vel
+[INFO] [731.057722]: Navigator: Perimeter wall=right L=1.65 R=0.85 strafe=0.000 wall_err=0.60 v=0.054
+[INFO] [731.888084]: 运行统计(60s): 边界=0 恢复=0 角落停滞=0 目标拉黑=0 均速=0.03m/s 覆盖率=3%
+[INFO] [732.227486]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.49,0.25,yaw=53) cmd=/controller/cmd_vel
+[INFO] [733.945272]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.51, 0.33, yaw=64.9 deg) wp=0/0 obs=clear score=0.80 center=0.71 wide=0.71 stress=0
+[INFO] [733.949726]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.51,0.33,yaw=65) cmd=/controller/cmd_vel
+[INFO] [734.496479]: Navigator: Perimeter wall=right L=0.49 R=0.38 strafe=0.030 wall_err=0.13 v=0.030
+[INFO] [735.821836]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.47,0.40,yaw=78) cmd=/controller/cmd_vel
+[INFO] [737.713367]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.45, 0.48, yaw=90.8 deg) wp=0/0 obs=clear score=0.00 center=1.33 wide=1.33 stress=0
+[INFO] [737.717620]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.45,0.48,yaw=91) cmd=/controller/cmd_vel
+[INFO] [738.269302]: Navigator: Perimeter wall=right L=0.48 R=1.70 strafe=0.000 wall_err=1.45 v=0.054
+[INFO] [739.500897]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.43,0.57,yaw=103) cmd=/controller/cmd_vel
+[INFO] [741.075598]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.41, 0.65, yaw=114.0 deg) wp=0/0 obs=clear score=0.00 center=1.21 wide=1.19 stress=0
+[INFO] [741.080070]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.41,0.65,yaw=114) cmd=/controller/cmd_vel
+[INFO] [741.548960]: Navigator: Perimeter wall=right L=0.82 R=0.55 strafe=0.000 wall_err=0.30 v=0.054
+[INFO] [742.650105]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.37,0.73,yaw=125) cmd=/controller/cmd_vel
+[INFO] [744.161097]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.31, 0.79, yaw=135.2 deg) wp=0/0 obs=clear score=0.00 center=0.85 wide=0.81 stress=0
+[INFO] [744.166274]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.31,0.79,yaw=135) cmd=/controller/cmd_vel
+[INFO] [744.612551]: Navigator: Perimeter wall=right L=0.78 R=1.13 strafe=0.000 wall_err=0.88 v=0.054
+[INFO] [745.596849]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.25,0.84,yaw=145) cmd=/controller/cmd_vel
+[INFO] [746.919811]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.19, 0.88, yaw=154.0 deg) wp=0/0 obs=clear score=0.00 center=0.58 wide=0.56 stress=0
+[INFO] [746.923960]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.19,0.88,yaw=154) cmd=/controller/cmd_vel
+[INFO] [747.298467]: Navigator: Perimeter wall=right L=0.81 R=1.01 strafe=0.000 wall_err=0.76 v=0.054
+[INFO] [748.139987]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.13,0.90,yaw=163) cmd=/controller/cmd_vel
+[INFO] [749.208391]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.09, 0.91, yaw=169.9 deg) wp=0/0 obs=clear score=0.00 center=0.44 wide=0.44 stress=0
+[INFO] [749.212550]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.09,0.91,yaw=170) cmd=/controller/cmd_vel
+[INFO] [749.516288]: Navigator: Perimeter wall=right L=0.94 R=0.98 strafe=0.000 wall_err=0.73 v=0.000
+[INFO] [750.218964]: ooxx status: state=MOVE_TO_GOAL scan=True odom=True pose=(0.09,0.91,yaw=177) cmd=/controller/cmd_vel
+[INFO] [751.246409]: FSM handler: MOVE_TO_GOAL status=perimeter pose=(0.09, 0.91, yaw=-176.4 deg) wp=0/0 obs=clear score=0.00 center=0.44 wide=0.44 stress=0
+^C^C^C^C^C[o
