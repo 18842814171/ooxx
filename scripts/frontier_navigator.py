@@ -822,8 +822,8 @@ class FrontierNavigator:
     )
 
   def _simple_path_clear(self, center: float, wide: float) -> float:
-    """一般障碍：取前方与宽扇区净空较小值，不区分通道/墙角。"""
-    return min(center, wide)
+    """前方窄扇区净空决定能否前进；宽扇区侧墙不拖慢穿缝。"""
+    return center
 
   def _simple_drive_speed(
       self,
@@ -858,11 +858,14 @@ class FrontierNavigator:
     wide = float(profile.get('wide', 0.0))
     path_clear = self._simple_path_clear(center, wide)
 
-    if self._center_close_streak >= self.boundary_confirm_frames * 4:
-      self._center_close_streak = 0
-      self.move.publish_stop_brief()
-      self._update_feedback('blocked', profile, heading_err)
-      return 'blocked'
+    if self._center_close_streak >= self.boundary_confirm_frames * 8:
+      if center >= self.boundary_dist:
+        self._center_close_streak = max(0, self._center_close_streak - 2)
+      else:
+        self._center_close_streak = 0
+        self.move.publish_stop_brief()
+        self._update_feedback('blocked', profile, heading_err)
+        return 'blocked'
 
     cmd_v = max(self.creep_speed * 0.55, self._simple_drive_speed(path_clear, self.creep_speed * 1.5))
     cmd_v, strafe = self._apply_lateral_safety(profile, cmd_v)

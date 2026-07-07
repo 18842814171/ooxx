@@ -31,7 +31,7 @@ from perception.base import PerceptionBackend, ScanResult
 from pose_estimator import PoseEstimator
 
 
-FSM_BUILD_ID = '20260706-frontier-score'
+FSM_BUILD_ID = '20260707-less-backoff'
 
 
 class SearchState(enum.Enum):
@@ -544,23 +544,16 @@ class SearchFSM:
     self._explore_no_candidate_count = 0
 
   def _enter_planner_deadlock_recovery(self, scan: LaserScan) -> None:
-    """连续无有效候选：后退转向，恢复后交由规划器重选。"""
+    """连续无有效候选：标记逃离后直接重规划。"""
     threshold = self.search.explore_no_candidate_frames
     rospy.logwarn(
-        '探索：连续 %d 帧无有效候选，进入恢复',
+        '探索：连续 %d 帧无有效候选，逃离重规划',
         threshold,
     )
     self._explore_no_candidate_count = 0
     self.local_planner.clear()
-    kind = classify_boundary_type(
-        scan,
-        self.search.front_angle,
-        self.search.nav_block_half_width,
-        self.search.front_sector_half_width,
-        self.search.boundary_dist,
-    )
-    self._start_boundary_recovery(scan, kind)
-    self._recovery_reason = 'explore_deadlock'
+    self._prefer_escape_frontier = True
+    self._set_state(SearchState.PLAN_NEXT, 'explore deadlock, replan')
 
   def _update_run_stats(self) -> None:
     twist = self.move.get_last_twist()
@@ -1031,46 +1024,9 @@ class SearchFSM:
       kind = self._boundary_kind or 'front_wall'
       self._snapshot_recovery_action_start()
       self._execute_boundary_action(scan, kind, self._boundary_escalation)
-      if self._recovery_success(scan):
-        self._boundary_escalation = 0
-        self._boundary_max_level_retries = 0
-        self._finish_recovery_resume(scan)
-        return
-      at_max = (
-          self._boundary_escalation >= self.search.recovery_max_escalation - 1
-      )
-      if at_max:
-        self._boundary_max_level_retries += 1
-        max_retries = self.search.recovery_max_level_retries
-        if self._boundary_max_level_retries >= max_retries:
-          rospy.logwarn(
-              'Recovery(%s): level %d 重试 %d 次仍无 gain，强制结束恢复',
-              reason,
-              self._boundary_escalation,
-              self._boundary_max_level_retries,
-          )
-          self._boundary_escalation = 0
-          self._boundary_max_level_retries = 0
-          self._finish_recovery_resume(scan)
-          return
-        rospy.logwarn(
-            'Recovery(%s): level %d 未达 gain 阈值，继续同级恢复 (%d/%d)',
-            reason,
-            self._boundary_escalation,
-            self._boundary_max_level_retries,
-            max_retries,
-        )
-        self._recovery_phase = RecoveryPhase.PAUSE
-        self._recovery_phase_started = rospy.Time.now()
-        return
-      self._boundary_escalation += 1
-      rospy.logwarn(
-          'Recovery(%s): 升级至 level %d',
-          reason,
-          self._boundary_escalation,
-      )
-      self._recovery_phase = RecoveryPhase.PAUSE
-      self._recovery_phase_started = rospy.Time.now()
+      self._boundary_escalation = 0
+      self._boundary_max_level_retries = 0
+      self._finish_recovery_resume(scan)
       return
 
   def _log_frontier_debug(self, dbg: Dict[str, int], goal_is_none: bool) -> None:
@@ -1156,7 +1112,12 @@ class SearchFSM:
       if self._track_nav_hold(status):
         self._on_boundary(scan)
       elif status == 'blocked':
-        self._on_boundary(scan)
+        failed = self.frontier_nav._final_goal or self.frontier_nav._goal
+        self._handle_nav_blocked(
+            failed[0] if failed is not None else None,
+            failed[1] if failed is not None else None,
+            scan,
+        )
       elif status == 'odom_fault':
         self._enter_recovery('odom_fault')
       elif status == 'reached':
@@ -1683,33 +1644,42 @@ class SearchFSM:
       gy: Optional[float],
       scan: LaserScan,
   ) -> None:
-    """20260706：导航受阻时轻后退后直接重规划，不再多级强恢复。"""
+    """导航受阻：前方仍通畅则只重规划，真挡路才轻后退。"""
     detail = self.frontier_nav.passage_detail()
     obs = str(detail.get('obstacle', 'front_blocked'))
+    center = float(detail.get('center', 0.0))
     self.frontier_nav.clear_goal()
 
     if gx is not None and gy is not None:
       self._record_goal_failure(gx, gy, obs)
 
     self._consecutive_blocked += 1
-    # 20260706：受阻即启用逃离选点，当前位姿记入排除区
-    # 20260706：写入失败记忆，供边界目标软惩罚（非硬封禁）
     self._prefer_escape_frontier = True
     rx, ry, ryaw = self.pose.get_pose()
     self.local_planner.record_failure(rx, ry, 0.0, obs)
     self._add_blocked_region(rx, ry, radius=self._corner_blacklist_radius)
-    rospy.logwarn(
-        'Nav blocked (%d) obs=%s — backoff & replan',
-        self._consecutive_blocked,
-        obs,
-    )
-    speed = self.search.cruise_speed * 0.6
-    settle = 0.03
-    self.move.stop_robot(repeats=1)
-    self.move.move_distance_x(-0.10, speed, settle_sec=settle)
+    forward_clear = obs == 'clear' or center >= self.search.boundary_dist
+    if forward_clear:
+      rospy.logwarn(
+          'Nav blocked (%d) obs=%s center=%.2f — replan (no backoff)',
+          self._consecutive_blocked,
+          obs,
+          center,
+      )
+    else:
+      rospy.logwarn(
+          'Nav blocked (%d) obs=%s center=%.2f — back 0.10m & replan',
+          self._consecutive_blocked,
+          obs,
+          center,
+      )
+      speed = self.search.cruise_speed * 0.6
+      self.move.stop_robot(repeats=1)
+      self.move.move_distance_x(-0.10, speed, settle_sec=0.03)
     if gx is not None and gy is not None:
       self._add_blocked_region(gx, gy, radius=self._corner_blacklist_radius)
-    self._set_state(SearchState.PLAN_NEXT, 'nav blocked, backoff & replan')
+    reason = 'nav blocked, replan' if forward_clear else 'nav blocked, backoff & replan'
+    self._set_state(SearchState.PLAN_NEXT, reason)
 
   # --- 20260706：已禁用 — 原多级 blocked 恢复（强后退、转向、升级）---
   # def _handle_nav_blocked_legacy(...): ...

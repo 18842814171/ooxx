@@ -17,7 +17,7 @@ search:
   waypoint_tolerance: 0.10
   align_timeout_sec: 0.25            # [简化导航后基本不用 align 停转]
   align_arc_speed: 0.08
-  nav_forward_stop_margin: 0.06   # 略收紧，但连续限速不断速
+  nav_forward_stop_margin: 0.04   # 略收紧，但连续限速不断速
   nav_cruise_clear_margin: 0.06   # center/wide 均超 boundary+此值才巡航
   nav_cruise_resume_center: 0.38  # center≥此值直接恢复 cruise
   nav_wide_hold_margin: 0.08      # [已禁用 wide hold]
@@ -58,20 +58,20 @@ search:
   recovery_passage_replan_rounds: 2        # 窄通道恢复后约束轮数
   wall_target_dist: 0.25
   # --- 边界与恢复 ---
-  boundary_pause_sec: 0.15          # 撞墙后停车等待（秒）
+  boundary_pause_sec: 0.05          # 撞墙后停车等待（秒）
   boundary_turn_deg: 15.0           # 正前方被挡时小角度转向
   boundary_corner_turn_deg: 25.0    # 角落转向角度
   boundary_repeat_turn_deg: 35.0    # 同一区域连续撞墙时转向角度
   boundary_backoff_m: 0.10
   boundary_spatial_radius: 0.30   # 空间冷却半径（米）
   boundary_spatial_count: 3      # 半径内撞墙次数达此值则记碰撞代价
-  recovery_backoff_levels: [0.10, 0.18, 0.28]
-  recovery_turn_levels: [25, 35, 55]
+  recovery_backoff_levels: [0.12]
+  recovery_turn_levels: [45]
   recovery_success_center_gain: 0.05
   recovery_success_disp_m: 0.06   # 仅日志参考；成功判定仅看 center_gain
-  recovery_max_escalation: 3
-  recovery_max_level_retries: 2    # level 2 未达 gain 时同级重试次数
-  recovery_replan_max_angle_deg: 35.0  # 恢复后短期规划：|偏角|上限
+  recovery_max_escalation: 1
+  recovery_max_level_retries: 0    # 单次恢复，不升级重试
+  recovery_replan_max_angle_deg: 70.0  # 恢复后短期规划：|偏角|上限
   recovery_replan_max_dist_m: 3.0      # 恢复后短期规划：距离上限
   recovery_replan_rounds: 3            # 恢复后约束持续轮数
   recovery_escape_angle_deg: 50.0      # 墙角破格：|偏角|下限
@@ -119,7 +119,7 @@ search:
   wall_hug_angle_deg: 25.0           # 贴墙加罚覆盖 |偏角| 上限
   planner_debug: true
   # 20260707：前方受阻时纯激光选最开阔方向（不查地图）
-  local_clearance_escape_enabled: true
+  local_clearance_escape_enabled: false
   local_clearance_escape_dist_m: 0.65   # 脱困短目标距离（米）
   local_clearance_escape_min_clear: 0.22  # 可选方向最低净空（米）
   bootstrap_detour_dist: 0.90        # 兼容旧参数
