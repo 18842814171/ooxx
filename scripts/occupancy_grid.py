@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from enum import IntEnum
-from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Callable, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np
 from sensor_msgs.msg import LaserScan
@@ -258,11 +258,15 @@ class OccupancyGrid:
       max_astar_candidates: int = 30,
       prefer_forward: bool = True,
       forward_max_deg: float = 110.0,
+      eval_top_n: int = 10,
+      narrow_penalty_weight: float = 0.40,
+      failure_penalty_weight: float = 1.0,
+      goal_soft_penalty: Optional[Callable[[float, float], float]] = None,
   ) -> Tuple[Optional[Tuple[float, float]], List[Tuple[float, float]], Dict[str, int]]:
     """Pick exploration goal with A* path; return (goal, waypoints, debug_stats).
 
-    When *prefer_escape* is set, rank candidates by distance from failed-goal
-    clusters (farther first) so recovery does not re-target the same wall pocket.
+    20260706：边界多候选评分选点；对排序后前 eval_top_n 个候选均做路径搜索，取总代价最低者。
+    总代价 = 路径长度 + 狭窄代价 + 历史失败软惩罚（逃离时另计远离失败区奖励）。
     """
     exclude = exclude or []
     exclude_regions = exclude_regions or []
@@ -318,6 +322,7 @@ class OccupancyGrid:
       ):
         debug['min_dist_skipped'] += 1
         continue
+      # 20260706：逃离选点时跳过前方扇区过滤，允许侧后方边界点
       if exclude_regions:
         sep = self._region_sep_dist(wx, wy, exclude_regions)
       else:
@@ -340,27 +345,69 @@ class OccupancyGrid:
       ranked.sort(key=lambda item: item[0])
     debug['candidates'] = len(ranked)
 
-    eval_limit = max(1, max_astar_candidates)
-    best: Optional[Tuple[Tuple[float, ...], Tuple[float, float], List[Tuple[float, float]]]] = None
-    for d, wx, wy, _sep, _heading in ranked[:eval_limit]:
+    # 20260706：评估多条候选取总代价最低（不再首条可达即停止）
+    eval_limit = max(1, min(eval_top_n, max_astar_candidates, len(ranked)))
+    best: Optional[Tuple[float, Tuple[float, float], List[Tuple[float, float]]]] = None
+    best_total = float('inf')
+    for d, wx, wy, sep, heading_pen in ranked[:eval_limit]:
       debug['astar_evaluated'] += 1
       path = self.plan_path(robot_x, robot_y, wx, wy)
       if path is None:
         debug['path_rejected'] += 1
         continue
       path_len = self._path_length(robot_x, robot_y, path)
-      rank_key = (-_sep, path_len) if prefer_escape and (exclude_regions or exclude) else (path_len,)
-      if best is None or rank_key < best[0]:
-        best = (rank_key, (wx, wy), path)
-      if not prefer_escape:
-        break
+      narrow_pen = self._path_narrow_penalty(path)
+      fail_pen = 0.0
+      if goal_soft_penalty is not None:
+        fail_pen = max(0.0, float(goal_soft_penalty(wx, wy)))
+      heading_cost = heading_pen * 0.20 if prefer_forward and not prefer_escape else 0.0
+      escape_bonus = sep * 0.85 if prefer_escape and (exclude_regions or exclude) else 0.0
+      total = (
+          path_len
+          + narrow_penalty_weight * narrow_pen
+          + failure_penalty_weight * fail_pen
+          + heading_cost
+          - escape_bonus
+      )
+      if total < best_total:
+        best_total = total
+        best = (total, (wx, wy), path)
+        debug['pick_path_len'] = int(path_len * 100)
+        debug['pick_narrow'] = int(narrow_pen * 100)
+        debug['pick_failure'] = int(fail_pen * 100)
+        debug['pick_total'] = int(total * 100)
 
     if best is not None:
-      _rank, goal, path = best
+      _total, goal, path = best
       debug['path_found'] = 1
       debug['path_waypoints'] = len(path)
       return goal, path, debug
     return None, [], debug
+
+  def _path_narrow_penalty(self, path: List[Tuple[float, float]]) -> float:
+    """20260706：路径沿途占用格邻近度，估计边界目标狭窄代价。"""
+    if not path:
+      return 0.0
+    penalty = 0.0
+    for wx, wy in path:
+      gx, gy = self._to_grid(wx, wy)
+      occ_near = 0
+      for dx in range(-2, 3):
+        for dy in range(-2, 3):
+          nx, ny = gx + dx, gy + dy
+          if self.in_bounds(nx, ny) and self.grid[ny, nx] == CellState.OCCUPIED:
+            occ_near += 1
+      if occ_near >= 5:
+        penalty += 0.50
+      elif occ_near >= 3:
+        penalty += 0.25
+      elif occ_near >= 1:
+        penalty += 0.08
+    return penalty
+
+  # --- 20260706：已禁用 — 首条可达即停的旧选点逻辑 ---
+  # if not prefer_escape:
+  #   break
 
   @staticmethod
   def _path_length(

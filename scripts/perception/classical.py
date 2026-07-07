@@ -54,22 +54,26 @@ class ClassicalBackend(PerceptionBackend):
         robot_pose=None,
         mission_state=None,
     ) -> ScanResult:
+        """20260706：已禁用 — 感知层不再驱动任务计数与结束。"""
         state = mission_state or self._state_ref
-        if self.config is None or bgr_image is None or state is None:
-            counts = state.counts if state else {}
-            complete = state.is_mission_complete() if state else False
-            return ScanResult(counts=dict(counts), mission_complete=complete)
-
-        frame = bgr_image.copy()
-        detections = self._detect_frame(frame, depth, camera_info, robot_pose)
-        new_objects = self._accumulate(detections, state)
-
-        return ScanResult(
-            detections=detections,
-            counts=dict(state.counts),
-            mission_complete=state.is_mission_complete(),
-            new_objects=new_objects,
-        )
+        counts = state.counts if state else {}
+        return ScanResult(counts=dict(counts), mission_complete=False)
+        # state = mission_state or self._state_ref
+        # if self.config is None or bgr_image is None or state is None:
+        #     counts = state.counts if state else {}
+        #     complete = state.is_mission_complete() if state else False
+        #     return ScanResult(counts=dict(counts), mission_complete=complete)
+        #
+        # frame = bgr_image.copy()
+        # detections = self._detect_frame(frame, depth, camera_info, robot_pose)
+        # new_objects = self._accumulate(detections, state)
+        #
+        # return ScanResult(
+        #     detections=detections,
+        #     counts=dict(state.counts),
+        #     mission_complete=state.is_mission_complete(),
+        #     new_objects=new_objects,
+        # )
 
     def _detect_frame(self, img, depth, camera_info, robot_pose) -> List[Detection]:
         assert self.config is not None

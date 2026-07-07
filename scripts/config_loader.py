@@ -34,6 +34,7 @@ class SearchConfig:
     align_arc_speed: float = 0.04
     nav_forward_stop_margin: float = 0.04
     nav_cruise_clear_margin: float = 0.08
+    nav_cruise_resume_center: float = 0.45
     nav_wide_hold_margin: float = 0.08
     nav_lateral_block_dist: float = 0.25
     robot_radius: float = 0.15
@@ -129,6 +130,10 @@ class SearchConfig:
     wall_hug_clearance_margin: float = 0.12
     wall_hug_angle_deg: float = 25.0
     planner_debug: bool = True
+    # 20260707：前方受阻纯激光选路
+    local_clearance_escape_enabled: bool = True
+    local_clearance_escape_dist_m: float = 0.65
+    local_clearance_escape_min_clear: float = 0.22
     stats_interval_sec: float = 60.0
 
 
@@ -147,6 +152,10 @@ class MapConfig:
     astar_inflation_cells: int = 1
     astar_waypoint_spacing: float = 0.20
     astar_max_candidates: int = 25
+    # 20260706：边界多候选评分选点
+    frontier_eval_top_n: int = 10
+    frontier_narrow_penalty_weight: float = 0.40
+    frontier_failure_penalty_weight: float = 1.0
 
 
 @dataclass
@@ -259,6 +268,9 @@ def load_mission_config(path: str) -> MissionConfig:
         align_arc_speed=float(search_raw.get('align_arc_speed', 0.04)),
         nav_forward_stop_margin=float(search_raw.get('nav_forward_stop_margin', 0.04)),
         nav_cruise_clear_margin=float(search_raw.get('nav_cruise_clear_margin', 0.08)),
+        nav_cruise_resume_center=float(
+            search_raw.get('nav_cruise_resume_center', 0.45),
+        ),
         nav_wide_hold_margin=float(search_raw.get('nav_wide_hold_margin', 0.08)),
         nav_lateral_block_dist=float(search_raw.get('nav_lateral_block_dist', 0.25)),
         robot_radius=float(search_raw.get('robot_radius', 0.15)),
@@ -453,6 +465,15 @@ def load_mission_config(path: str) -> MissionConfig:
         ),
         wall_hug_angle_deg=float(search_raw.get('wall_hug_angle_deg', 25.0)),
         planner_debug=bool(search_raw.get('planner_debug', True)),
+        local_clearance_escape_enabled=bool(
+            search_raw.get('local_clearance_escape_enabled', True),
+        ),
+        local_clearance_escape_dist_m=float(
+            search_raw.get('local_clearance_escape_dist_m', 0.65),
+        ),
+        local_clearance_escape_min_clear=float(
+            search_raw.get('local_clearance_escape_min_clear', 0.22),
+        ),
         stats_interval_sec=float(search_raw.get('stats_interval_sec', 60.0)),
     )
 
@@ -471,6 +492,14 @@ def load_mission_config(path: str) -> MissionConfig:
         astar_inflation_cells=int(map_raw.get('astar_inflation_cells', 1)),
         astar_waypoint_spacing=float(map_raw.get('astar_waypoint_spacing', 0.20)),
         astar_max_candidates=int(map_raw.get('astar_max_candidates', 25)),
+        # 20260706：边界多候选评分选点参数
+        frontier_eval_top_n=int(map_raw.get('frontier_eval_top_n', 10)),
+        frontier_narrow_penalty_weight=float(
+            map_raw.get('frontier_narrow_penalty_weight', 0.40),
+        ),
+        frontier_failure_penalty_weight=float(
+            map_raw.get('frontier_failure_penalty_weight', 1.0),
+        ),
     )
 
     bous_raw = raw.get('boustrophedon', {})

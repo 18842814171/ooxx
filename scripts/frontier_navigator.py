@@ -14,6 +14,8 @@ from nav_feedback import GoalStatus, NavExecutionFeedback
 from perimeter_controller import PerimeterController
 from pose_estimator import PoseEstimator
 
+NAV_BUILD_ID = '20260706-simple-avoid'
+
 
 class FrontierNavigator:
   def __init__(
@@ -34,6 +36,7 @@ class FrontierNavigator:
       align_arc_speed: float = 0.04,
       forward_stop_margin: float = 0.04,
       cruise_clear_margin: float = 0.08,
+      cruise_resume_center: float = 0.45,
       wide_hold_margin: float = 0.08,
       lateral_block_dist: float = 0.25,
       robot_half_width: float = 0.18,
@@ -93,6 +96,7 @@ class FrontierNavigator:
     self.align_arc_speed = align_arc_speed
     self.forward_stop_margin = forward_stop_margin
     self.cruise_clear_margin = cruise_clear_margin
+    self.cruise_resume_center = cruise_resume_center
     self.wide_hold_margin = wide_hold_margin
     self.lateral_block_dist = lateral_block_dist
     self.robot_half_width = robot_half_width
@@ -181,11 +185,11 @@ class FrontierNavigator:
       waypoints: List[Tuple[float, float]],
       final_goal: Tuple[float, float],
   ) -> bool:
-    if self._corridor_commit_active:
-      rospy.logwarn(
-          'Navigator: set_path skipped — corridor_commit_active',
-      )
-      return False
+    # if self._corridor_commit_active:
+    #   rospy.logwarn(
+    #       'Navigator: set_path skipped — corridor_commit_active',
+    #   )
+    #   return False
     self._perimeter_active = False
     self._path = list(waypoints) if waypoints else [final_goal]
     self._path_index = 0
@@ -238,7 +242,8 @@ class FrontierNavigator:
     return self._perimeter_active
 
   def corridor_commit_active(self) -> bool:
-    return self._corridor_commit_active
+    # return self._corridor_commit_active
+    return False
 
   def _centerline_err(self, left: float, right: float) -> float:
     return left - right
@@ -268,7 +273,7 @@ class FrontierNavigator:
       close = min(left, right)
       near_limit = self.passage_channel_close_max + self.robot_half_width * 0.25
       if close < near_limit:
-        cmd_v = 0.0
+        # 近侧过近：禁止横移（含朝物块侧），保留沿入口航向蠕行前进。
         strafe = 0.0
 
     return cmd_v, strafe, err
@@ -346,17 +351,18 @@ class FrontierNavigator:
       locked_yaw: Optional[float] = None,
       channel: bool = False,
   ) -> None:
-    """Lock heading and creep through a confirmed narrow passage."""
-    _, _, yaw = self.pose.get_pose()
-    self._passage_active = True
-    self._passage_channel_mode = channel
-    self._passage_locked_yaw = yaw if locked_yaw is None else locked_yaw
-    self._passage_ticks = 0
-    self._channel_lost_streak = 0
-    self._center_close_streak = 0
-    self._stress_level = 0
-    self._align_started_at = None
-    self._begin_corridor_commit(self._passage_locked_yaw, channel)
+    """20260706：已禁用 — 缝隙与通道模式；统一走一般避障。"""
+    # _, _, yaw = self.pose.get_pose()
+    # self._passage_active = True
+    # self._passage_channel_mode = channel
+    # self._passage_locked_yaw = yaw if locked_yaw is None else locked_yaw
+    # self._passage_ticks = 0
+    # self._channel_lost_streak = 0
+    # self._center_close_streak = 0
+    # self._stress_level = 0
+    # self._align_started_at = None
+    # self._begin_corridor_commit(self._passage_locked_yaw, channel)
+    pass
 
   def passage_mode_active(self) -> bool:
     return self._passage_active
@@ -370,16 +376,16 @@ class FrontierNavigator:
     profile = self._profile(scan)
     rx, ry, yaw = self.pose.get_pose()
 
-    if self._passage_active:
-      return self._tick_passage_mode(scan, cruise_speed, profile, 0.0, 0.0)
-
-    center = float(profile.get('center', 0.0))
-    if (
-        self._is_block_wall_channel(profile)
-        and center >= self.boundary_dist * self.passage_channel_center_min_ratio
-    ):
-      self.arm_passage_mode(locked_yaw=yaw, channel=True)
-      return self._tick_passage_mode(scan, cruise_speed, profile, 0.0, 0.0)
+    # if self._passage_active:
+    #   return self._tick_passage_mode(scan, cruise_speed, profile, 0.0, 0.0)
+    #
+    # center = float(profile.get('center', 0.0))
+    # if (
+    #     self._is_block_wall_channel(profile)
+    #     and center >= self.boundary_dist * self.passage_channel_center_min_ratio
+    # ):
+    #   self.arm_passage_mode(locked_yaw=yaw, channel=True)
+    #   return self._tick_passage_mode(scan, cruise_speed, profile, 0.0, 0.0)
 
     cmd_v, w, strafe, sub_state, needs_recovery = self._perimeter_ctrl.tick(
         profile,
@@ -679,13 +685,11 @@ class FrontierNavigator:
     stop_gate = self._forward_stop_dist()
     if path_clear < stop_gate:
       return 0.0
+    if path_clear >= self.cruise_resume_center:
+      return cruise_speed
     if path_clear >= cruise_gate:
-      if path_clear > 0.65:
-        return cruise_speed
-      if path_clear > 0.45:
+      if path_clear > 0.38:
         return min(cruise_speed, 0.12)
-      if path_clear > 0.35:
-        return 0.08
       return self.creep_speed
     return self.creep_speed
 
@@ -705,21 +709,21 @@ class FrontierNavigator:
       profile: Dict[str, float],
       cmd_v: float,
   ) -> Tuple[float, float]:
-    """Reduce forward speed and add strafe when a side is too close."""
-    if self._passage_channel_mode:
-      return self._apply_channel_lateral(profile, cmd_v)
+    """侧向过近时降速并横移 — 一般障碍，不区分通道。"""
+    # if self._passage_channel_mode:
+    #   return self._apply_channel_lateral(profile, cmd_v)
 
     left = float(profile.get('left', 99.0))
     right = float(profile.get('right', 99.0))
     lateral_limit = self._effective_lateral_dist()
     strafe = 0.0
-    strafe_gain = 0.85 if self._passage_active else 0.5
+    strafe_gain = 0.65
     if left < lateral_limit:
       strafe -= self.creep_speed * strafe_gain
-      cmd_v *= 0.45 if self._passage_active else 0.55
+      cmd_v *= 0.65
     if right < lateral_limit:
       strafe += self.creep_speed * strafe_gain
-      cmd_v *= 0.45 if self._passage_active else 0.55
+      cmd_v *= 0.65
     return cmd_v, strafe
 
   def _apply_channel_lateral(
@@ -817,56 +821,58 @@ class FrontierNavigator:
         },
     )
 
+  def _simple_path_clear(self, center: float, wide: float) -> float:
+    """一般障碍：取前方与宽扇区净空较小值，不区分通道/墙角。"""
+    return min(center, wide)
+
+  def _simple_drive_speed(
+      self,
+      path_clear: float,
+      cruise_speed: float,
+  ) -> float:
+    """连续限速，避免状态切换时突然归零。"""
+    stop_gate = self._forward_stop_dist()
+    cruise_gate = self._cruise_clear_dist()
+    if path_clear < stop_gate:
+      ratio = max(0.0, (path_clear - self.boundary_dist * 0.45) / max(1e-6, stop_gate - self.boundary_dist * 0.45))
+      return self.creep_speed * (0.35 + 0.65 * ratio)
+    if path_clear >= self.cruise_resume_center:
+      return cruise_speed
+    if path_clear >= cruise_gate:
+      t = (path_clear - cruise_gate) / max(1e-6, self.cruise_resume_center - cruise_gate)
+      return self.creep_speed + t * (cruise_speed - self.creep_speed)
+    t = (path_clear - stop_gate) / max(1e-6, cruise_gate - stop_gate)
+    return self.creep_speed * (0.5 + 0.5 * t)
+
   def _handle_center_blocked(
       self,
       profile: Dict[str, float],
       heading_err: float,
   ) -> str:
-    """Narrow sector blocked — never creep forward; escalate to blocked for FSM."""
-    if self._is_block_wall_channel(profile):
-      center = float(profile.get('center', 0.0))
-      channel_min = self.boundary_dist * self.passage_channel_center_min_ratio
-      if center >= channel_min:
-        w = max(
-            -self.drive_max_w,
-            min(self.drive_max_w, self.heading_kp * heading_err * 0.4),
-        )
-        cmd_v = self.creep_speed * 0.75
-        cmd_v, _strafe = self._apply_channel_lateral(profile, cmd_v)
-        self._publish_drive(cmd_v, w)
-        self._update_feedback('creep', profile, heading_err)
-        return 'creep'
-
+    """一般避障：带速转向 + 侧移，连续帧确认后才上报 blocked。"""
     w_drive = max(
         -self.drive_max_w,
         min(self.drive_max_w, self.heading_kp * heading_err),
     )
-    if self._center_close_streak >= self.boundary_confirm_frames:
+    center = float(profile.get('center', 0.0))
+    wide = float(profile.get('wide', 0.0))
+    path_clear = self._simple_path_clear(center, wide)
+
+    if self._center_close_streak >= self.boundary_confirm_frames * 4:
       self._center_close_streak = 0
-      self._stress_level = min(5, self._stress_level + 1)
-
-      if self._stress_level <= 2:
-        self._publish_drive(0.0, w_drive * 0.6)
-        self._update_feedback('hold', profile, heading_err)
-        return 'hold'
-
-      if self._stress_level == 3:
-        self.move.publish_stop_brief()
-        self._update_feedback('nudge_5', profile, heading_err)
-        return 'nudge_5'
-
-      if self._stress_level == 4:
-        self.move.publish_stop_brief()
-        self._update_feedback('nudge_10', profile, heading_err)
-        return 'nudge_10'
-
       self.move.publish_stop_brief()
       self._update_feedback('blocked', profile, heading_err)
       return 'blocked'
 
-    self._publish_drive(0.0, w_drive * 0.5)
-    self._update_feedback('hold', profile, heading_err)
-    return 'hold'
+    cmd_v = max(self.creep_speed * 0.55, self._simple_drive_speed(path_clear, self.creep_speed * 1.5))
+    cmd_v, strafe = self._apply_lateral_safety(profile, cmd_v)
+    self._publish_drive(cmd_v, w_drive * 0.85, linear_y=strafe)
+    self._update_feedback('creep', profile, heading_err)
+    return 'creep'
+
+  # --- 20260706：已禁用 — 原多状态导航（缝隙、对准、停车、轻推）---
+  # def _handle_center_blocked_legacy(...): ...
+  # def _tick_passage_mode(...): 保留在下方供参考，不再调用
 
   def _tick_passage_mode(
       self,
@@ -935,6 +941,7 @@ class FrontierNavigator:
     return 'passage'
 
   def tick(self, scan: LaserScan, cruise_speed: float) -> str:
+    """20260706：统一一般避障；带速朝目标转向，按净空连续限速。"""
     if self._final_goal is None:
       self._feedback = NavExecutionFeedback()
       return 'idle'
@@ -966,10 +973,8 @@ class FrontierNavigator:
       gx, gy = self._goal
 
     profile = self._profile(scan)
-    center = profile['center']
-    wide = profile['wide']
-    score = profile['passage_score']
-    cruise_gate = self._cruise_clear_dist()
+    center = float(profile['center'])
+    wide = float(profile['wide'])
 
     if hasattr(self.pose, 'is_healthy') and not self.pose.is_healthy():
       self.move.publish_stop_brief()
@@ -978,93 +983,43 @@ class FrontierNavigator:
 
     heading_err = self._normalize_heading_error(self.pose.angle_to(gx, gy))
     dist_goal = self.pose.distance_to(gx, gy)
+    path_clear = self._simple_path_clear(center, wide)
+    stop_dist = self._forward_stop_dist()
 
-    if self._passage_active:
-      return self._tick_passage_mode(scan, cruise_speed, profile, gx, gy)
+    # 20260706：已禁用 — 缝隙、走廊、通道专用分支
+    # if self._passage_active:
+    #   return self._tick_passage_mode(scan, cruise_speed, profile, gx, gy)
+    # if self._try_auto_arm_passage(profile, gx, gy, heading_err):
+    #   return self._tick_passage_mode(scan, cruise_speed, profile, gx, gy)
 
-    if self._try_auto_arm_passage(profile, gx, gy, heading_err):
-      return self._tick_passage_mode(scan, cruise_speed, profile, gx, gy)
-
-    w_full = max(-self.align_max_w, min(self.align_max_w, self.heading_kp * heading_err))
     drive_tol = self._drive_heading_tolerance_for(dist_goal)
-    need_drive = abs(heading_err) <= drive_tol
-    narrow_passage = score > self.passage_score_threshold and wide < self.boundary_dist + 0.04
-    open_center = center >= self.open_align_center_min
+    w_drive = max(
+        -self.drive_max_w,
+        min(self.drive_max_w, self.heading_kp * heading_err),
+    )
 
-    if not need_drive:
-      center_forward_ok = not self._center_blocks_forward(center)
-      open_ahead = (
-          center_forward_ok
-          and wide >= self.boundary_dist + self._boundary_release_margin
-          and center >= cruise_gate * 0.90
-      )
-      w_arc = max(-self.align_arc_max_w, min(self.align_arc_max_w, w_full * 0.85))
-
-      if (
-          open_ahead
-          or narrow_passage
-          or open_center
-          or abs(heading_err) >= self.spin_only_limit
-      ):
-        arc_v = 0.0
-        if center_forward_ok:
-          if open_ahead or open_center:
-            arc_v = max(
-                self.align_arc_speed,
-                self.open_align_arc_speed,
-                self.creep_speed * 1.2,
-            )
-          elif narrow_passage:
-            arc_v = max(self.creep_speed * 0.7, self.align_arc_speed)
-        self._publish_drive(arc_v, w_arc)
-        self._update_feedback('align_arc', profile, heading_err)
-        return 'align_arc'
-
-      if self._align_started_at is None:
-        self._align_started_at = rospy.Time.now()
-      align_elapsed = (rospy.Time.now() - self._align_started_at).to_sec()
-      if align_elapsed >= self.align_timeout_sec and center_forward_ok:
-        w_arc = max(-self.align_arc_max_w, min(self.align_arc_max_w, w_full * 0.7))
-        self._publish_drive(self.creep_speed * 0.5, w_arc)
-        self._update_feedback('align_arc', profile, heading_err)
-        return 'align_arc'
-
-      self.move.publish_twist(linear_x=0.0, angular_z=w_full)
-      if hasattr(self.pose, 'note_cmd_vel'):
-        from geometry_msgs.msg import Twist
-        cmd = Twist()
-        cmd.angular.z = w_full
-        self.pose.note_cmd_vel(cmd)
-      self._update_feedback('align', profile, heading_err)
-      return 'align'
-
-    self._align_started_at = None
-
-    if self._wide_blocks_forward(wide, center) and not self._center_blocks_forward(center):
-      self._center_close_streak += 1
-      return self._handle_center_blocked(profile, heading_err)
-
-    if self._center_blocks_forward(center):
+    if path_clear < stop_dist:
       self._center_close_streak += 1
       return self._handle_center_blocked(profile, heading_err)
 
     self._center_close_streak = max(0, self._center_close_streak - 1)
-    if self._stress_level > 0 and self._center_close_streak == 0:
-      self._stress_level = max(0, self._stress_level - 1)
+    self._stress_level = 0
 
-    cmd_v = self._drive_speed(center, wide, cruise_speed)
-    if cmd_v <= 0.0:
-      self._center_close_streak += 1
-      return self._handle_center_blocked(profile, heading_err)
-
-    w_drive = max(-self.drive_max_w, min(self.drive_max_w, self.heading_kp * heading_err))
+    cmd_v = self._simple_drive_speed(path_clear, cruise_speed)
     cmd_v, strafe = self._apply_lateral_safety(profile, cmd_v)
+
+    # 大偏角也带速转向，避免 align 原地停转
+    min_arc_v = max(self.creep_speed, self.open_align_arc_speed * 0.85)
+    if abs(heading_err) > drive_tol and cmd_v < min_arc_v:
+      cmd_v = max(cmd_v, min_arc_v)
+
     self._publish_drive(cmd_v, w_drive, linear_y=strafe)
-    if cmd_v <= self.creep_speed + 0.01:
-      self._update_feedback('creep', profile, heading_err)
-      return 'creep'
-    if cmd_v < cruise_speed * 0.55:
-      self._update_feedback('slow', profile, heading_err)
-      return 'slow'
-    self._update_feedback('drive', profile, heading_err)
-    return 'drive'
+    if cmd_v >= cruise_speed * 0.55:
+      self._update_feedback('drive', profile, heading_err)
+      return 'drive'
+    self._update_feedback('creep', profile, heading_err)
+    return 'creep'
+
+  # --- 20260706：已禁用 — 原 tick 多状态（对准、带速转向、停车、慢速、缝隙）---
+  # def tick_legacy(self, scan, cruise_speed):
+  #   ... 见 git 历史 ...

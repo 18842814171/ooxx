@@ -5,9 +5,9 @@ search:
   boundary_dist: 0.30
   front_sector_half_width: 0.22
   nav_block_half_width: 0.14
-  boundary_confirm_frames: 3
-  creep_speed: 0.06
-  cruise_speed: 0.18
+  boundary_confirm_frames: 2          # 时间成本：更快退出 hold 等待
+  creep_speed: 0.08
+  cruise_speed: 0.20                  # 20260706：提高巡航速度
   turn_speed: 0.45
   turn_angle_deg: 90
   wall_follow_duration: 2.0
@@ -15,21 +15,22 @@ search:
   align_tolerance_deg: 18.0
   nav_heading_kp: 2.0
   waypoint_tolerance: 0.10
-  align_timeout_sec: 0.5
-  align_arc_speed: 0.06
-  nav_forward_stop_margin: 0.08   # center < boundary+此值禁止前进（直行挡障）
-  nav_cruise_clear_margin: 0.08   # center/wide 均超 boundary+此值才巡航
-  nav_wide_hold_margin: 0.08      # wide < boundary+此值提前 hold（贴墙）
+  align_timeout_sec: 0.25            # [简化导航后基本不用 align 停转]
+  align_arc_speed: 0.08
+  nav_forward_stop_margin: 0.06   # 略收紧，但连续限速不断速
+  nav_cruise_clear_margin: 0.06   # center/wide 均超 boundary+此值才巡航
+  nav_cruise_resume_center: 0.38  # center≥此值直接恢复 cruise
+  nav_wide_hold_margin: 0.08      # [已禁用 wide hold]
   nav_wide_hold_override_center_min: 0.70  # center 超此值忽略 wide hold
   nav_lateral_block_dist: 0.25    # 侧向距离低于此值时侧移避让
   robot_radius: 0.15              # 车体等效半径（日志/膨胀参考）
   robot_half_width: 0.18          # 半车宽（含麦轮外沿）
   robot_front_overhang: 0.08      # 前向外凸（相机支架等）
   nav_passage_score_threshold: 0.40  # 缝隙模式入口 passage_score 下限
-  nav_passage_max_ticks: 80         # 缝隙模式最长持续 tick（20Hz≈4s）
+  nav_passage_max_ticks: 120        # 缝隙承诺最长 tick；0.054m/s 下需留足穿缝时间
   nav_passage_creep_factor: 0.90    # 缝隙模式速度 = creep × 此系数
-  nav_passage_auto_arm: true        # 正常导航主动进入缝隙模式
-  nav_passage_channel_auto_arm: false  # 块+墙 channel 自动 arm（验收先关，过缝测试再开）
+  nav_passage_auto_arm: false       # 20260706：已禁用 — 统一一般避障
+  nav_passage_channel_auto_arm: false
   nav_passage_wide_max: 0.48        # wide 低于此值才主动 arm
   nav_passage_side_max: 0.65         # min(L,R) 低于此值视为两侧夹持
   nav_passage_center_min_ratio: 0.80 # center >= boundary×此值才 arm（对称缝）
@@ -40,15 +41,15 @@ search:
   nav_passage_channel_min_hold_ticks: 15       # channel 最短持有 tick 才允许判定丢失
   nav_passage_channel_lost_streak: 6           # 连续非 channel 几何帧数才退出
   nav_passage_channel_exit_yaw_hold_sec: 2.0    # 穿出后短暂锁定原航向便于再入
-  nav_corridor_commit_travel_m: 0.80          # commit 目标前进距离
+  nav_corridor_commit_travel_m: 0.55          # commit 穿行完成距离（实车 timeout 前约 0.58m）
   nav_corridor_commit_cooldown_sec: 2.0
   nav_corridor_commit_arm_confirm_frames: 10    # gap 条件连续成立才 auto-arm
   nav_corridor_commit_min_hold_ticks: 18        # 进入后承诺期 tick（≈0.9s@20Hz）
   nav_corridor_commit_min_travel_m: 0.30        # 承诺期内至少前进此距离
   nav_corridor_commit_abort_yaw_deg: 45.0       # 航向偏差超此值可提前退出
   nav_corridor_commit_hard_abort_ratio: 0.55    # center < boundary×此值视为撞死可立即 abort
-  nav_open_align_center_min: 0.65    # 前方 center 超此值允许带速 align_arc
-  nav_open_align_arc_speed: 0.10     # 开阔区 align_arc 线速度
+  nav_open_align_center_min: 0.55    # 简化导航：更低门槛带速转向
+  nav_open_align_arc_speed: 0.12     # 开阔区带速转向线速度
   nav_drive_heading_far_dist: 1.5    # 目标距离超此值放宽航向容差
   nav_drive_heading_far_deg: 32.0
   nav_drive_heading_mid_dist: 0.9
@@ -57,7 +58,7 @@ search:
   recovery_passage_replan_rounds: 2        # 窄通道恢复后约束轮数
   wall_target_dist: 0.25
   # --- 边界与恢复 ---
-  boundary_pause_sec: 0.25          # 撞墙后停车等待（秒）
+  boundary_pause_sec: 0.15          # 撞墙后停车等待（秒）
   boundary_turn_deg: 15.0           # 正前方被挡时小角度转向
   boundary_corner_turn_deg: 25.0    # 角落转向角度
   boundary_repeat_turn_deg: 35.0    # 同一区域连续撞墙时转向角度
@@ -117,6 +118,10 @@ search:
   wall_hug_clearance_margin: 0.12
   wall_hug_angle_deg: 25.0           # 贴墙加罚覆盖 |偏角| 上限
   planner_debug: true
+  # 20260707：前方受阻时纯激光选最开阔方向（不查地图）
+  local_clearance_escape_enabled: true
+  local_clearance_escape_dist_m: 0.65   # 脱困短目标距离（米）
+  local_clearance_escape_min_clear: 0.22  # 可选方向最低净空（米）
   bootstrap_detour_dist: 0.90        # 兼容旧参数
   bootstrap_detour_deg: 35.0
   # --- 运行统计 ---
@@ -126,7 +131,7 @@ search:
 
 map:
   resolution: 0.08
-  size_m: 12.0
+  size_m: 15.0
   goal_tolerance: 0.03
   coverage_complete_threshold: 0.92
   use_odom: true
@@ -138,6 +143,10 @@ map:
   astar_inflation_cells: 1
   astar_waypoint_spacing: 0.20
   astar_max_candidates: 25
+  # 20260706：边界多候选评分选点（评估前 N 个候选，取总代价最低）
+  frontier_eval_top_n: 10
+  frontier_narrow_penalty_weight: 0.40   # 20260706：路径贴障碍加权
+  frontier_failure_penalty_weight: 1.0   # 20260706：历史失败区域软惩罚加权
 
 boustrophedon:
   strip_width: 0.30
@@ -145,8 +154,8 @@ boustrophedon:
 
 global_planner:
   enabled: true
-  initial_mode: frontier            # frontier | perimeter | coverage
-  perimeter_enabled: false           # true=调试绕场；false=默认 Frontier 探索
+  initial_mode: frontier            # 20260706：仅启用边界探索模式
+  perimeter_enabled: false           # 20260706：绕场能力迁移至逃离选点与开阔侧转向
   perimeter_wall_side: right         # left | right — 绕场贴哪侧墙（仅 perimeter_enabled）
   perimeter_lost_wall_dist: 0.80      # 超过此距离判定丢墙 → LOST_WALL
   perimeter_found_wall_dist: 0.65    # 小于此距离判定找到墙 → FOLLOW_WALL
@@ -156,15 +165,16 @@ global_planner:
   perimeter_max_sec: 180.0
   perimeter_min_coverage: 0.12
 
-targets:
-  - name: target_a
-    color: red
-    shape: circle
-    count: 2
-  - name: target_b
-    color: blue
-    shape: rectangle
-    count: 1
+# 20260706：已禁用 — 识别目标；任务改为仅按覆盖率结束
+# targets:
+#   - name: target_a
+#     color: red
+#     shape: circle
+#     count: 2
+#   - name: target_b
+#     color: blue
+#     shape: rectangle
+#     count: 1
 
 colors:
   red:

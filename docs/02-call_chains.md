@@ -15,11 +15,15 @@
 ```
 ooxx_node.run()  [20Hz]
   └── fsm.tick()
-        ├── grid.update_scan / mark_robot
-        └── handlers[state]()    ← 按状态分发，无脱离窗口抢先发速
+        ├── 激光更新栅格地图（可通行 / 障碍）
+        ├── 标记当前格为已访问
+        ├── 更新覆盖率
+        └── handlers[state]()    ← 按状态分发
 ```
 
-**文件**：`scripts/ooxx_node.py`，`scripts/search_fsm.py:238`
+建图与障碍标记说明见 `docs/03-module_index.md` 第 4.1 节。
+
+**文件**：`scripts/ooxx_node.py`，`scripts/search_fsm.py`，`scripts/occupancy_grid.py`
 
 ---
 

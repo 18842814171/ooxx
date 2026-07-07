@@ -1,7 +1,0 @@
-❯ rosrun ooxx ooxx_logrun.sh roslaunch ooxx chassis_search.launch
-
-[ooxx_logrun] 日志 -> /home/ubuntu/experiment_ws/src/ooxx/log/11-24.txt
-[ooxx_logrun] 命令: roslaunch ooxx chassis_search.launch
----
-[ERROR] [1713583465.153326464]: Error, unexpected error, code: 80008004
-[ INFO] [1713583465.151848768]: RPLIDAR running on ROS package rplidar_ros, SDK Version:2.1.0

@@ -153,6 +153,11 @@ class GlobalPlanner:
       exclude_radius: float = 0.75,
       prefer_escape: bool = False,
       prefer_forward: bool = True,
+      # 20260706：边界多候选评分选点参数
+      eval_top_n: int = 10,
+      narrow_penalty_weight: float = 0.40,
+      failure_penalty_weight: float = 1.0,
+      goal_soft_penalty=None,
   ) -> GlobalPlan:
     self.note_pose(robot_yaw)
 
@@ -183,6 +188,10 @@ class GlobalPlanner:
           prefer_escape=prefer_escape,
           max_astar_candidates=self.astar_max_candidates,
           prefer_forward=prefer_forward,
+          eval_top_n=eval_top_n,
+          narrow_penalty_weight=narrow_penalty_weight,
+          failure_penalty_weight=failure_penalty_weight,
+          goal_soft_penalty=goal_soft_penalty,
       )
       if goal is None or not path:
         return GlobalPlan(
@@ -210,6 +219,7 @@ class GlobalPlanner:
     if self._mode == 'coverage':
       rospy.logwarn('GlobalPlanner: mode=coverage not implemented — fallback frontier')
       self._mode = 'frontier'
+      # 20260706：覆盖模式回退时透传边界评分参数
       return self.plan(
           robot_x,
           robot_y,
@@ -218,6 +228,10 @@ class GlobalPlanner:
           exclude_radius=exclude_radius,
           prefer_escape=prefer_escape,
           prefer_forward=prefer_forward,
+          eval_top_n=eval_top_n,
+          narrow_penalty_weight=narrow_penalty_weight,
+          failure_penalty_weight=failure_penalty_weight,
+          goal_soft_penalty=goal_soft_penalty,
       )
 
     return GlobalPlan(mode=self._mode, status='error', message='unknown mode')

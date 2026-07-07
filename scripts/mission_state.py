@@ -66,10 +66,17 @@ class MissionState:
       self.coverage_ratio = 0.0
 
   def is_mission_complete(self) -> bool:
+    # 20260706：已禁用 — 无识别目标时任务不以计数结束，仅由覆盖率判定
+    if not self.required:
+      return False
+    # for key, needed in self.required.items():
+    #   if self.counts.get(key, 0) < needed:
+    #     return False
+    # return bool(self.required)
     for key, needed in self.required.items():
       if self.counts.get(key, 0) < needed:
         return False
-    return bool(self.required)
+    return True
 
   def is_coverage_complete(self, threshold: float = 0.92) -> bool:
     return self.free_cells > 0 and self.coverage_ratio >= threshold
@@ -81,33 +88,34 @@ class MissionState:
       pixel_center: Tuple[int, int],
       world_pos: Optional[Tuple[float, float, float]],
   ) -> bool:
-    """Return True if this is a new target object (world or pixel dedup)."""
-    key = '{}/{}'.format(color, shape)
-    if key not in self.required:
-      return False
-    if self.counts.get(key, 0) >= self.required[key]:
-      return False
-
-    if world_pos is not None:
-      if self._is_world_duplicate(key, world_pos):
-        return False
-      self._known_positions.setdefault(key, []).append(world_pos)
-    else:
-      if self._is_pixel_duplicate(key, pixel_center):
-        return False
-
-    record = TargetRecord(
-        object_id=self._next_object_id,
-        color=color,
-        shape=shape,
-        world_pos=world_pos or (0.0, 0.0, 0.0),
-        pixel_center=pixel_center,
-        stop_index=self.scan_stops,
-    )
-    self._next_object_id += 1
-    self.target_records.append(record)
-    self.counts[key] = self.counts.get(key, 0) + 1
-    return True
+    """20260706：已禁用 — 识别目标已关闭，不再登记颜色形状计数。"""
+    return False
+    # key = '{}/{}'.format(color, shape)
+    # if key not in self.required:
+    #   return False
+    # if self.counts.get(key, 0) >= self.required[key]:
+    #   return False
+    #
+    # if world_pos is not None:
+    #   if self._is_world_duplicate(key, world_pos):
+    #     return False
+    #   self._known_positions.setdefault(key, []).append(world_pos)
+    # else:
+    #   if self._is_pixel_duplicate(key, pixel_center):
+    #     return False
+    #
+    # record = TargetRecord(
+    #     object_id=self._next_object_id,
+    #     color=color,
+    #     shape=shape,
+    #     world_pos=world_pos or (0.0, 0.0, 0.0),
+    #     pixel_center=pixel_center,
+    #     stop_index=self.scan_stops,
+    # )
+    # self._next_object_id += 1
+    # self.target_records.append(record)
+    # self.counts[key] = self.counts.get(key, 0) + 1
+    # return True
 
   def _is_world_duplicate(self, key: str, pos: Tuple[float, float, float]) -> bool:
     for seen in self._known_positions.get(key, []):
@@ -145,5 +153,8 @@ class MissionState:
   def status_line(self) -> str:
     p = self.progress()
     return (
-        'counts={} coverage={:.0%} visited={} boundaries={} scans={}'
-    ).format(p.counts, p.coverage_ratio, p.visited_cells, p.boundary_events, p.scan_stops)
+        'coverage={:.0%} visited={} boundaries={} scans={}'
+    ).format(p.coverage_ratio, p.visited_cells, p.boundary_events, p.scan_stops)
+    # return (
+    #     'counts={} coverage={:.0%} visited={} boundaries={} scans={}'
+    # ).format(p.counts, p.coverage_ratio, p.visited_cells, p.boundary_events, p.scan_stops)

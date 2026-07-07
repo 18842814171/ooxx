@@ -76,11 +76,15 @@ class MissionSearchNode:
         rospy.on_shutdown(self.shutdown)
 
         rospy.loginfo('Mission search | mode=%s | config=%s', self.mission.search.mode, config_path)
-        rospy.loginfo('Targets: %s', self.mission.required_counts())
+        # rospy.loginfo('Targets: %s', self.mission.required_counts())
         rospy.loginfo(
-            'Vision backend: %s (camera via target_detector node)',
-            self.mission.vision.backend,
+            'Task end: coverage threshold=%.0f%%',
+            self.mission.map.coverage_complete_threshold * 100.0,
         )
+        # rospy.loginfo(
+        #     'Vision backend: %s (camera via target_detector node)',
+        #     self.mission.vision.backend,
+        # )
 
     def _scan_callback(self, msg: LaserScan) -> None:
         with self._scan_lock:
@@ -125,8 +129,8 @@ class MissionSearchNode:
             if state == SearchState.DONE:
                 self.move.stop_robot()
                 rospy.loginfo('Final: %s', self.mission_state.status_line())
-                for rec in self.mission_state.target_records:
-                    rospy.loginfo('  #%d %s/%s', rec.object_id, rec.color, rec.shape)
+                # for rec in self.mission_state.target_records:
+                #     rospy.loginfo('  #%d %s/%s', rec.object_id, rec.color, rec.shape)
                 break
 
             rate.sleep()

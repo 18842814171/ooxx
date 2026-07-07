@@ -31,7 +31,7 @@ from perception.base import PerceptionBackend, ScanResult
 from pose_estimator import PoseEstimator
 
 
-FSM_BUILD_ID = '20260706-corridor-commit-lifecycle'
+FSM_BUILD_ID = '20260706-frontier-score'
 
 
 class SearchState(enum.Enum):
@@ -93,6 +93,7 @@ class SearchFSM:
     self._blocked_escalate_threshold = 3
     self._plan_settle_sec = 0.1
     self._prefer_escape_frontier = False
+    self._no_frontier_open_turn_done = False  # 20260706：无边界点开阔侧转向是否已执行
     self._last_recovery_turn_sign: Optional[float] = None
     self._recovery_escalation = 0
     self._recovery_attempts = 0
@@ -170,6 +171,7 @@ class SearchFSM:
         align_arc_speed=config.search.align_arc_speed,
         forward_stop_margin=config.search.nav_forward_stop_margin,
         cruise_clear_margin=config.search.nav_cruise_clear_margin,
+        cruise_resume_center=config.search.nav_cruise_resume_center,
         wide_hold_margin=config.search.nav_wide_hold_margin,
         lateral_block_dist=config.search.nav_lateral_block_dist,
         robot_half_width=config.search.robot_half_width,
@@ -262,6 +264,9 @@ class SearchFSM:
         recovery_escape_center_max=config.search.recovery_escape_center_max,
         recovery_replan_rounds=config.search.recovery_replan_rounds,
         planner_debug=config.search.planner_debug,
+        clearance_escape_enabled=config.search.local_clearance_escape_enabled,
+        clearance_escape_dist_m=config.search.local_clearance_escape_dist_m,
+        clearance_escape_min_clear=config.search.local_clearance_escape_min_clear,
     )
     b_cfg = config.boustrophedon
     self.boustrophedon = BoustrophedonPlanner(
@@ -492,8 +497,9 @@ class SearchFSM:
     return True
 
   def _is_search_complete(self) -> bool:
-    if self.mission_state.is_mission_complete():
-      return True
+    # 20260706：已禁用 — 识别目标计数完成条件
+    # if self.mission_state.is_mission_complete():
+    #   return True
     if self.mode == 'occupancy_grid' and self.mission_state.is_coverage_complete(
         self.config.map.coverage_complete_threshold
     ):
@@ -682,23 +688,23 @@ class SearchFSM:
     return max(15, self.search.boundary_confirm_frames * 10)
 
   def _track_nav_hold(self, status: str) -> bool:
-    """Navigator 报告 hold；累计超限后由 FSM 决策进 Recovery（非 Planner 重规划）。"""
-    if self.frontier_nav.corridor_commit_active():
-      self._nav_hold_streak = 0
-      return False
-    if status == 'hold':
-      self._nav_hold_streak += 1
-    else:
-      self._nav_hold_streak = 0
-    limit = self._nav_hold_limit()
-    if self._nav_hold_streak >= limit:
-      rospy.logwarn(
-          'FSM: Navigator hold %d ticks (limit %d) — FSM enters boundary recovery',
-          self._nav_hold_streak,
-          limit,
-      )
-      self._nav_hold_streak = 0
-      return True
+    """20260706：已禁用 — 导航 hold 累计进恢复；改由 blocked 直接触发重规划。"""
+    # if self.frontier_nav.corridor_commit_active():
+    #   self._nav_hold_streak = 0
+    #   return False
+    # if status == 'hold':
+    #   self._nav_hold_streak += 1
+    # else:
+    #   self._nav_hold_streak = 0
+    # limit = self._nav_hold_limit()
+    # if self._nav_hold_streak >= limit:
+    #   rospy.logwarn(
+    #       'FSM: Navigator hold %d ticks (limit %d) — FSM enters boundary recovery',
+    #       self._nav_hold_streak,
+    #       limit,
+    #   )
+    #   self._nav_hold_streak = 0
+    #   return True
     return False
 
   def _maybe_exit_bootstrap(self) -> bool:
@@ -744,10 +750,11 @@ class SearchFSM:
     )
 
   def _should_skip_boundary_action(self, scan: LaserScan, kind: str) -> bool:
-    """Only a clear narrow passage may resume without a turn; walls always adjust."""
-    if kind != 'narrow_passage':
-      return False
-    return self._forward_path_clear(scan)
+    """20260706：已禁用 — 窄通道免转向；所有障碍统一后退转向。"""
+    # if kind != 'narrow_passage':
+    #   return False
+    # return self._forward_path_clear(scan)
+    return False
 
   def _front_is_clear(self, scan: LaserScan) -> bool:
     return front_sector_clear(
@@ -808,21 +815,22 @@ class SearchFSM:
     )
     obs = str(profile.get('obstacle', ''))
     center = float(profile.get('center', 99.0))
-    pseudo_corner = (
-        kind in ('repeat', 'side_wall', 'corner')
-        or (obs == 'single_wall' and center < 0.32)
-    )
-    if pseudo_corner:
-      self._blacklist_corner(goal, 'pseudo_corner')
-      self._prefer_escape_frontier = True
-      rospy.logwarn(
-          'Pseudo-corner detected type=%s obs=%s center=%.2f — blacklist',
-          kind,
-          obs,
-          center,
-      )
+    # 20260706：已禁用 — 伪角落与通道分类，统一按一般边界恢复
+    # pseudo_corner = (
+    #     kind in ('repeat', 'side_wall', 'corner')
+    #     or (obs == 'single_wall' and center < 0.32)
+    # )
+    # if pseudo_corner:
+    #   self._blacklist_corner(goal, 'pseudo_corner')
+    #   self._prefer_escape_frontier = True
+    #   rospy.logwarn(
+    #       'Pseudo-corner detected type=%s obs=%s center=%.2f — blacklist',
+    #       kind,
+    #       obs,
+    #       center,
+    #   )
 
-    self._start_boundary_recovery(scan, kind)
+    self._start_boundary_recovery(scan, 'front_wall')
 
   def _start_boundary_recovery(self, scan: LaserScan, kind: str) -> None:
     self._boundary_kind = kind
@@ -936,7 +944,7 @@ class SearchFSM:
     self._explore_no_candidate_count = 0
     self.local_planner.refresh_penalty_for_replan()
 
-    passage = self._resume_passage_mode
+    passage = False  # self._resume_passage_mode
     self._resume_passage_mode = False
 
     if self._use_global_planner():
@@ -945,16 +953,16 @@ class SearchFSM:
         if not self.frontier_nav.perimeter_active():
           self.frontier_nav.start_perimeter_mode()
         self.frontier_nav.reset_perimeter_controller()
-        if passage:
-          self.frontier_nav.arm_passage_mode()
+        # if passage:
+        #   self.frontier_nav.arm_passage_mode()
         self._set_state(SearchState.MOVE_TO_GOAL, 'recovery done, resume perimeter')
         return
       gp = self.config.global_planner
       if gp.perimeter_enabled and gp.initial_mode == 'perimeter':
         self._goto_global_plan('recovery done, global replan')
       else:
-        if passage:
-          self._resume_passage_mode = True
+        # if passage:
+        #   self._resume_passage_mode = True
         self._set_state(SearchState.PLAN_NEXT, 'recovery done, replan')
       return
 
@@ -962,8 +970,8 @@ class SearchFSM:
     bootstrap = self.config.map.bootstrap_visited
     if visited < bootstrap and self.search.bootstrap_local_plan and not self._bootstrap_exited:
       self._replan_after_recovery(scan, passage=passage)
-      if passage:
-        self.frontier_nav.arm_passage_mode()
+      # if passage:
+      #   self.frontier_nav.arm_passage_mode()
       self._set_state(SearchState.EXPLORE, 'recovery done, resume explore')
       return
     if self.frontier_nav.has_goal() and self.local_planner.goal_valid(
@@ -971,23 +979,23 @@ class SearchFSM:
         self.frontier_nav._final_goal[1],
         scan,
     ):
-      if passage:
-        self.frontier_nav.arm_passage_mode()
+      # if passage:
+      #   self.frontier_nav.arm_passage_mode()
       self._set_state(SearchState.MOVE_TO_GOAL, 'recovery done, resume nav')
       return
     if self.search.bootstrap_local_plan and self._replan_after_recovery(
         scan,
         passage=passage,
     ):
-      if passage:
-        self.frontier_nav.arm_passage_mode()
+      # if passage:
+      #   self.frontier_nav.arm_passage_mode()
       self._set_state(SearchState.EXPLORE, 'recovery done, local replan')
       return
     if visited < bootstrap and self.search.bootstrap_local_plan and not self._bootstrap_exited:
       self._set_state(SearchState.EXPLORE, 'recovery done, resume explore')
       return
-    if passage:
-      self._resume_passage_mode = True
+    # if passage:
+    #   self._resume_passage_mode = True
     self._set_state(SearchState.PLAN_NEXT, 'recovery done, replan')
 
   def _tick_boundary_recovery(self, scan: LaserScan) -> None:
@@ -997,7 +1005,7 @@ class SearchFSM:
       return
 
     if phase == RecoveryPhase.PAUSE:
-      self.move.stop_robot(repeats=3)
+      self.move.stop_robot(repeats=1)
       if self._recovery_phase_started is None:
         self._recovery_phase_started = rospy.Time.now()
       elapsed = (rospy.Time.now() - self._recovery_phase_started).to_sec()
@@ -1012,8 +1020,8 @@ class SearchFSM:
       kind = self._boundary_kind or 'front_wall'
       if self._should_skip_boundary_action(scan, kind):
         rospy.loginfo('Recovery(%s): 通道可通行，继续', reason)
-        if kind == 'narrow_passage':
-          self._resume_passage_mode = True
+        # if kind == 'narrow_passage':
+        #   self._resume_passage_mode = True
         self._finish_recovery_resume(scan)
         return
       self._recovery_phase = RecoveryPhase.ACT
@@ -1066,19 +1074,19 @@ class SearchFSM:
       return
 
   def _log_frontier_debug(self, dbg: Dict[str, int], goal_is_none: bool) -> None:
+    """20260706：边界选点调试日志（含多候选评分代价分解）。"""
     level = rospy.logwarn if goal_is_none else rospy.loginfo
+    pick_total = dbg.get('pick_total', 0) / 100.0
+    pick_narrow = dbg.get('pick_narrow', 0) / 100.0
+    pick_failure = dbg.get('pick_failure', 0) / 100.0
     msg = (
         f'Frontier pick: frontiers={dbg.get("frontiers", 0)} '
-        f'candidates_raw={dbg.get("candidates_raw", 0)} '
         f'candidates={dbg.get("candidates", 0)} '
-        f'blocked_skipped={dbg.get("blocked_skipped", 0)} '
-        f'min_dist_skipped={dbg.get("min_dist_skipped", 0)} '
-        f'path_rejected={dbg.get("path_rejected", 0)} '
-        f'path_found={bool(dbg.get("path_found", 0))} '
-        f'waypoints={dbg.get("path_waypoints", 0)} '
         f'astar_eval={dbg.get("astar_evaluated", 0)} '
+        f'path_found={bool(dbg.get("path_found", 0))} '
         f'escape={bool(dbg.get("escape_pick", 0))} '
-        f'blocked_goals={len(self._blocked_goals)}'
+        f'total={pick_total:.2f} narrow={pick_narrow:.2f} '
+        f'failure={pick_failure:.2f} blocked_regions={len(self._blocked_goals)}'
     )
     level(msg)
 
@@ -1112,13 +1120,17 @@ class SearchFSM:
 
     if self._update_corner_stall(scan):
       rospy.logwarn(
-          'Corner stall (EXPLORE): disp<3cm rot>60deg — blacklist & recovery',
+          'Corner stall (EXPLORE): disp<3cm rot>60deg — replan',
       )
       failed_goal = self.frontier_nav._final_goal or self.frontier_nav._goal
       self.frontier_nav.clear_goal()
       self._blacklist_corner(failed_goal, 'corner_stall')
       self._run_stats['corner_stall'] += 1.0
-      self._enter_recovery('corner_stall')
+      # 20260706：墙角停滞启用逃离选点
+      self._prefer_escape_frontier = True
+      rx, ry, _ = self.pose.get_pose()
+      self._add_blocked_region(rx, ry, radius=self._corner_blacklist_radius)
+      self._set_state(SearchState.PLAN_NEXT, 'corner stall, replan')
       return
 
     if self._is_boundary_confirmed(scan):
@@ -1135,11 +1147,12 @@ class SearchFSM:
           self._enter_planner_deadlock_recovery(scan)
         return
       self._explore_no_candidate_count = 0
-      if status == 'passage':
-        return
-      if status == 'passage_done':
-        self._reset_stall_watch()
-        return
+      # 20260706：已禁用 — 缝隙通行状态链
+      # if status == 'passage':
+      #   return
+      # if status == 'passage_done':
+      #   self._reset_stall_watch()
+      #   return
       if self._track_nav_hold(status):
         self._on_boundary(scan)
       elif status == 'blocked':
@@ -1214,6 +1227,7 @@ class SearchFSM:
         exclude_radius=self._effective_exclude_radius(),
         prefer_escape=self._prefer_escape_frontier,
         prefer_forward=not self._prefer_escape_frontier,
+        **self._frontier_pick_kwargs(),
     )
     self._apply_global_plan(plan, scan)
 
@@ -1249,34 +1263,11 @@ class SearchFSM:
           self._bootstrap_logged = True
         self._set_state(SearchState.EXPLORE, 'map bootstrap')
         return
-      goal, path, dbg = self.grid.nearest_frontier(
-          rx, ry,
-          robot_yaw=ryaw,
-          exclude_regions=self._blocked_goal_regions(),
-          exclude_radius=self._effective_exclude_radius(),
-          prefer_escape=self._prefer_escape_frontier,
-          max_astar_candidates=self.config.map.astar_max_candidates,
-          prefer_forward=not self._prefer_escape_frontier,
-      )
+      goal, path, dbg = self._plan_frontier_goal(rx, ry, ryaw)
       if entering or goal is None:
         self._log_frontier_debug(dbg, goal_is_none=(goal is None))
       if goal is None:
-        if (
-            visited < bootstrap
-            and self.search.bootstrap_local_plan
-            and not self._bootstrap_exited
-        ):
-          rospy.logwarn(
-              'PLAN_NEXT: map still building (visited=%d) — EXPLORE forward',
-              visited,
-          )
-          self._set_state(SearchState.EXPLORE, 'map building')
-          return
-        rospy.logwarn(
-            'PLAN_NEXT: no reachable frontier — RECOVERY (in_bounds=%s visited=%d)',
-            in_bounds, visited,
-        )
-        self._set_state(SearchState.RECOVERY, 'no_frontier')
+        self._handle_no_frontier(rx, ry, in_bounds, visited)
         return
       if not path:
         rospy.logwarn(
@@ -1285,27 +1276,7 @@ class SearchFSM:
         )
         self._add_blocked_region(goal[0], goal[1])
         return
-      path = self._trim_path_forward(path, rx, ry, ryaw)
-      self._recovery_explore_active = False
-      self._recovery_goal = None
-      self._reset_stall_watch()
-      if not self.frontier_nav.set_path(path, goal):
-        rospy.logwarn(
-            'PLAN_NEXT: set_path rejected — stay in PLAN_NEXT (passage_deferred=%s)',
-            self._resume_passage_mode,
-        )
-        return
-      if entering:
-        wp_idx, wp_total = self.frontier_nav.path_progress()
-        rospy.loginfo(
-            'PLAN_NEXT: frontier (%.2f, %.2f) path=%d wp (idx=%d)',
-            goal[0], goal[1], wp_total, wp_idx,
-        )
-      if self._resume_passage_mode:
-        self._resume_passage_mode = False
-        self.frontier_nav.arm_passage_mode()
-        rospy.loginfo('PLAN_NEXT: passage mode armed after replan')
-      self._set_state(SearchState.MOVE_TO_GOAL, 'frontier goal set')
+      self._apply_frontier_plan(goal, path, entering, dbg)
       return
 
     if self.mode == 'boustrophedon':
@@ -1316,6 +1287,131 @@ class SearchFSM:
       return
 
     self._set_state(SearchState.BOUNDARY_MANEUVER, 'non-grid plan next')
+
+  def _frontier_pick_kwargs(self) -> dict:
+    """20260706：全局规划与 PLAN_NEXT 共用边界选点评分参数。"""
+    map_cfg = self.config.map
+    return {
+        'eval_top_n': map_cfg.frontier_eval_top_n,
+        'narrow_penalty_weight': map_cfg.frontier_narrow_penalty_weight,
+        'failure_penalty_weight': map_cfg.frontier_failure_penalty_weight,
+        'goal_soft_penalty': self.local_planner.goal_failure_cost,
+    }
+
+  def _plan_frontier_goal(
+      self,
+      rx: float,
+      ry: float,
+      ryaw: float,
+      *,
+      force_escape: bool = False,
+  ):
+    """20260706：边界探索统一选点；多候选总代价最低。"""
+    escape = force_escape or self._prefer_escape_frontier
+    map_cfg = self.config.map
+    return self.grid.nearest_frontier(
+        rx,
+        ry,
+        robot_yaw=ryaw,
+        exclude_regions=self._blocked_goal_regions(),
+        exclude_radius=self._effective_exclude_radius(),
+        prefer_escape=escape,
+        max_astar_candidates=map_cfg.astar_max_candidates,
+        prefer_forward=not escape,
+        eval_top_n=map_cfg.frontier_eval_top_n,
+        narrow_penalty_weight=map_cfg.frontier_narrow_penalty_weight,
+        failure_penalty_weight=map_cfg.frontier_failure_penalty_weight,
+        goal_soft_penalty=self.local_planner.goal_failure_cost,
+    )
+
+  def _apply_frontier_plan(
+      self,
+      goal,
+      path,
+      entering: bool,
+      dbg: Optional[Dict[str, int]] = None,
+  ) -> bool:
+    """设置路径并进入 MOVE_TO_GOAL；成功时重置无边界点计数。"""
+    if not path:
+      return False
+    rx, ry, ryaw = self.pose.get_pose()
+    path = self._trim_path_forward(path, rx, ry, ryaw)
+    self._recovery_explore_active = False
+    self._recovery_goal = None
+    self._no_frontier_open_turn_done = False
+    self._reset_stall_watch()
+    if not self.frontier_nav.set_path(path, goal):
+      rospy.logwarn(
+          'PLAN_NEXT: set_path rejected — stay in PLAN_NEXT (passage_deferred=%s)',
+          self._resume_passage_mode,
+      )
+      return False
+    if entering:
+      wp_idx, wp_total = self.frontier_nav.path_progress()
+      escape_tag = ' escape' if self._prefer_escape_frontier else ''
+      pick_total = 0.0
+      if dbg is not None:
+        pick_total = dbg.get('pick_total', 0) / 100.0
+      rospy.loginfo(
+          'PLAN_NEXT: frontier%s (%.2f, %.2f) path=%d wp (idx=%d) total=%.2f',
+          escape_tag,
+          goal[0], goal[1], wp_total, wp_idx, pick_total,
+      )
+    if self._resume_passage_mode:
+      self._resume_passage_mode = False
+    self._set_state(SearchState.MOVE_TO_GOAL, 'frontier goal set')
+    return True
+
+  def _handle_no_frontier(self, rx: float, ry: float, in_bounds: bool, visited: int) -> None:
+    """20260706：无边界点处理 — 逃离选点、一次开阔侧转向、提前局部探索。"""
+    bootstrap = self.config.map.bootstrap_visited
+    if (
+        visited < bootstrap
+        and self.search.bootstrap_local_plan
+        and not self._bootstrap_exited
+    ):
+      rospy.logwarn(
+          'PLAN_NEXT: map still building (visited=%d) — EXPLORE forward',
+          visited,
+      )
+      self._set_state(SearchState.EXPLORE, 'map building')
+      return
+
+    if not self._prefer_escape_frontier:
+      # 20260706：首次无边界点时标记口袋并切换逃离选点
+      self._prefer_escape_frontier = True
+      self._add_blocked_region(rx, ry, radius=self._corner_blacklist_radius)
+      ryaw = self.pose.get_pose()[2]
+      goal, path, dbg = self._plan_frontier_goal(rx, ry, ryaw, force_escape=True)
+      self._log_frontier_debug(dbg, goal_is_none=(goal is None))
+      if goal is not None and path:
+        rospy.logwarn('PLAN_NEXT: escape frontier (%.2f, %.2f)', goal[0], goal[1])
+        self._apply_frontier_plan(goal, path, entering=True, dbg=dbg)
+        return
+
+    if not self._no_frontier_open_turn_done:
+      # 20260706：无边界点仅一次开阔侧转向后重规划，不做四轮递增旋转
+      rospy.logwarn(
+          'PLAN_NEXT: no frontier after escape — open-side turn once (in_bounds=%s)',
+          in_bounds,
+      )
+      self._recovery_reason = 'no_frontier'
+      self._recovery_attempts = 0
+      self._set_state(SearchState.RECOVERY, 'no_frontier')
+      return
+
+    # 20260706：开阔侧转向后仍无边界点则提前进入局部探索
+    rospy.logwarn(
+        'PLAN_NEXT: no frontier after open-side turn — EXPLORE local (visited=%d)',
+        visited,
+    )
+    self._recovery_explore_active = True
+    self._recovery_attempts = 0
+    self._recovery_reason = None
+    self.local_planner.clear()
+    self._reset_stall_watch()
+    self._reset_explore_timer()
+    self._set_state(SearchState.EXPLORE, 'no_frontier, local explore')
 
   def _blocked_goal_points(self) -> List[Tuple[float, float]]:
     return [(x, y) for x, y, _r in self._blocked_goals]
@@ -1587,8 +1683,8 @@ class SearchFSM:
       gy: Optional[float],
       scan: LaserScan,
   ) -> None:
+    """20260706：导航受阻时轻后退后直接重规划，不再多级强恢复。"""
     detail = self.frontier_nav.passage_detail()
-    score = float(detail.get('passage_score', 0.0))
     obs = str(detail.get('obstacle', 'front_blocked'))
     self.frontier_nav.clear_goal()
 
@@ -1596,34 +1692,27 @@ class SearchFSM:
       self._record_goal_failure(gx, gy, obs)
 
     self._consecutive_blocked += 1
-    self._recovery_escalation = min(2, self._recovery_escalation + 1)
+    # 20260706：受阻即启用逃离选点，当前位姿记入排除区
+    # 20260706：写入失败记忆，供边界目标软惩罚（非硬封禁）
     self._prefer_escape_frontier = True
+    rx, ry, ryaw = self.pose.get_pose()
+    self.local_planner.record_failure(rx, ry, 0.0, obs)
+    self._add_blocked_region(rx, ry, radius=self._corner_blacklist_radius)
     rospy.logwarn(
-        'Nav blocked (%d/%d before strong recovery) obs=%s score=%.2f exclude_r=%.2fm escalation=%d',
+        'Nav blocked (%d) obs=%s — backoff & replan',
         self._consecutive_blocked,
-        self._blocked_escalate_threshold,
         obs,
-        score,
-        self._effective_exclude_radius(),
-        self._recovery_escalation,
     )
-    if self._consecutive_blocked >= self._blocked_escalate_threshold:
-      self._consecutive_blocked = 0
-      if gx is not None and gy is not None:
-        self._add_blocked_region(gx, gy)
-      self._run_strong_blocked_recovery(scan, gx, gy)
-      self._set_state(SearchState.PLAN_NEXT, 'strong blocked recovery done')
-      return
-    speed = self.search.cruise_speed * 0.5
-    settle = 0.05
-    self.move.stop_robot(repeats=3)
-    backoff = 0.12 if score > 0.45 else 0.18
-    self.move.move_distance_x(-backoff, speed, settle_sec=settle)
+    speed = self.search.cruise_speed * 0.6
+    settle = 0.03
     self.move.stop_robot(repeats=1)
-    rospy.sleep(self._plan_settle_sec)
+    self.move.move_distance_x(-0.10, speed, settle_sec=settle)
     if gx is not None and gy is not None:
       self._add_blocked_region(gx, gy, radius=self._corner_blacklist_radius)
     self._set_state(SearchState.PLAN_NEXT, 'nav blocked, backoff & replan')
+
+  # --- 20260706：已禁用 — 原多级 blocked 恢复（强后退、转向、升级）---
+  # def _handle_nav_blocked_legacy(...): ...
 
   def _tick_move_to_goal(self, scan: LaserScan) -> None:
     if self._is_boundary_confirmed(scan):
@@ -1631,14 +1720,17 @@ class SearchFSM:
       return
     if self._update_corner_stall(scan):
       rospy.logwarn(
-          'Corner stall: disp<3cm rot>60deg center<0.35 — blacklist & replan',
+          'Corner stall: disp<3cm rot>60deg — replan',
       )
       failed_goal = self.frontier_nav._final_goal or self.frontier_nav._goal
       self.frontier_nav.clear_goal()
       self._blacklist_corner(failed_goal, 'corner_stall')
       self._run_stats['corner_stall'] += 1.0
-      self._recovery_escalation = min(2, self._recovery_escalation + 1)
-      self._enter_recovery('corner_stall')
+      # 20260706：墙角停滞启用逃离选点
+      self._prefer_escape_frontier = True
+      rx, ry, _ = self.pose.get_pose()
+      self._add_blocked_region(rx, ry, radius=self._corner_blacklist_radius)
+      self._set_state(SearchState.PLAN_NEXT, 'corner stall, replan')
       return
 
     active_goal = self.frontier_nav._final_goal or self.frontier_nav._goal
@@ -1689,25 +1781,26 @@ class SearchFSM:
           float(detail.get('wide', 0.0)),
           self.frontier_nav.stress_level(),
       )
-    if status == 'nudge_5':
-      self._apply_passage_nudge(5.0)
-      return
-    if status == 'nudge_10':
-      self._apply_passage_nudge(10.0)
-      return
-    if status == 'passage':
-      return
+    # 20260706：已禁用 — 轻推与缝隙通行专用分支
+    # if status == 'nudge_5':
+    #   self._apply_passage_nudge(5.0)
+    #   return
+    # if status == 'nudge_10':
+    #   self._apply_passage_nudge(10.0)
+    #   return
+    # if status == 'passage':
+    #   return
     if status == 'perimeter_recovery':
       self._enter_perimeter_recovery('perimeter_blocked')
       return
-    if status == 'passage_done':
-      self._reset_stall_watch()
-      if self.frontier_nav.perimeter_active():
-        self.frontier_nav.reset_perimeter_controller()
-        return
-      if self._use_global_planner() and not self.frontier_nav.perimeter_active():
-        self._goto_global_plan('passage done, replan')
-      return
+    # if status == 'passage_done':
+    #   self._reset_stall_watch()
+    #   if self.frontier_nav.perimeter_active():
+    #     self.frontier_nav.reset_perimeter_controller()
+    #     return
+    #   if self._use_global_planner() and not self.frontier_nav.perimeter_active():
+    #     self._goto_global_plan('passage done, replan')
+    #   return
     if self._track_nav_hold(status):
       self._on_boundary(scan)
     elif status == 'reached':
@@ -1749,6 +1842,29 @@ class SearchFSM:
     self._boundary_streak = 0
     self.move.publish_stop_brief()
     self.frontier_nav.clear_goal()
+
+    # 20260706：无边界点一次开阔侧转向后重规划，不走四轮递增旋转
+    if reason == 'no_frontier':
+      sign = 1.0 if open_side(scan, self.search.front_angle) == 'left' else -1.0
+      turn_deg = sign * self.search.boundary_corner_turn_deg
+      rospy.loginfo(
+          'Recovery(no_frontier): open-side turn %.0f deg once — replan',
+          turn_deg,
+      )
+      self.move.rotate_angle(
+          turn_deg,
+          self.search.turn_speed,
+          get_yaw=self._get_yaw,
+      )
+      self._no_frontier_open_turn_done = True
+      self._prefer_escape_frontier = True
+      self._recovery_attempts = 0
+      self._recovery_reason = None
+      self.pose.reset_health_watch()
+      self._reset_stall_watch()
+      self._reset_explore_timer()
+      self._set_state(SearchState.PLAN_NEXT, 'no_frontier open-side turn done')
+      return
 
     self._recovery_attempts += 1
     if self._recovery_attempts >= self._max_recovery_attempts:

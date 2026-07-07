@@ -98,6 +98,10 @@ class LocalPlanner:
       recovery_escape_center_max: float = 0.35,
       recovery_replan_rounds: int = 3,
       planner_debug: bool = True,
+      # 20260707：前方受阻时纯激光选最开阔方向，不查地图
+      clearance_escape_enabled: bool = True,
+      clearance_escape_dist_m: float = 0.65,
+      clearance_escape_min_clear: float = 0.22,
   ):
     self.grid = grid
     self.nav = nav
@@ -141,6 +145,9 @@ class LocalPlanner:
     self.recovery_escape_center_max = recovery_escape_center_max
     self.recovery_replan_rounds = recovery_replan_rounds
     self.planner_debug = planner_debug
+    self.clearance_escape_enabled = clearance_escape_enabled
+    self.clearance_escape_dist_m = clearance_escape_dist_m
+    self.clearance_escape_min_clear = clearance_escape_min_clear
     self._last_replan = rospy.Time(0)
     self._stress_smoothed = 0.0
     self._last_stress_update = rospy.Time.now()
@@ -339,6 +346,24 @@ class LocalPlanner:
       total += self.failure_memory_penalty * proximity
     return min(total, self.failure_memory_penalty * 2.0)
 
+  def goal_failure_cost(self, wx: float, wy: float) -> float:
+    # 20260706：边界目标历史失败软惩罚（供 nearest_frontier 评分调用）
+    """20260706：边界目标点的历史失败软惩罚（非禁入，仅抬价）。"""
+    total = self._failure_memory_cluster_penalty(wx, wy) * 0.6
+    now = rospy.Time.now()
+    for rec in self._failure_memory:
+      elapsed = (now - rec.time).to_sec()
+      if elapsed > self.failure_memory_sec:
+        continue
+      dist = math.hypot(wx - rec.x, wy - rec.y)
+      reach = self.failure_memory_radius_m * 1.2
+      if dist > reach:
+        continue
+      decay = max(0.0, 1.0 - elapsed / max(1.0, self.failure_memory_sec))
+      proximity = 1.0 - dist / max(0.01, reach)
+      total += self.failure_memory_penalty * proximity * decay
+    return min(total, self.failure_memory_cluster_penalty + self.failure_memory_penalty * 2.0)
+
   def _wall_hug_penalty(self, angle_deg: float, center: float) -> float:
     if abs(angle_deg) > self.wall_hug_angle_deg + 0.5:
       return 0.0
@@ -354,6 +379,69 @@ class LocalPlanner:
       return 0.0
     span = max(0.01, self.plan_dist_max - self.plan_progress_dist_cap)
     return 0.12 * min(1.0, (dist - self.plan_progress_dist_cap) / span)
+
+  def _forward_blocked(self, profile: dict) -> bool:
+    """前方窄扇区净空不足，进入纯激光选路。"""
+    center = float(profile.get('center', 99.0))
+    return center < self.boundary_dist + 0.02
+
+  def _pick_clearance_escape(
+      self,
+      scan: LaserScan,
+      rx: float,
+      ry: float,
+      ryaw: float,
+  ) -> Optional[_Candidate]:
+    """20260707：各候选方向比净空，取最大者设短目标，不经地图评分与路径搜索。"""
+    best_angle: Optional[float] = None
+    best_clear = -1.0
+    for angle_deg in self._candidate_angles():
+      center, wide = self._bearing_clearances(scan, math.radians(angle_deg))
+      clear = min(center, wide)
+      if clear > best_clear:
+        best_clear = clear
+        best_angle = angle_deg
+    if best_angle is None or best_clear < self.clearance_escape_min_clear:
+      return None
+    angle_rad = math.radians(best_angle)
+    heading = ryaw + angle_rad
+    dist = self.clearance_escape_dist_m
+    gx = rx + dist * math.cos(heading)
+    gy = ry + dist * math.sin(heading)
+    return _Candidate(
+        best_angle,
+        best_clear,
+        gx,
+        gy,
+        [(gx, gy)],
+        dist,
+        best_clear,
+        0.0,
+        True,
+        ScoreBreakdown(clearance=best_clear, total=best_clear),
+    )
+
+  def _apply_clearance_escape(
+      self,
+      scan: LaserScan,
+      now: rospy.Time,
+      reason: str,
+  ) -> bool:
+    rx, ry, ryaw = self.pose.get_pose()
+    escape = self._pick_clearance_escape(scan, rx, ry, ryaw)
+    if escape is None:
+      return False
+    rospy.loginfo(
+        'LocalPlanner: 纯激光选路（%s）%+.0f° 净空=%.2f 距离=%.2fm',
+        reason,
+        escape.angle_deg,
+        escape.clearance,
+        escape.dist,
+    )
+    self._last_selected_angle_deg = escape.angle_deg
+    self.nav.set_path(escape.path, (escape.gx, escape.gy))
+    self._last_replan = now
+    return True
 
   def _pick_best_candidate(self, ranked: List[_Candidate]) -> Optional[_Candidate]:
     if not ranked:
@@ -679,7 +767,12 @@ class LocalPlanner:
         self.boundary_dist,
     )
 
-    rx, ry, _ryaw = self.pose.get_pose()
+    rx, ry, ryaw = self.pose.get_pose()
+
+    if self.clearance_escape_enabled and self._forward_blocked(profile):
+      if self._apply_clearance_escape(scan, now, '前方受阻'):
+        return True
+
     explore_here = self._exploration_gain(rx, ry)
     angles = self._candidate_angles()
 
@@ -689,7 +782,6 @@ class LocalPlanner:
       preclear.append((angle_deg, min(center, wide)))
     best_clearance = max((c for _a, c in preclear if c < float('inf')), default=self.plan_dist_max)
 
-    rx, ry, ryaw = self.pose.get_pose()
     evaluated = [
         self._evaluate(
             scan, rx, ry, ryaw, angle_deg, exec_cost, profile, explore_here, best_clearance,
@@ -707,6 +799,10 @@ class LocalPlanner:
       self._post_recovery_rounds_left -= 1
     if self._passage_replan_rounds_left > 0:
       self._passage_replan_rounds_left -= 1
+
+    if best is None and self.clearance_escape_enabled:
+      if self._apply_clearance_escape(scan, now, '评分无候选'):
+        return True
 
     if best is None:
       self._last_replan = now

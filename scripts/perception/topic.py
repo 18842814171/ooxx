@@ -58,30 +58,34 @@ class TopicVisionBackend(PerceptionBackend):
         robot_pose=None,
         mission_state=None,
     ) -> ScanResult:
+        """20260706：已禁用 — 话题感知不再登记颜色形状。"""
         state = mission_state or self._state_ref
-        if self.config is None or state is None:
-            counts = state.counts if state else {}
-            complete = state.is_mission_complete() if state else False
-            return ScanResult(counts=dict(counts), mission_complete=complete)
-
-        with self._lock:
-            color = self._latest_color
-
-        new_objects = 0
-        if color and color not in ('None', ''):
-            for target in self.config.targets:
-                if target.color != color:
-                    continue
-                key = '{}/{}'.format(target.color, target.shape)
-                if state.counts.get(key, 0) >= target.count:
-                    continue
-                if state.try_register_target(target.color, target.shape, (160, 120), None):
-                    new_objects += 1
-                    rospy.loginfo('Registered target: %s/%s', target.color, target.shape)
-                    break
-
-        return ScanResult(
-            counts=dict(state.counts),
-            mission_complete=state.is_mission_complete(),
-            new_objects=new_objects,
-        )
+        counts = state.counts if state else {}
+        return ScanResult(counts=dict(counts), mission_complete=False)
+        # state = mission_state or self._state_ref
+        # if self.config is None or state is None:
+        #     counts = state.counts if state else {}
+        #     complete = state.is_mission_complete() if state else False
+        #     return ScanResult(counts=dict(counts), mission_complete=complete)
+        #
+        # with self._lock:
+        #     color = self._latest_color
+        #
+        # new_objects = 0
+        # if color and color not in ('None', ''):
+        #     for target in self.config.targets:
+        #         if target.color != color:
+        #             continue
+        #         key = '{}/{}'.format(target.color, target.shape)
+        #         if state.counts.get(key, 0) >= target.count:
+        #             continue
+        #         if state.try_register_target(target.color, target.shape, (160, 120), None):
+        #             new_objects += 1
+        #             rospy.loginfo('Registered target: %s/%s', target.color, target.shape)
+        #             break
+        #
+        # return ScanResult(
+        #     counts=dict(state.counts),
+        #     mission_complete=state.is_mission_complete(),
+        #     new_objects=new_objects,
+        # )
