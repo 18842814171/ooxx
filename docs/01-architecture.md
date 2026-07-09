@@ -1,6 +1,6 @@
 # 01 — 系统架构与控制权
 
-> **重要原则（读代码前先读）**
+> 本文遵守以下规定：
 >
 > **所有模块均可提出「建议」，只有状态机可以做「决策」，只有当前控制权拥有者可以发布非零速度。**
 >
@@ -9,8 +9,6 @@
 > 3. **局部规划器只选目标，前沿导航器只跟目标，恢复动作只做脱困——三者不同时「开车」。**
 > 4. **课程实验目标是稳定、能完成任务、易调参；不是恢复策略越复杂越好。**
 > 5. **若一个动作跨越两个以上模块，优先收敛职责，而不是继续打补丁。**
->
-> **构建标识**：`scripts/search_fsm.py` 顶部 `FSM_BUILD_ID`。实车日志应出现 `FSM init: build=...`。
 
 ---
 
@@ -26,7 +24,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  SearchFSM（状态机）                                            │
 │    决定：当前处于 Explore / Recovery / Plan / …               │
-│    决定：本 tick 谁可以调用 MoveController                    │
+│    决定：每一帧谁可以调用 MoveController                      │
 └─────────────────────────────────────────────────────────────┘
          │
     ┌────┴────┬──────────────┬─────────────┐
@@ -39,19 +37,21 @@
          MoveController → /controller/cmd_vel
 ```
 
+全局规划器启用且初始模式为绕场时，状态机另有 `GLOBAL_PLAN` 状态；当前默认配置为边界探索，初始状态为 `PLAN_NEXT`。
+
 ---
 
-## 2. 开发阶段与构建版本
+## 2. 开发阶段
 
-| 阶段 | 构建标识 | 状态 | 要点 |
-|------|----------|------|------|
-| P0 控制权收敛 | `20260705-p0-control` | 已完成 | 删除脱离窗口直连；恢复期间不调度规划器与导航器；导航器 hold 由状态机仲裁；规划器不自动强制重规划 |
-| P1 恢复收尾 | `20260705-p1-recovery` | 已完成（实车验证 `log/10-24.txt`） | 入口基线增益判定；同级重试 2 次；恢复后首轮规划约束 |
-| P2 局部规划器 | `20260705-p2-planner` | 已编码（待实车） | 评分权重、Failure Memory、贴墙零度加罚、Bootstrap 出口、死代码清理 |
-| P3 导航器 | `20260706-simple-avoid` | 已编码 | 统一一般避障，禁用缝隙/多状态链 |
-| P3b 边界逃离 | `20260706-frontier-escape` | 已编码（待实车） | 被困时逃离选点、一次开阔侧转向、提前局部探索 |
-| **Issue-Frontier** | `20260706-frontier-score` | 已编码（待实车） | 多候选总代价选点；狭窄/失败软惩罚；不再首条可达即停 |
-| P4 长跑返航 | — | 待做 | 长跑稳定性、回原点 |
+| 阶段 | 状态 | 要点 |
+|------|------|------|
+| P0 控制权收敛 | 已完成 | 恢复期间不调度规划器与导航器；重规划由状态机触发 |
+| P1 恢复收尾 | 已完成 | 恢复入口记录基线；恢复后多轮规划约束；单级边界恢复 |
+| P2 局部规划器 | 已编码 | 评分权重、失败记忆、贴墙小角度加罚、引导期退出 |
+| P3 导航器 | 已编码 | 统一一般避障；按前方净空连续限速与带速转向 |
+| P3b 边界逃离 | 已编码 | 被困时逃离选点、无边界点开阔侧转向、墙角停滞重规划 |
+| 边界多候选评分 | 已编码 | 多候选总代价选点；狭窄与历史失败软惩罚 |
+
 
 ---
 
@@ -60,7 +60,7 @@
 ### 3.1 正常探索 / 导航
 
 ```
-EXPLORE 或 MOVE_TO_GOAL
+PLAN_NEXT / EXPLORE / MOVE_TO_GOAL
         │
         ▼
    LocalPlanner.tick()
@@ -73,9 +73,11 @@ EXPLORE 或 MOVE_TO_GOAL
                    publish_twist()
 ```
 
-- 局部规划器**不**在 `tick()` 内调用 `_maybe_replan_on_exec_cost()`（该函数已保留但未使用）。
-- 局部规划器**不**在无目标时调用 `reactive_drive()`（已保留但未使用）。
-- 导航器返回 `hold` 时，由状态机 `_track_nav_hold()` 累计；超限后进入 `_on_boundary()`，**不由规划器改目标**。（`20260706-simple-avoid` 起 hold 累计已禁用，改由 `blocked` 触发重规划。）
+- 局部规划器每帧被调用时只跟目标导航；重规划由状态机在状态切换或受阻时触发。
+- 导航器返回 `drive` / `creep` / `blocked`。前方窄扇区不足时以蠕行带速转向为主，连续多帧确认后才上报 `blocked`。
+- 导航 `blocked` 时，状态机 `_handle_nav_blocked()` 清目标、记失败，多数情况转入 `PLAN_NEXT` 重规划；仅前方仍不通时轻退 0.10 m 后再重规划。不由规划器在导航过程中擅自换目标。
+- 探索连续无有效候选达阈值时，`_enter_planner_deadlock_recovery()` 转入 `PLAN_NEXT` 逃离重规划。
+- 墙角停滞（`corner_stall`）在探索与跟目标两态均转入 `PLAN_NEXT` 重规划。
 
 ### 3.2 恢复独占
 
@@ -84,8 +86,7 @@ RECOVERY 开始
         │
         ▼
    frontier_nav.clear_goal()     ← 导航器失效
-   _tick_recovery 不调用        ← 规划器与导航器均不 tick
-   local_planner.tick
+   _tick_recovery(scan)         ← 仅此运行；不调用局部规划器与前沿导航器
         │
         ▼
    Recovery 状态机独占
@@ -96,31 +97,33 @@ RECOVERY 开始
         │
         ▼
    _complete_recovery_resume()
-        ├─ arm_post_recovery_replan(|角|≤35°, d≤2m)
-        ├─ replan_local(force=True)
+        ├─ arm_post_recovery_replan（见 mission.yaml：|偏角|、距离、轮数）
+        ├─ replan_local(force=True)（按上下文）
         └─ 交还 EXPLORE / MOVE_TO_GOAL / PLAN_NEXT
         │
         ▼
    Navigator + Planner 恢复
 ```
 
-- **已删除**：`_tick_escape_forward()` 脱离窗口直连速度。
-- **P1 新增**：`_snapshot_recovery_entry()` 在恢复入口记录窄扇区中心距离；`_recovery_success()` 用 `center - entry` 判定增益。
+- 边界恢复（`_tick_boundary_recovery`）：暂停 → 复检 → 单次后退与转向（当前配置后退 0.12 m、转角 45°），然后 `_finish_recovery_resume()`。
+- `_snapshot_recovery_entry()` 在入口记录窄扇区中心距离，供日志参考。
+- 非边界恢复（`explore_stall`、`no_frontier` 等）走 `_tick_generic_recovery()`：`no_frontier` 为一次开阔侧转向后重规划；其余原因可为递增旋转脱困。
 
 ### 3.3 状态 → 控制权对照表
 
 | 状态机状态 | 速度发布者 | 局部规划器 | 前沿导航器 | 备注 |
 |----------|-----------|---------|-----------|------|
-| EXPLORE | 导航器（经 LocalPlanner.tick） | 状态机许可时重规划 | 跟目标 | 无目标 → no_candidate |
-| MOVE_TO_GOAL | 导航器 | 同左 | 跟目标 | hold 超限 → 状态机 → Recovery |
-| PLAN_NEXT | 无（停车） | 选全局前沿点 | 清空或待设 | 仅规划，不前进 |
-| RECOVERY | **仅 Recovery 动作** | **禁用** | **禁用** | 阻塞式 move_* |
-| RETURN_HOME | 导航器或状态机简控 | 禁用 | 跟返航点 | 需任务完成或覆盖率达标 |
-| DONE | stop_robot | 禁用 | 禁用 | |
+| PLAN_NEXT | 无（停车） | 选全局前沿点 | 清空或待设 | 仅规划，不前进；全局规划启用时为常见入口 |
+| EXPLORE | 导航器（经局部规划器） | 状态机许可时重规划 | 跟目标 | 无候选 → 逃离重规划至 PLAN_NEXT |
+| MOVE_TO_GOAL | 导航器 | 同左 | 跟目标 | blocked → 重规划；corner_stall → PLAN_NEXT |
+| RECOVERY | **仅 Recovery 动作** | **不调用** | **不调用** | 阻塞式 move_* |
+| GLOBAL_PLAN | 无或绕场导航 | 全局规划器 | 绕场时跟航点 | 仅 `perimeter_enabled: true` 时进入 |
+| RETURN_HOME | 导航器或状态机角速度 | 不调用 | 跟返航点 | 覆盖率或边界预算等条件触发 |
+| DONE | stop_robot | 不调用 | 不调用 | |
 
 ---
 
-## 3A. 全局模式与目标选取（`20260706-frontier-score`）
+## 3A. 全局模式与目标选取
 
 ### 运行模式
 
@@ -130,13 +133,13 @@ RECOVERY 开始
 |--------|--------|------|
 | `enabled` | 真 | 启用全局规划入口 |
 | `initial_mode` | `frontier` | 名义模式为边界探索 |
-| `perimeter_enabled` | 假 | 绕场不启用；运行时固定边界探索 |
+| `perimeter_enabled` | 假 | 绕场不启用；默认走边界探索 |
 
-绕场模式与覆盖模式均未参与实车。绕场控制器中的开阔侧转向，已迁移至边界探索被困流程（`SearchFSM._tick_generic_recovery` 之 `no_frontier` 分支），不切换全局模式。
+无边界点时的开阔侧转向在 `SearchFSM._tick_generic_recovery` 之 `no_frontier` 分支完成，不切换全局模式。
 
 ### 任务结束
 
-识别目标已关闭。结束依据：覆盖率阈值（默认 92%）、边界事件预算、返航配置。
+目标识别已关闭。结束依据：覆盖率阈值（默认 92%）、边界事件预算、返航配置。
 
 ### 边界探索选点
 
@@ -145,109 +148,75 @@ RECOVERY 开始
 1. 找边界点（已知自由格邻未知格）。
 2. 过滤拉黑区与过近候选。
 3. **排序**：正常时偏角小者优先；逃离时按距失败区最远排序（不限前方扇区）。
-4. **多候选评分**（`frontier_eval_top_n`，默认 10）：对排序后前 N 个候选均做 A*，取**总代价最低**者（删除「首条可达即 break」）。
+4. **多候选评分**（`frontier_eval_top_n`，默认 10）：对排序后前 N 个候选均做路径搜索，取**总代价最低**者。
 5. **总代价** = 路径长度 + `frontier_narrow_penalty_weight` × 路径狭窄代价 + `frontier_failure_penalty_weight` × 历史失败软惩罚（`LocalPlanner.goal_failure_cost`）+ 偏角代价 − 逃离奖励。
 
-狭窄代价：路径沿途占用格 5×5 邻域统计（`_path_narrow_penalty`）。失败软惩罚：`nav blocked` / Recovery 时 `record_failure` 写入，仅抬价、非硬禁入。
+狭窄代价：路径沿途占用格 5×5 邻域统计（`_path_narrow_penalty`）。失败软惩罚：导航受阻或恢复时 `record_failure` 写入，仅抬价、非硬禁入。
 
 配置见 `config/mission.yaml` 之 `map.frontier_*` 与 `scripts/config_loader.py` 之 `MapConfig`。
 
-触发逃离：导航 `blocked`、墙角停滞、无边界点首次重试（`SearchFSM._plan_frontier_goal`）。
+触发逃离选点：导航 `blocked`、墙角停滞、无边界点首次重试（`SearchFSM._plan_frontier_goal`）。
 
-**实车日志**：`Frontier pick: astar_eval≥3 total=… narrow=… failure=…`
+**实车日志示例**：`Frontier pick: … astar_eval=N total=… narrow=… failure=…`
 
 ### 被困后续
 
-1. 逃离仍失败 → 一次开阔侧转向（`boundary_corner_turn_deg`）后重规划。
-2. 仍无边界点 → `EXPLORE` 局部规划选方向（不再四轮递增旋转）。
+1. 逃离选点仍失败 → 一次开阔侧转向（`boundary_corner_turn_deg`）后重规划。
+2. 仍无边界点 → `EXPLORE` 局部规划选方向。
 
 ### 局部导航
 
-`FrontierNavigator.tick()`：朝路径点转向，`min(center, wide)` 连续限速。缝隙、对准停转、应力升级链已禁用。
+前沿导航器每帧被调用时：朝路径点转向，按前方窄扇区净空 `center` 连续限速（`_simple_path_clear`）。大偏角时带最低线速度转向，避免原地纯旋转。
+
+### 建图引导期（可选）
+
+`bootstrap_local_plan` 当前为假（由全局边界规划替代）。若为真且 `visited < bootstrap_visited`（40），状态机在 `PLAN_NEXT` 与 `EXPLORE` 间走局部引导；退出条件含访问格满、超时低覆盖、边界过多等，由 `_maybe_exit_bootstrap()` 一次性切至 `PLAN_NEXT`。
 
 ---
 
-## 4. 历史问题（P0 前，v12）
+## 4. 已知行为瓶颈（非控制权类）
 
-P0 前存在三控制器交叉发速，9-17 日志已验证：
+以下现象来自实车与代码对照，供调参与后续迭代参考：
 
-| # | 链路 | 后果 |
-|---|------|------|
-| 1 | 导航器 hold → 执行代价升高 → 规划器强制重规划 | 停车后被拉回墙方向 |
-| 2 | 恢复结束 → 脱离窗口直接 publish_twist | 绕过导航器挡障 |
-| 3 | RECOVERY 内 move_distance_x 阻塞 | 主循环卡住数十秒 |
-| 4 | EXPLORE 同时跑边界确认与导航器 | 双路径进 Recovery |
-
-**P0/P1 后上述四条均已消除或收敛。** 详见 `docs/02-call_chains.md` 历史章节。
+1. **导航器停车与转向**：`center < boundary_dist + nav_forward_stop_margin`（默认约 0.34 m）才明显限速；开阔区域目标在侧后方时，车可能长时间沿原航向蠕行而不主动换向。
+2. **物理包络不足**：激光窄扇区未覆盖相机支架等前向外凸，贴障碍时可能擦边。
+3. **回原点**：覆盖率未达标时通常不出现 `RETURN_HOME`；物理上回到起点附近不等于任务完成返航。
+4. **边界选点**：失败区拉黑与逃离选点仍可能反复导入死胡同或口袋区，需结合失败记忆与局部评分继续优化。
+5. **纯激光选路**：`local_clearance_escape_enabled` 为假时，前方受阻仅走地图评分选路；为真时可不经地图评分直接选最开阔方向。
 
 ---
 
-## 5. 实车验证结论（`log/10-24.txt`，P1）
-
-| 指标 | 结果 |
-|------|------|
-| 构建版本 | `20260705-p1-recovery` ✓ |
-| 增益判定 | 多次 `判定成功 gain≥0.05` ✓ |
-| 恢复耗时 | 单次约 7–10s（此前约 37s）✓ |
-| 恢复后首轮约束 | `恢复后首轮 \|偏角\|<=35° d<=2.00m` ✓ |
-| 60s 覆盖率 | 6%，均速 0.10 m/s |
-| 边界/恢复次数 | 6 / 6，墙角循环 |
-
-**仍存问题（属 P2/P3，非控制权）**：
-
-1. **建图引导阶段局部规划**：`bootstrap_local_plan: true` 且 visited < 40 时，状态机不进入 `PLAN_NEXT`，仅靠局部规划器在墙角反复选 0° 短目标。
-2. **导航器停车偏晚**：`center < boundary_dist + nav_forward_stop_margin`（默认 0.34m）才禁前进，开阔区域在车身侧后方时，当前目标仍朝墙，车不会自主转向。
-3. **物理包络不足**：激光雷达窄扇区未覆盖相机支架外凸，贴泡沫块擦边。
-4. **回原点误解**：日志未出现 `RETURN_HOME`；338s 位姿 (-0.02,-0.02) 为沿墙螺旋的物理回归，非任务完成返航。
-
----
-
-## 6. 模块职责边界
+## 5. 模块职责边界
 
 ### SearchFSM
-- **拥有**：状态转换、Recovery 进出、边界事件计数、地图更新、hold 仲裁、恢复后重规划决策。
-- **不拥有**：连续速度控制律（除返航角速度等例外）。
-- **P1 新增**：`_replan_after_recovery()`、`_snapshot_recovery_entry()`。
+- **拥有**：状态转换、Recovery 进出、边界事件计数、地图更新、导航受阻与逃离重规划决策、恢复后重规划决策。
+- **不拥有**：连续速度控制律（除返航角速度、受阻轻退等少数例外）。
+- **相关接口**：`_replan_after_recovery()`、`_snapshot_recovery_entry()`、`_handle_nav_blocked()`。
 
 ### LocalPlanner
-- **拥有**：局部候选评分、选 goal/path、`nav.set_path()`；恢复后首轮候选过滤。
-- **不拥有**：每 tick 速度；自动 force replan（已禁用）。
-- **P1 新增**：`arm_post_recovery_replan()`、`_filter_post_recovery_candidates()`。
+- **拥有**：局部候选评分、选目标与路径、`nav.set_path()`；恢复后多轮候选过滤。
+- **不拥有**：每帧连续速度。
+- **相关接口**：`arm_post_recovery_replan()`、`_filter_post_recovery_candidates()`、`record_failure()`。
 
 ### FrontierNavigator
-- **拥有**：有目标时的 `cmd_vel`（drive / creep / hold / align）。
+- **拥有**：有目标时的 `cmd_vel`（`drive` / `creep`；受阻确认后为 `blocked`）。
 - **不拥有**：换目标、Recovery、全局前沿选择。
 - **输出**：`NavExecutionFeedback`（建议状态），不是状态机命令。
 
 ### MoveController
 - **唯一硬件出口**：所有 `cmd_vel` 经此发布。
-- **流式**：`publish_twist`（每 tick，导航器用）
-- **阻塞式**：`move_distance_x` / `rotate_angle`（Recovery 用，占满多个 tick）
+- **流式**：`publish_twist`（每帧，导航器用）
+- **阻塞式**：`move_distance_x` / `rotate_angle`（Recovery 与受阻轻退用，占满多帧）
 
 ---
 
-## 7. 收敛清单
+## 6. 与课程目标的对齐
 
-| # | 项 | 状态 |
-|---|-----|------|
-| 1 | 删除脱离窗口状态机直连 | ✅ P0 |
-| 2 | RECOVERY 期间不 tick 规划器/导航器 | ✅ P0 |
-| 3 | hold 由状态机仲裁，规划器不 force replan | ✅ P0 |
-| 4 | 恢复入口基线增益、重试 2 次、恢复后首轮约束 | ✅ P1 |
-| 5 | 阻塞 Recovery 限时 / 非阻塞 | 待 P3 |
-| 6 | `_handle_nav_blocked` 状态机直连后退 | 未改 |
-| 7 | 规划器死代码清理 | ✅ P2 |
+| 目标 | 当前 | 下一瓶颈 |
+|------|------|----------|
+| 控制稳定 | 导航态单发布者为主 | 收敛 `_handle_nav_blocked` 与导航器职责 |
+| 恢复可用 | 单级边界恢复 + 重规划；非边界有通用旋转 | 物理脱困幅度与死胡同逃离 |
+| 完成任务 | 覆盖率长跑未稳定达标 | 边界选点、局部方向评分、口袋区 |
+| 易调参 | 控制权与 mission.yaml 分层 | 导航净空阈值、规划权重、包络参数 |
 
----
-
-## 8. 与课程目标的对齐
-
-| 目标 | P0/P1 后 | 下一瓶颈 |
-|------|----------|----------|
-| 控制稳定 | 单发布者，无抢速 | — |
-| 恢复可用 | 快速判定成功，有约束重规划 | 墙角物理脱困幅度 |
-| 完成任务 | 未达标 | 墙角局部规划死循环、不扩图 |
-| 易调参 | 控制权与参数分层清晰 | 规划器权重、导航器包络 |
-
-**一句话**：控制权与恢复链路已稳；任务行为瓶颈在边界选点导入死胡同、缝口净空阈值、局部规划在口袋区的方向评分。
-
+**一句话**：控制权与恢复主链路已收敛；任务行为瓶颈在边界选点导入死区、导航侧向开阔时不换向、以及局部规划在口袋区的方向评分。

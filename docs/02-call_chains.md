@@ -1,12 +1,10 @@
 # 02 — 关键调用链
 
-> **重要原则**
+> 本文遵守以下规则
 >
 > - 读链时始终问：**这一行有没有 publish_twist / move_distance / rotate_angle？**
 > - 若一条链路上出现 **两个以上** 速度发布点，即控制权冲突，优先标记收敛，不修参数。
-> - 状态机 `tick()` 是单线程同步模型：阻塞式 `move_*` 会占满多个循环。
-
-> **当前构建**：`FSM_BUILD_ID = 20260705-p1-recovery`（`scripts/search_fsm.py:33`）
+> - 状态机每帧调度为单线程同步模型：阻塞式 `move_*` 会占满多个主循环周期。
 
 ---
 
@@ -21,15 +19,40 @@ ooxx_node.run()  [20Hz]
         └── handlers[state]()    ← 按状态分发
 ```
 
+全局规划器启用且非绕场模式时，初始状态为 `PLAN_NEXT`；绕场启用时为 `GLOBAL_PLAN`。
+
 建图与障碍标记说明见 `docs/03-module_index.md` 第 4.1 节。
 
 **文件**：`scripts/ooxx_node.py`，`scripts/search_fsm.py`，`scripts/occupancy_grid.py`
 
 ---
 
-## 2. EXPLORE 链（occupancy_grid 模式）
+## 2. PLAN_NEXT 链（边界选点）
 
-### 2.1 正常探索（当前）
+```
+_tick_plan_next()
+  ├── [bootstrap_local_plan 为真 且 visited < bootstrap_visited 且未退出引导]
+  │     └── state = EXPLORE（建图引导）
+  │
+  ├── _plan_frontier_goal() → grid.nearest_frontier()
+  │     ├── goal 为空 → _handle_no_frontier()
+  │     │     ├── 可逃离重试 → 再规划
+  │     │     ├── 首次 → 开阔侧转向 → RECOVERY(no_frontier)
+  │     │     └── 否则 → EXPLORE 局部探索
+  │     └── goal 有效 → _apply_frontier_plan()
+  │           ├── frontier_nav.set_path(path, goal)
+  │           └── state = MOVE_TO_GOAL
+  │
+  └── 本状态不发速度
+```
+
+当前默认配置 `bootstrap_local_plan: false`，通常直接走边界选点分支。
+
+---
+
+## 3. EXPLORE 链（occupancy_grid 模式）
+
+### 3.1 正常探索
 
 ```
 _tick_explore(scan)
@@ -38,137 +61,131 @@ _tick_explore(scan)
   │
   ├── _check_explore_timeout() ──true──► _enter_recovery('explore_stall')
   │
-  ├── _is_boundary_confirmed(scan) ──true──► _on_boundary(scan)
+  ├── _update_corner_stall() ──true──► PLAN_NEXT（逃离重规划）
+  │
+  ├── _is_boundary_confirmed(scan) ──true──► _on_boundary(scan) → RECOVERY
   │
   └── local_planner.tick(scan, move, cruise_speed)
         ├── [有目标]
         │     ├── frontier_nav.tick(scan, cruise_speed)
         │     │     └── move.publish_twist(cmd_v, w)     ← 速度发布 ①
-        │     ├── execution_feedback()                    ← 只读，不触发自动重规划
-        │     └── return status
+        │     ├── execution_feedback()                    ← 只读
+        │     └── return status（drive / creep / blocked 等）
         │
-        ├── status == 'hold'
-        │     └── _track_nav_hold(status)                 ← 状态机累计
-        │           └── 达 limit → _on_boundary()       ← 进 Recovery，非规划器改目标
+        ├── status == 'blocked'
+        │     └── _handle_nav_blocked() → PLAN_NEXT（多数情况；前方仍堵则轻退 0.10 m）
         │
-        ├── status == 'blocked' → _on_boundary()
-        ├── status == 'no_candidate' → _enter_planner_deadlock_recovery
+        ├── status == 'no_candidate'
+        │     └── 连续达阈值 → _enter_planner_deadlock_recovery() → PLAN_NEXT
+        │
         └── status == 'reached' → _reset_explore_timer()
 ```
 
-**hold 仲裁**（P0，`search_fsm.py:541`）：
+---
 
-```
-frontier_nav.tick() → status='hold'
-  └── _track_nav_hold()
-        ├── _nav_hold_streak += 1
-        └── streak >= limit（默认 30 tick）
-              └── _on_boundary(scan) → RECOVERY
-```
+### 3.2 建图引导阶段（可选）
 
-**与 P0 前对比**：规划器 `tick()` **不再**调用 `_maybe_replan_on_exec_cost()`；无目标时**不再**调用 `reactive_drive()`。
+仅当 `bootstrap_local_plan: true` 且 `visited < bootstrap_visited`（默认 40）且 `_bootstrap_exited` 为假：
+
+- `PLAN_NEXT` 转入 `EXPLORE`，仅靠 `local_planner.replan_local()` 选局部方向。
+- 满足超时、低覆盖、边界过多等条件时，`_maybe_exit_bootstrap()` 一次性切回 `PLAN_NEXT`。
+
+当前默认配置下该分支不启用。
 
 ---
 
-### 2.2 建图引导阶段（bootstrap）
+## 4. MOVE_TO_GOAL 链
 
-当 `bootstrap_local_plan: true` 且 `visited < bootstrap_visited`（默认 40）：
+```
+_tick_move_to_goal(scan)
+  ├── _is_boundary_confirmed(scan) ──true──► _on_boundary(scan)
+  │
+  ├── _update_corner_stall() ──true──► PLAN_NEXT（逃离重规划）
+  │
+  └── local_planner.tick(...)
+        ├── frontier_nav.tick → publish_twist          ← 速度发布 ①
+        ├── status == 'reached' → PLAN_NEXT 或 GLOBAL_PLAN（按模式）
+        ├── status == 'blocked' → _handle_nav_blocked() → PLAN_NEXT
+        └── status == 'odom_fault' → _enter_recovery('odom_fault')
+```
 
-- 状态机**停留** EXPLORE，不进入 `PLAN_NEXT`。
-- 仅靠 `local_planner.replan_local()` 选局部方向。
-- 10-24 日志：车在左下角墙角反复 Recovery，覆盖率 60s 仅 6%。
-
-此行为是**设计使然**，但在物理角落易形成「局部规划 ↔ 恢复」短循环。P2 拟抑制 0° 贴墙；或考虑提前切换前沿规划。
+`_handle_nav_blocked` 在前方仍不通时，状态机会 `move_distance_x(-0.10)` 轻退后再重规划。
 
 ---
 
-## 3. RECOVERY 链（边界恢复）
+## 5. RECOVERY 链
 
-### 3.1 进入
+### 5.1 进入
 
 ```
 _on_boundary(scan)  或  _enter_recovery(reason)
   ├── frontier_nav.clear_goal()
-  ├── local_planner.note_boundary_hit()
-  └── _start_boundary_recovery(scan, kind)
-        ├── _snapshot_recovery_entry(scan)    ← P1：入口基线
+  ├── local_planner.note_boundary_hit()（边界路径）
+  └── 边界：_start_boundary_recovery(scan, kind)
+        ├── _snapshot_recovery_entry(scan)    ← 入口基线（日志）
         ├── _recovery_phase = PAUSE
         └── state = RECOVERY
+
+  非边界（explore_stall、odom_fault 等）：
+        ├── _recovery_phase = None
+        └── state = RECOVERY → _tick_generic_recovery()
 ```
 
-### 3.2 恢复循环
+### 5.2 边界恢复循环
 
 ```
-_tick_recovery(scan)                    ← P0：本状态不 tick 规划器/导航器
-  └── _tick_boundary_recovery(scan)
+_tick_recovery(scan)
+  └── _tick_boundary_recovery(scan)     ← 不调用局部规划器与前沿导航器
         ├── PAUSE: stop_robot
-        ├── RECHECK: 窄通道可通行? → _finish_recovery_resume
+        ├── RECHECK: 窄扇区可通行? → _finish_recovery_resume
         └── ACT:
               ├── _snapshot_recovery_action_start()   ← 仅日志位移
               ├── _execute_boundary_action()
-              │     ├── move_distance_x(-back)        ← 阻塞 ①
-              │     └── rotate_angle(turn)            ← 阻塞 ②
-              ├── _recovery_success(scan)?
-              │     └── center - entry >= 0.05        ← P1 入口基线
-              └── level2 重试（最多 2 次）/ 强制结束
+              │     ├── move_distance_x(-back)        ← 阻塞 ①（当前 back=0.12 m）
+              │     └── rotate_angle(turn)            ← 阻塞 ②（当前 turn=45°）
+              └── _finish_recovery_resume()
 ```
 
-**文件**：`scripts/search_fsm.py:471-531`，`scripts/search_fsm.py:720-784`
+### 5.3 通用恢复（非边界）
+
+```
+_tick_generic_recovery(scan)
+  ├── reason == 'no_frontier'
+  │     └── rotate_angle(开阔侧) → PLAN_NEXT
+  │
+  └── 其他（explore_stall 等）
+        ├── rotate_angle（递增步进，最多 _max_recovery_attempts 次）
+        └── 耗尽 → EXPLORE（recovery exhausted）
+```
+
+**文件**：`scripts/search_fsm.py` 中 `_tick_recovery`、`_tick_boundary_recovery`、`_tick_generic_recovery`、`_complete_recovery_resume`
 
 ---
 
-## 4. Recovery 退出链（当前）
+## 6. Recovery 退出链
 
 ```
 _finish_recovery_resume(scan)
-  └── _try_escape_or_replan(scan)       ← P0：无脱离窗口直连
+  └── _try_escape_or_replan(scan)
         └── _complete_recovery_resume(scan)
               ├── refresh_penalty_for_replan()
-              ├── _replan_after_recovery(scan)         ← P1
-              │     ├── arm_post_recovery_replan(35°, 2m)
-              │     ├── _filter_post_recovery_candidates()
+              ├── _replan_after_recovery(scan)（按上下文）
+              │     ├── arm_post_recovery_replan（mission.yaml：|偏角|≤70°、d≤3 m、3 轮）
               │     └── replan_local(force=True)
-              └── state = EXPLORE | MOVE_TO_GOAL | PLAN_NEXT
+              └── state = EXPLORE | MOVE_TO_GOAL | PLAN_NEXT（按上下文）
 
-后续 EXPLORE tick:
-  └── local_planner.tick → navigator.tick
+后续各帧（若进入跟目标态）：
+  └── 调用局部规划器 → 调用前沿导航器
 ```
 
-**P1 日志样例**（10-24）：
+**日志样例**：
 
 ```
 Recovery(boundary_front_wall): 入口基线 center=0.32
-Recovery(boundary_front_wall): 判定成功 level=1 center=0.42 entry=0.32 gain=0.10
-LocalPlanner: 恢复后首轮 |偏角|<=35° d<=2.00m 候选 9→5
-Selected: 0° goal=(1.86,1.48) d=0.84
+Recovery(boundary_front_wall): unified level=0 back=0.12m turn=45deg
+LocalPlanner: 恢复后第1轮 |偏角|<=70° d<=3.00m 候选 …
+Frontier pick: … astar_eval=N total=… narrow=… failure=…
 ```
-
----
-
-## 5. MOVE_TO_GOAL 链
-
-```
-_tick_move_to_goal(scan)
-  ├── _update_corner_stall → 可能 _enter_recovery('corner_stall')
-  └── local_planner.tick(...)
-        ├── _track_nav_hold / blocked → _on_boundary 或 _handle_nav_blocked
-        └── navigator.tick → publish_twist
-```
-
-**遗留**：`_handle_nav_blocked` 中状态机直接 `move_distance_x(-backoff)` 后退，与导航器 blocked 逻辑并存（未收敛）。
-
----
-
-## 6. PLAN_NEXT 链
-
-```
-_tick_plan_next(scan)
-  ├── grid.nearest_frontier() → goal, path
-  ├── frontier_nav.set_path(path, goal)
-  └── state = MOVE_TO_GOAL | EXPLORE（bootstrap 未满时）
-```
-
-本状态不发速度。速度发布在下一状态导航器链。
 
 ---
 
@@ -176,93 +193,74 @@ _tick_plan_next(scan)
 
 ```
 _is_search_complete() ──true──► _begin_return_home()
-  ├── 条件：任务完成 | 覆盖率 ≥ 92% | 边界事件 ≥ 80 | 牛耕完成
+  ├── 条件：覆盖率 ≥ 92% | 边界事件 ≥ 80 | 牛耕完成 等
   └── state = RETURN_HOME
         └── _tick_return_home → navigator.tick 或角速度对齐
               └── 到位 → DONE
 ```
 
-10-24 日志**未触发**此链；车回到起点附近是墙角螺旋的物理结果，非正式返航。
+目标识别已关闭；覆盖率未达标时通常不触发。物理回到起点附近不等于本链生效。
 
 ---
 
-## 8. 控制权状态一览（当前）
+## 8. 控制权状态一览
 
-| 调用链 | 速度发布者 | P0/P1 后状态 |
-|--------|-----------|-------------|
-| EXPLORE → navigator.tick | 导航器 | 正常 |
-| hold → _track_nav_hold → Recovery | 状态机仲裁 | 已收敛 |
-| RECOVERY → move_distance_x | Recovery | 独占，仍阻塞 |
-| 脱离窗口直连 | — | **已删除** |
-| 规划器 exec_cost 强制重规划 | — | **已禁用** |
-| reactive_drive | — | **已禁用** |
-| _handle_nav_blocked 后退 | 状态机直连 | 仍存 |
+| 调用链 | 速度发布者 | 说明 |
+|--------|-----------|------|
+| PLAN_NEXT / EXPLORE / MOVE_TO_GOAL → 前沿导航器 | 导航器 | 正常跟目标 |
+| EXPLORE/MOVE blocked → _handle_nav_blocked | 导航器为主；仍堵时状态机轻退 | → PLAN_NEXT 重规划 |
+| corner_stall / 无候选 / 逃离重规划 | — | → PLAN_NEXT |
+| RECOVERY → move_distance_x / rotate_angle | Recovery | 独占，阻塞式 |
+| _handle_nav_blocked 轻退 | 状态机直连 | 前方仍堵时后退 0.10 m |
 
 ---
 
-## 9. 历史链（P0 前，仅供对照）
-
-<details>
-<summary>展开：hold → replan 链（9-17 根因，已修复）</summary>
-
-```
-frontier_nav.tick() → hold → exec_cost=0.75
-local_planner._maybe_replan_on_exec_cost() → replan_local(force=True)
-下一 tick：跟新目标再撞墙
-```
-
-</details>
-
-<details>
-<summary>展开：脱离窗口链（已删除）</summary>
-
-```
-_finish_recovery_resume → _start_escape_forward()
-_tick_escape_forward() → publish_twist(0.08, 0)  绕过导航器
-```
-
-</details>
-
----
-
-## 10. 调试：如何读日志
+## 9. 调试：如何读日志
 
 | 日志关键词 | 所在链 | 含义 |
 |-----------|--------|------|
-| `FSM init: build=` | 启动 | 版本确认 |
-| `Recovery: 入口基线 center=` | P1 恢复入口 | 增益基线 |
-| `判定成功 … gain=` | P1 恢复成功 | 入口基线判定 |
-| `恢复后首轮 \|偏角\|<=` | P1 恢复后规划 | 首轮约束生效 |
-| `FSM: Navigator hold N ticks` | hold 仲裁 | 即将进 Recovery |
-| `NavFeedback: … reason=center` | 导航器 hold | 前方窄扇区不足 |
-| `NavFeedback: … stress=` | 导航器应力 | 贴边累积，P3 重点 |
-| `Boundary hit` | _on_boundary | 进 Recovery |
-| `FSM EXPLORE -> RECOVERY` | 状态交接 | 规划器/导航器应停止 |
-| `exec_cost=… replan` | 规划器自动重规划 | **不应再出现** |
-| `脱离窗口` | 旧脱离链 | **不应再出现** |
-| `运行统计(60s):` | 统计 | 边界/恢复/覆盖率 |
+| `FSM init:` | 启动 | 模式、初始状态、全局规划是否启用 |
+| `Recovery: 入口基线 center=` | 边界恢复入口 | 窄扇区基线 |
+| `unified level=0 back=… turn=…` | 边界恢复动作 | 单次后退与转向 |
+| `恢复后第N轮 \|偏角\|<=` | 恢复后规划 | 多轮约束生效 |
+| `Frontier pick:` | PLAN_NEXT 选点 | 多候选评分与 A* 评估数 |
+| `Nav blocked … replan` | blocked 链 | 清目标后重规划 |
+| `探索：连续 N 帧无有效候选，逃离重规划` | 无候选链 | → PLAN_NEXT |
+| `Corner stall … replan` | 墙角停滞 | → PLAN_NEXT |
+| `NavFeedback: … reason=` | 导航器反馈 | creep / drive / blocked 等 |
+| `Boundary hit` | _on_boundary | 进 RECOVERY |
+| `Recovery(no_frontier): open-side turn` | 无边界点 | 一次开阔侧转向 |
+| `运行统计(60s):` | 统计 | 边界/恢复/角落停滞/覆盖率 |
 
-**运行日志保存**：`rosrun ooxx ooxx_logrun.sh roslaunch ooxx chassis_search.launch` → `log/H-M.txt`（见 `使用方法.txt`）。
+**运行日志保存**：
+
+```bash
+rosrun ooxx ooxx_logrun.sh roslaunch ooxx chassis_search.launch
+```
+
+→ 自动保存到 `log/M-D.txt` 或带标签的 `log/M-D-标签.txt`（见 `使用方法.txt`）。
 
 ---
 
-## 11. 目标调用链（P2/P3 重构方向）
+## 10. 目标调用链（应然）
 
 ### 探索 / 导航
 
 ```
-状态机(EXPLORE) → 规划器.replan?（仅状态机许可时）
-               → 导航器.tick → cmd_vel
+状态机(PLAN_NEXT) → 边界选点 → MOVE_TO_GOAL
+状态机(EXPLORE)   → 规划器.replan?（仅状态机许可时）
+                 → 前沿导航器 → cmd_vel
+受阻 / 停滞 / 无候选 → PLAN_NEXT 重规划（逃离选点）
 ```
 
 ### 恢复
 
 ```
-状态机(RECOVERY) → Recovery.step（独占 cmd_vel）
-               → 完成 → arm_post_recovery_replan → replan
-               → 状态机(EXPLORE) → 导航器.tick → cmd_vel
+状态机(RECOVERY) → Recovery 动作（独占 cmd_vel）
+               → 完成 → arm_post_recovery_replan → replan（按上下文）
+               → 状态机(PLAN_NEXT | EXPLORE | MOVE_TO_GOAL)
 ```
 
-**禁止**（已落实）：恢复期间规划器/导航器 tick；脱离窗口直连；hold 期间规划器 force replan。
+**当前约束**：恢复期间不调用局部规划器与前沿导航器；重规划由状态机触发。
 
-**待做**（P2/P3）：贴墙 0° 抑制；开阔侧向换向；车体包络挡障。
+**待做**：阻塞式 Recovery 改限时或非阻塞；收敛 `_handle_nav_blocked` 与导航器职责。

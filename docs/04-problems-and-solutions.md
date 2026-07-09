@@ -2,151 +2,192 @@
 
 > 本文档整理自 2026 年 7 月局部规划与恢复机制迭代过程中的实车现象、日志分析与架构讨论。  
 > 编写遵循 `重要原则.txt`：书面语、参数集中于 `config/mission.yaml`、较大改版须清理旧路径。  
-> 与 `01-architecture.md`（控制权）、`03-module_index.md`（模块职责）配合阅读。
+> 与 `01-architecture.md`（控制权）、`02-call_chains.md`（调用链）、`03-module_index.md`（模块职责）配合阅读。
+
+本文遵循以下原则：  
+每个问题须写清**现象**（以行为为主，日志作少量佐证）、**原因**（代码行为或架构逻辑，少用变量名堆砌）、**当前版本解决方法**（须能对应到具体函数；不写「是哪一篇日志」）。
 
 ---
 
 ## 1. 总体判断
 
-早期版本功能较少，行为相对可预测。后续为解决现场问题，陆续叠加边界处理、应力阶梯、通道判断、角落脱困、空间冷却、重试、恢复、建图绕行、局部规划、前沿选点等机制。各机制单独看均合理，组合后**互相争用控制权**，系统难以理解与调试。
+早期版本机制叠加后，曾出现多模块争用控制权、恢复与规划职责重叠等问题。经多轮实车与代码收敛，当前主链路为：
 
-经多轮实车日志（`ooxx-1.txt`、`log/8.05.txt`、`log/8.27.txt`、`log/1229.txt`、`log/21-14.txt`、`log/20-43.txt`、`log/8-2.txt`）与代码对照，结论如下：
+- **状态机**决定状态与重规划时机；
+- **局部规划器**只选目标，不发布连续速度；
+- **前沿导航器**只跟目标，按前方净空连续限速；
+- **恢复**在 RECOVERY 状态独占后退与转向，完成后交还状态机重规划。
 
-1. **主因不在恢复参数偏小**，而在恢复触发之前，局部规划器已无法产生可执行候选，或恢复成功后立即重选同一失败方向。
-2. **前沿导航器在多数情况下行为正确**：目标在侧前方时先转向再前进，属于控制器应然响应；宽缝撞障往往源于规划器未允许朝通道方向行进。
-3. **不宜继续增加「通道模式」「角落模式」等分支**；应通过连续量统一代价与模块契约收敛复杂度。
-4. **迭代原则**：每一处修改可单独回退，日志能明确验证效果；冻结期内除缺陷修复外不新增功能。
-5. **推进方式调整**（2026-07-06）：架构层（恢复链、Bootstrap、不推块）基本收敛后，**按验收问题（Issue）推进**，不再按 P3d/P3e 等模块编号叠加；Issue-1 完成前不改 Planner、Recovery 评分，深度相机最后介入。
+当前主要瓶颈已不在「恢复参数够不够」，而在：
 
-**当前构建标识**：`scripts/search_fsm.py` 顶部 `FSM_BUILD_ID = '20260706-corridor-commit-lifecycle'`。实车以日志 `FSM init: build=...` 为准。
+1. 边界选点仍可能导入死胡同或口袋区；
+2. 开阔区域目标在侧后方时，车长时间蠕行而不主动换向；
+3. 局部规划在贴墙或口袋区反复选相近失败方向；
+4. 覆盖率长跑未稳定达标。
+
+迭代原则（`重要原则.txt`）：参数集中于 `mission.yaml`；每次改动只解决一个问题；先记录日志再调参；深度相机仅作前向安全增强，不参与规划评分。
 
 ---
 
-## 2. 问题归类（合并同类）
+## 2. 问题归类
 
-### 2.1 局部规划器无有效候选（角落停滞、贴墙停滞、宽缝撞障的共同根因）
+### 2.1 局部规划器无有效候选
 
 | 现象 | 日志特征 |
 |------|----------|
-| 角落或贴墙处长时间不动 | `Selected: none (all rejected)` 连续出现 |
-| 面对宽缝人为转弯仍撞障 | 大偏角方向 `clear` 充足，仍 `INVALID` |
-| 反应式直行无效 | `reactive` 低速顶墙 → `Boundary hit` → `RECOVERY` |
+| 角落或贴墙处长时间不动 | 连续出现 `Selected: none (all rejected)` |
+| 激光认为可通的方向仍被判无效 | 大偏角净空充足，候选仍被否决 |
 
-**根因（规划器层）：**
+**原因：** 栅格路径搜索与激光净空结论不一致时，若路径失败即否决候选，候选集可能为空。
 
-栅格可达性检查与激光测距结论不一致。`local_planner._evaluate` 中，激光认为可通行的方向，若 `path_is_clear` 或 `plan_path` 失败，候选即被否决，形成：
+**当前解决方法：** `local_planner._evaluate` 在激光净空满足时，路径搜索失败仍用单点目标 `[(gx, gy)]` 继续评分，避免一票否决。
 
-```
-激光可通 → 栅格判堵 → 全部无效 → 反应式慢速顶墙 → 边界 → 恢复
-```
-
-```548:561:scripts/local_planner.py
-    if center < limit:
-      return _Candidate(
-          angle_deg, 0.0, gx, gy, [], dist, clearance, 0.0, False, ScoreBreakdown(),
-      )
-    ...
+```647:649:scripts/local_planner.py
     path = self.grid.plan_path(rx, ry, gx, gy)
     if not path:
       path = [(gx, gy)]
 ```
 
-**与阈值微调的关系：** `boundary_dist = 0.30` 等参数差异不会单独导致数十秒停滞；真正致滞的是候选集为空。
+辅以失败记忆（`record_failure`）、贴墙小角度加罚（`_wall_hug_penalty`）与统一代价权重（`local_plan_score_*`）。
 
 ---
 
-### 2.2 探索状态脱困滞后
+### 2.2 探索连续无候选
 
 | 现象 | 说明 |
 |------|------|
-| 规划失败持续数十秒才恢复 | 原 `explore_stall_sec = 30` 依赖位移判定 |
-| 机器人已知连续多帧无候选 | 仍等待位姿几乎不变 |
+| 连续多帧无有效候选 | 车长时间停在原地或贴墙 |
+| 仅依赖位移超时 | 反应慢，与墙角停滞处理不对称 |
 
-探索状态缺少「连续无候选即脱困」的判定，与导航状态已有 `corner_stall` 不对称。
+**原因：** 探索态缺少「连续无候选即逃离重规划」的短路径判定。
+
+**当前解决方法：** 状态机累计 `_explore_no_candidate_count`，达 `explore_no_candidate_frames`（默认 15）后调用 `_enter_planner_deadlock_recovery()`：清局部目标、设逃离标志、转入 `PLAN_NEXT` 重选边界点。
+
+```546:556:scripts/search_fsm.py
+  def _enter_planner_deadlock_recovery(self, scan: LaserScan) -> None:
+    """连续无有效候选：标记逃离后直接重规划。"""
+    ...
+    self._prefer_escape_frontier = True
+    self._set_state(SearchState.PLAN_NEXT, 'explore deadlock, replan')
+```
 
 ---
 
-### 2.3 恢复动作不足与成功判定过松
+### 2.3 边界恢复与恢复后重规划
+
+| 现象 | 说明 |
+|------|------|
+| 撞墙后反复在同一方向再撞 | 恢复幅度不足或恢复后立即重选失败方向 |
+| 恢复与规划职责重叠 | 恢复内嵌选点导致控制权不清 |
+
+**原因：** 恢复幅度曾按边界类型打折；恢复成功后未对失败方向施加足够约束即重规划。
+
+**当前解决方法：**
+
+1. **统一恢复幅度**：`_escalation_back_turn()` 直接读取 `recovery_backoff_levels` / `recovery_turn_levels`（当前单级：后退 0.12 m、转角 45°）。
+2. **边界恢复流程**：`_tick_boundary_recovery` 为暂停 → 复检 → 单次后退转向 → `_finish_recovery_resume()`。
+3. **恢复后约束重规划**：`_replan_after_recovery()` 调用 `arm_post_recovery_replan()`，按 `recovery_replan_max_angle_deg`（70°）、`recovery_replan_max_dist_m`（3 m）、`recovery_replan_rounds`（3）过滤候选。
+4. **方向惩罚**：`note_boundary_hit()` 记录上次选中偏角；`refresh_penalty_for_replan()` 在恢复后刷新惩罚窗口（`recent_collision_penalty_sec: 3.0`）。
+
+```675:678:scripts/search_fsm.py
+  def _escalation_back_turn(self, level: int) -> Tuple[float, float]:
+    cfg = self.search
+    idx = min(level, len(cfg.recovery_backoff_levels) - 1)
+    return cfg.recovery_backoff_levels[idx], cfg.recovery_turn_levels[idx]
+```
+
+```285:294:scripts/local_planner.py
+  def refresh_penalty_for_replan(self) -> None:
+    """恢复后即将重规划：刷新计时，确保首次规划仍受方向惩罚。"""
+    ...
+    self._penalty_pending_replan = True
+```
+
+非边界恢复（`explore_stall`、`no_frontier` 等）走 `_tick_generic_recovery()`：`no_frontier` 为一次开阔侧转向后进 `PLAN_NEXT`；其余可为递增旋转，耗尽后短时 `EXPLORE`。
+
+---
+
+### 2.4 导航受阻与墙角停滞
+
+| 现象 | 说明 |
+|------|------|
+| 跟目标时前方受阻 | 目标不可达或净空不足 |
+| 墙角位移极小、转角大 | 长时间原地调整 |
+
+**原因：** 导航器确认受阻后，若仅停车不重规划，会卡死；墙角需逃离选点而非反复同级恢复。
+
+**当前解决方法：**
+
+1. 前沿导航器连续多帧确认后上报 `blocked`。
+2. 状态机 `_handle_nav_blocked()`：清目标、记失败、多数情况 `→ PLAN_NEXT`；前方仍堵时轻退 0.10 m 后再重规划。
+3. `_update_corner_stall()` 在探索与跟目标两态均 `→ PLAN_NEXT`，并设 `_prefer_escape_frontier` 触发边界逃离选点。
+
+```1641:1682:scripts/search_fsm.py
+  def _handle_nav_blocked(
+      self,
+      gx: Optional[float],
+      gy: Optional[float],
+      scan: LaserScan,
+  ) -> None:
+    """导航受阻：前方仍通畅则只重规划，真挡路才轻后退。"""
+    ...
+    self._set_state(SearchState.PLAN_NEXT, reason)
+```
+
+---
+
+### 2.5 模块争用（已收敛项与残留）
+
+| 冲突 | 现状 |
+|------|------|
+| 规划器与前沿导航器 | 规划器不自动强制重规划；导航反馈只读 |
+| 恢复与规划器 | RECOVERY 期间不调用局部规划器与前沿导航器；重规划由状态机在恢复完成后触发 |
+| 多状态驱动规划 | 重规划入口收敛到状态机（`PLAN_NEXT`、受阻、逃离等） |
+
+**残留：** `_handle_nav_blocked` 在前方仍堵时状态机直接轻退，与前沿导航器受阻逻辑仍有职责重叠，待收敛。
+
+---
+
+### 2.6 前沿导航：开阔侧不转向
+
+| 现象 | 说明 |
+|------|------|
+| 目标在侧后方 | 车沿原航向长时间蠕行 |
+| 限速偏晚 | 约 `center < 0.34 m` 才明显减速 |
+
+**原因：** 前沿导航器按前方窄扇区 `center` 连续限速（`_simple_path_clear`），大偏角时虽带最低线速度转向，但未主动换全局目标。
+
+**当前解决方法：** 统一一般避障：蠕行带速转向 + 连续帧确认后上报 `blocked`，由状态机重规划换点。参数：`nav_forward_stop_margin`、`nav_open_align_arc_speed`、`boundary_dist`。
+
+**待优化：** 侧向开阔时更早触发重规划或放宽跟目标航向容差（`nav_drive_heading_*`）。
+
+---
+
+### 2.7 边界选点导入死区
 
 | 现象 | 日志特征 |
 |------|----------|
-| 恢复后随即再撞 | `back=0.05m turn=15°`，前方余量几乎无改善 |
-| 永远停留在最低恢复级别 | `gain=0.00` 或 `gain=-0.01` 仍判定结束 |
-| 同位置多次边界事件 | 按边界类型（侧墙、角落、重复）差异化缩放后退量，实际削弱动作 |
+| 反复进同一口袋区 | `no reachable frontier`、同一区域多次 `Boundary hit` |
+| 逃离后仍选近失败区 | `Frontier pick` 总代价仍偏低角近失败点 |
 
-**根因：**
+**原因：** 首条可达即停或仅按距离排序时，易反复选中不可行或已失败区域。
 
-- 恢复幅度按 `kind` 打折（如侧墙 `back *= 0.6`），与配置表不一致。
-- 成功判定曾允许仅凭位移 `disp ≥ 0.06m` 通过，而前方窄扇区余量未改善（`center_gain < 0.05`）。
-- 最高级恢复失败后立即强制结束，未给同级重试机会。
+**当前解决方法：** `OccupancyGrid.nearest_frontier()` 对排序后前 N 个候选均做路径搜索，取总代价最低者；总代价含路径长度、狭窄惩罚（`_path_narrow_penalty`）、历史失败软惩罚（`goal_failure_cost`）。导航受阻或恢复时 `record_failure()` 写入失败记忆；`blocked` / 墙角停滞时 `_prefer_escape_frontier` 触发逃离排序。
+
+配置：`frontier_eval_top_n`、`frontier_narrow_penalty_weight`、`frontier_failure_penalty_weight`、`failure_memory_*`。
 
 ---
 
-### 2.4 恢复后重复选择失败方向
+### 2.8 激光盲区与低矮障碍
 
 | 现象 | 说明 |
 |------|------|
-| 脱困后回到原路径再撞 | 重规划仍选 0° 或刚撞过的偏角 |
-| 脱离窗口加剧贴墙 | 恢复完成后强制直线前进 0.4s，角落中等价于多顶墙一次 |
+| 前方净空接近阈值仍擦碰 | 低矮障碍或相机支架外凸未进入窄扇区 |
+| 与恢复链不同类 | 属测距盲区，非恢复幅度问题 |
 
-**根因：**
+**原因：** 激光窄扇区未覆盖车体前向外凸部分。
 
-- 方向惩罚有效期过短（曾 1s），未覆盖整轮恢复周期。
-- 惩罚记录的是目标方位而非上次选中候选偏角，与真实撞障方向不一致。
-- 脱离窗口曾绕过导航器直连速度，在窄扇区未畅通时仍前进（后已删除）。
-
----
-
-### 2.5 模块争用与信息断层
-
-| 冲突 | 说明 |
-|------|------|
-| 规划器与导航器 | 规划器认为目标可行，导航器因 `wide` 过小已停车 |
-| 恢复与规划器 | 恢复结束后再规划、清目标、拉黑，职责重叠 |
-| 多状态入口 | `EXPLORE`、`PLAN_NEXT`、`MOVE_TO_GOAL` 均可间接驱动规划 |
-
----
-
-### 2.6 导航层临界距离与直行撞障（独立层级）
-
-| 现象 | 说明 |
-|------|------|
-| `center` 接近边界阈值仍前进撞障 | 如 `NavFeedback center=0.30` 时撞上低矮障碍 |
-| 与角落恢复不同类 | 属于导航器挡障与测距盲区，非恢复链问题 |
-
-按 `重要原则.txt`，此类问题由深度相机补齐激光盲区，**不参与规划评分**。
-
----
-
-### 2.7 导航层行为缺口（Bootstrap、缝隙、开阔区、宽距停车的合并归类）
-
-恢复链与候选链路改善后，实车日志暴露出**导航器层**的独立问题，与 2.1 规划器无候选不同类：
-
-| 现象簇 | 典型日志 | 根因 |
-|--------|----------|------|
-| 建图引导反复进入 | `map bootstrap` 多次出现，覆盖率停滞 | Bootstrap 退出条件分散，无一次性标志 |
-| 缝隙模式未主动进入 | 仅恢复后出现 `PassageMode armed`；正常导航长期 `hold` | 缺少 `passage_score` 与几何判据的主动入口 |
-| 开阔区长时间原地转向 | `align` 无线速度，位姿几乎不变 | 前方 `center` 充足仍纯旋转对齐 |
-| 宽距误停 | `center≥0.5` 但 `wide` 偏低即 `hold` | `wide hold` 与前方净空未解耦 |
-| 缝内 arm→done 短周期振荡 | `done ticks=9` 后立即再 `armed` | 以单帧 score/几何丢失即退出，无承诺期 |
-
-**与恢复链的关系**：上述现象导致边界事件减少缓慢、覆盖率偏低，易被误判为「恢复力度不足」；实车 `log/21-14.txt`、`log/20-43.txt` 中缝 A（物块+物块）可慢速通过，缝 B（物块+墙）则 `score=0.00` 停住，属导航层缝隙逻辑缺口，非规划器候选为空。
-
----
-
-### 2.8 块+墙单通道（第二个缝）问题簇
-
-一侧物块或墙近、另一侧开阔的几何（`L≈0.3–0.5, R≥0.75`）在 `log/8-2.txt`（build=`issue1-channel`）中集中暴露：
-
-| 现象 | 日志特征 | 根因 |
-|------|----------|------|
-| 识别后极慢、推块 | `PassageMode armed (channel)`，`R=0.29`，均速约 0.04 m/s | 通道内仍侧移顶物块；近侧未单独限速 |
-| 短周期假退出 | `PassageMode done ticks=9/10` | 单帧几何抖动即退出，无最短持有 |
-| 偏角拒入 | `channel_heading=111deg` 拒 arm | channel 入口误用目标偏角门槛 |
-| 穿出后难再入 | arm→done→arm 振荡 | 穿出未保持入口航向 |
-| 开关未开 | `channel_auto_arm_disabled`（`log/1229.txt`） | `nav_passage_channel_auto_arm: false` 验收期默认关闭 |
-
-**完成标准**（Issue-1）：同一墙+物块缝 **连续 3 次通过**，无推块、无 `corner_stall`、无 9 tick 级假退出。
+**当前对策：** 收紧 `nav_forward_stop_margin`、增大车体等效包络参数（`robot_radius`、`robot_front_overhang`）。按 `重要原则.txt`，深度相机后续仅补前向测距，不参与规划评分。
 
 ---
 
@@ -154,249 +195,137 @@
 
 | 早期判断 | 纠正 |
 |----------|------|
-| 恢复参数过小是主因 | 恢复频繁是因为规划器先制造了不可行目标或恢复后重选失败方向 |
-| 宽缝撞障是航向增益问题 | 日志显示大偏角 `clear` 充足仍无效，根因在栅格否决 |
-| 需按边界类型差异化恢复 | **否决**；统一读取 `recovery_backoff_levels` / `recovery_turn_levels` |
-| 脱离窗口可稳定脱困 | 窄扇区盲目前进反而延长贴墙；**已删除** `_tick_escape_forward` |
-| 连续两次 0° 扣分促扫图 | **否决**；前方持续最优时应直行 |
-| 深度参与规划评分 | **否决**；深度仅作安全增强 |
-| 缝 B 停住是规划器问题 | **否决**；`L=0.45 R=1.80` 时大偏角候选可通，根因在通道评分与 arm 条件 |
-| 通道内应侧移避障 | **否决**（块+墙缝）；侧移顶物块，应仅降速、禁止朝近侧横移 |
-| 按 P3d/P3e 模块并行推进 | **否决**；改为 Issue-1～4 逐项实车验收 |
+| 恢复参数过小是主因 | 更常见是规划先无可行候选，或恢复后立刻重选失败方向 |
+| 宽缝撞障是航向增益问题 | 多为栅格否决候选；已通过路径失败回退与统一代价缓解 |
+| 按边界类型差异化恢复幅度 | 统一读配置表，由 `_escalation_back_turn` 取值 |
+| 连续两次小角度扣分促扫图 | 前方持续最优时应允许直行 |
+| 深度参与规划评分 | 深度仅作安全增强，不参与选点评分 |
+| 增加通道/角落独立模式 | 收敛为连续代价与一般避障，避免状态机膨胀 |
 
 ---
 
-## 4. 迭代对策与验证（按轮次）
+## 4. 当前版本对策（按模块）
 
-配置项均集中于 `config/mission.yaml`，经 `scripts/config_loader.py` 加载。
+配置均集中于 `config/mission.yaml`，经 `scripts/config_loader.py` 加载。
 
-### 4.1 第一轮：打通候选链路（P0–P2）
+### 4.1 局部规划器
 
-| 编号 | 对策 | 代码要点 | 日志验证 |
-|------|------|----------|----------|
-| P0 | 取消栅格路径对候选的一票否决 | `_evaluate` 仅保留 `center < limit`；`plan_path` 失败时用 `[(gx, gy)]` 继续评分 | 出现 `Selected: ±XX°` 与 `score breakdown` |
-| P1 | 探索连续无候选立即恢复 | `_explore_no_candidate_count`，阈值 `explore_no_candidate_frames: 15` | `planner deadlock recovery` |
-| P2 | 加大恢复后退与转角 | `recovery_backoff_levels: [0.10, 0.18, 0.28]`，`recovery_turn_levels: [25, 35, 55]` | `unified level=N back=... turn=...` |
-| P3 | 宽缝边转边走 | `frontier_navigator` 窄通道条件下带线速度 `align_arc` | `align_arc` 伴随非零线速度 |
+| 对策 | 代码要点 | 日志验证 |
+|------|----------|----------|
+| 路径失败仍可评分 | `_evaluate` 中 `plan_path` 失败用 `[(gx, gy)]` | `Selected: ±XX°`、分项日志 |
+| 失败记忆 | `record_failure()`、`_failure_memory_penalty()` | `FailureMemory 记录` |
+| 贴墙小角度加罚 | `_wall_hug_penalty()` | `wall=` 分项 |
+| 恢复后多轮约束 | `arm_post_recovery_replan()`、`_filter_post_recovery_candidates()` | `恢复后第N轮 \|偏角\|<=` |
+| 纯激光选路（可选） | `_pick_clearance_escape()`，`local_clearance_escape_enabled` 控制 | `纯激光选路` |
 
-**实车评估（`log/8.05.txt`）：** 候选恢复、贴墙与宽缝有改善；但角落徘徊加剧，脱离窗口与宽松成功判定引入新问题。
+重规划仅由状态机触发；`tick()` 内有目标时只跟导航。
 
----
+### 4.2 状态机与恢复
 
-### 4.2 第二轮：恢复链收敛
+| 对策 | 代码要点 | 日志验证 |
+|------|----------|----------|
+| 恢复独占 | `_tick_recovery` 不调用规划器与导航器 | `FSM … -> RECOVERY` 后无跟目标日志 |
+| 单级边界恢复 | `_tick_boundary_recovery` ACT 一次后退转向 | `unified level=0 back=… turn=…` |
+| 恢复后重规划 | `_complete_recovery_resume` → `_replan_after_recovery` | `恢复后第N轮` |
+| 无候选逃离 | `_enter_planner_deadlock_recovery` | `逃离重规划` |
+| 受阻重规划 | `_handle_nav_blocked` | `Nav blocked … replan` |
+| 墙角逃离选点 | `corner_stall` → `PLAN_NEXT` + `_prefer_escape_frontier` | `Corner stall … replan` |
+| 无边界点开阔侧转向 | `_tick_generic_recovery`（`no_frontier`） | `open-side turn` |
 
-| 对策 | 要点 | 后续处置 |
-|------|------|----------|
-| 统一恢复动作 | `_escalation_back_turn` 不再按 `kind` 缩放 | 保留 |
-| 脱离窗口 | 恢复后 0.4s 直线前进再重规划 | **已删除**；`_try_escape_or_replan` 直接重规划 |
-| 方向惩罚 | `note_boundary_hit` 记录选中偏角；`recent_collision_penalty_sec: 3.0` | 保留并增强 |
-| 收紧成功判定 | 仅 `center_gain ≥ recovery_success_center_gain`（0.05）可判成功 | 保留 |
-| 最高级同级重试 | `recovery_max_level_retries: 2`，Level 2 未达增益可再试 | 保留 |
+### 4.3 前沿导航器
 
-成功判定核心逻辑：
+| 对策 | 代码要点 | 日志验证 |
+|------|----------|----------|
+| 按 center 连续限速 | `_simple_path_clear`、`_simple_drive_speed` | `NavFeedback: … creep/drive` |
+| 受阻确认 | `_handle_center_blocked` 多帧后 `blocked` | `NavFeedback: … blocked` |
+| 大偏角带速转向 | 线速度下限 `open_align_arc_speed` | 开阔区非零线速度转向 |
 
-```642:675:scripts/search_fsm.py
-  def _recovery_success(self, scan: LaserScan) -> bool:
-    ...
-    center_gain = center - self._recovery_entry_center
-    ok = center_gain >= self.search.recovery_success_center_gain
-    ...
-    return ok
-```
+### 4.4 边界选点
 
-方向惩罚在恢复后重规划前刷新：
-
-```278:287:scripts/local_planner.py
-  def refresh_penalty_for_replan(self) -> None:
-    ...
-    self._last_boundary_time = rospy.Time.now()
-    self._penalty_pending_replan = True
-```
-
-**实车评估（`log/8.27.txt`）：** 恢复可升级至 Level 2，方向惩罚日志出现；但 `gain≥0.05` 仍极少，最高级后被迫结束。
-
-**实车评估（`log/1229.txt`，最新）：**
-
-- 恢复链基本正常：`升级至 level 1/2`、`判定成功 ... gain=0.09~0.24` 多次出现。
-- 方向惩罚生效：`恢复后刷新方向惩罚`、`首次重规划应用方向惩罚 pen=0.25`。
-- 遗留：`no reachable frontier` 与原地旋转恢复循环；部分区域仍反复 `boundary_front_wall`。
+| 对策 | 代码要点 | 日志验证 |
+|------|----------|----------|
+| 多候选总代价 | `nearest_frontier` + `frontier_eval_top_n` | `Frontier pick: … astar_eval=… total=…` |
+| 狭窄与失败软惩罚 | `_path_narrow_penalty`、`goal_failure_cost` | `narrow=… failure=…` |
+| 逃离排序 | `_prefer_escape_frontier` 传入选点 | `escape=True` |
 
 ---
 
-### 4.3 规划器与导航器契约（持续）
-
-| 项目 | 内容 |
-|------|------|
-| 导航器反馈 | `execution_cost`、`reason`、`metrics`、`GoalStatus` |
-| 重规划滞后 | `execution_cost` 高于阈值且持续约 2s 才全局重选 |
-| 远距离目标降权 | `local_plan_progress_dist_cap: 2.0`，`d>2m` 额外扣分 |
-| 失败记忆 | `failure_memory_*` 对热区与近期失败偏角降权 |
-| 贴墙零度加罚 | `wall_hug_zero_penalty` 抑制临界 clearance 时选 0° |
-
----
-
-### 4.4 导航闭环与 Issue-1（P3b / P3c / channel / CorridorCommit）
-
-恢复链收敛后，本轮迭代聚焦导航器，**不修改** `local_planner` 评分与 Recovery 成功判定。
-
-| 构建 | 对策 | 代码要点 | 日志验证 |
-|------|------|----------|----------|
-| `20260705-p3b-closed-loop` | Bootstrap 一次性退出 | `_bootstrap_exited`；`PLAN_NEXT` 统一入口检查 | `Bootstrap exit` 仅一次 |
-| 同上 | 缝隙主动进入 | `passage_score` + 两侧间距 + 目标方向 `auto-arm` | `PassageMode auto-arm` |
-| 同上 | 开阔带速对齐 | `center` 充足时 `align_arc` 带线速度 | 开阔区 `drive`/`align_arc` 为主 |
-| `20260705-p3c-efficiency` | 宽距停车的放宽 | `center≥0.70` 忽略 `wide hold` | `hold` 减少、`center` 限速生效 |
-| 同上 | 缝隙可观测 | `PassageMode not armed because …` | 拒入原因可追踪 |
-| `20260705-issue1-channel` | 块+墙通道评分 | `lidar_utils.passage_score` 一侧近一侧远 | `armed (channel)` 出现 |
-| 同上 | channel 跳过 score 门槛 | `_is_block_wall_channel` → 直接 arm | 不再因 `score=0.00` 拒入 |
-| `20260706-issue1-final` | 通道内不侧移 | `_apply_channel_lateral` 仅降速、`strafe=0` | 无侧向顶块 |
-| 同上 | 持有与穿出航向 | 最短 15 tick + 连续 6 帧丢失；穿出 2 s 保持 yaw | 无 9 tick 假退出；无 `channel_heading` 拒入 |
-| `20260706-corridor-commit-lifecycle` | 缝隙承诺生命周期 | `CorridorCommit`：固定入口航向、按前进距离退出；承诺期内规划器/换目标冻结 | `CorridorCommit start/done`；`traverse`/`timeout` |
-| 同上 | channel 侧移约束 | `_apply_commit_centerline` 禁止朝物块侧横移；近侧停车 | `open=left/right`；`final_err` |
-| 同上 | 验收开关 | `nav_passage_channel_auto_arm: false` 默认关 | `channel_auto_arm_disabled`（`log/1229.txt`） |
-
-channel 几何判据（`frontier_navigator._is_block_wall_channel`）：
-
-```501:514:scripts/frontier_navigator.py
-  def _is_block_wall_channel(self, profile: Dict[str, float]) -> bool:
-    ...
-    if left_close and not right_close and right >= self.passage_channel_open_min:
-      return True
-    if right_close and not left_close and left >= self.passage_channel_open_min:
-      return True
-```
-
-**实车评估摘要：**
-
-| 日志 | 构建 | 结论 |
-|------|------|------|
-| `log/8-2.txt` | `issue1-channel` | 缝 B 可 arm 但极慢、有推块；9 tick 假退出；60 s 均速 0.05 m/s、覆盖率 6% |
-| `log/21-14.txt` | — | 缝 A 慢通；缝 B `score=0.00` 于 `L=0.45 R=1.80` |
-| `log/1229.txt` | `corridor-commit-lifecycle` | 恢复链正常；channel 因开关关闭未 arm；gap 缝可 `CorridorCommit` |
-
----
-
-## 5. 架构共识
-
-### 5.1 三模块职责
-
-```
-规划器   — 只负责「去哪」：统一代价、选候选、持有当前目标
-导航器   — 只负责「怎么走」：同一套控制律、反馈 execution_cost
-恢复     — 只负责「脱困」：后退 → 转向 → 验证（不承担重规划）
-```
-
-```
-规划器 ──目标──▶ 导航器
-导航器 ──状态+execution_cost──▶ 规划器
-导航器 ──持续失败──▶ 恢复
-恢复 ──完成──▶ 状态机 ──▶ 规划器（触发重选，恢复本身不规划）
-```
-
-### 5.2 明确不做的事项
+### 5. 设计约束
 
 | 事项 | 原因 |
 |------|------|
-| 通道/角落/隧道等独立模式 | 易导致状态机膨胀与行为不可解释 |
-| 脱离窗口直连速度 | 绕过导航器，角落顶墙；已清理 |
-| 恢复内嵌规划、前沿、冷却 | 与规划器职责重叠 |
-| 深度参与规划评分 | 见 `重要原则.txt` |
-| 单纯延长路径生命周期而不验证可达性 | 无法解决夹缝内不可行目标 |
-| Issue-1 完成前改 Planner/Recovery | 与 `重要原则.txt`「一天只解决一个问题」冲突 |
-| 用深度修 Planner 选点 | 深度仅补 LiDAR 盲区，不参与规划决策 |
+| 不增加通道/角落等独立模式 | 避免状态机膨胀，行为难解释 |
+| 恢复期间不调用规划器与导航器 | 保证速度发布单一路径 |
+| 深度不参与规划评分 | 见 `重要原则.txt`；相机只作前向引导 |
+| 每次改动只解决一个问题 | 便于日志归因与回退 |
 
 ---
 
 ## 6. 当前遗留问题
 
-| 问题 | 现象 | 状态 / 方向 |
-|------|------|-------------|
-| **Issue-1** 块+墙缝稳定通过 | `issue1-channel` 部分通过；`channel_auto_arm` 默认关 | 开启 `nav_passage_channel_auto_arm` 后实车验收；见 §7 |
-| **Issue-2** 缝内不断链 | arm→done 短周期振荡 | `CorridorCommit` 承诺期已加；与 Issue-1 同测 |
-| **Issue-3** 缝内速度 | 均速约 0.04–0.05 m/s | Issue-1/2 过关后仅调 `passage_creep_factor` 等 |
-| **Issue-4** 覆盖率长跑 | 60 s 覆盖率 6% | 前三项过关后再做 10 分钟长跑 |
-| 前沿不可达循环 | `no reachable frontier` 旋转恢复 | 检查 `blocked_goals`、A* 拒绝率 |
-| 同区域反复贴墙 | 惩罚后仍选相近偏角 | 提高 `recent_collision_penalty` 或探索增益 |
-| 直行临界撞障 | `center` 贴近 `boundary_dist` 仍前进 | 深度安全增强或 `nav_forward_stop_margin` |
+### 6.1 覆盖率长跑未稳定达标
+
+**现象：** 覆盖率长期低于完成阈值（默认 92%），不能完全遍历场地。实车可沿一条主通道走一圈回到物理起点，也能进入两排物块后方，但运动呈单向、带状扩展：沿当前航向推进多，横向扫角少，物理四角与贴边未访问格长期留存。物理回到起点附近不等于 `RETURN_HOME` 链生效；任务仍以栅格 `visited / free` 为准。
+
+**可能原因：**
+
+1. **边界目标贪心沿已知通道延伸。** `nearest_frontier()` 总代价以路径长度为主，叠加航向代价与狭窄惩罚，缺少「远离已访问区质心」「靠近场地未探索角」一类项。车一旦拉出一条已访问带，侧向与对角边界点的路径代价偏高，规划倾向继续拉长当前通道，而非折向角落。
+
+2. **导航器对侧后方目标不主动换向（见 §2.6）。** 目标落在大偏角时，前沿导航器仍以前方窄扇区 `center` 连续限速跟点，长时间蠕行而不上报 `blocked`；状态机迟迟不重选边界，横向格网推进慢，覆盖率爬升呈线性而非面状。
+
+3. **局部探索态偏直行。** `EXPLORE` 下局部规划候选角以 `0°` 为首，实车日志常见连续 `记录边界候选偏角 0°`；前方净空充足时直行得分占优，墙角与侧向口袋需靠受阻、无候选或 `corner_stall` 才触发 `PLAN_NEXT`，缺乏主动扫角动机。
+
+4. **口袋区与狭窄通道占用边界预算。** 物块间窄缝多次 `Boundary hit` 与恢复，均速约 0.08–0.11 m/s；时间在「当前走廊内脱困」与「重选邻近失败点」之间消耗，难以把位姿预算用于抵达场地远端或对角。
+
+5. **逃离选点仅被动触发。** `_prefer_escape_frontier` 多在导航受阻、墙角停滞、连续无候选时置位，正常推进时仍优先前方可达边界。角落格往往不在「近失败区逃离」语义内，缺少周期性强制大角度或侧向边界点的机制。
+
+6. **建图引导期默认关闭。** `bootstrap_local_plan: false`，起步即走全局边界探索，无短程宽扇区局部扫图冷启动；早期地图稀疏时，A* 与边界排序更易锁死在首条走廊（与 §6.2 起步走廊选择叠加时更明显）。
+
+**与已完成对策的关系：** §2.7 多候选总代价、§2.2 无候选逃离、§2.4 墙角重规划已缓解「卡死」与「反复进同一口袋」，但未解决「主动趋向全场角落」与「面状覆盖」问题；控制权与恢复主链路不是当前主瓶颈。
+
+**待尝试方向（每次只改一项，须先记日志）：**
+
+| 方向 | 说明 | 涉及模块 |
+|------|------|----------|
+| 侧向更早重规划 | 目标偏角或侧向净空持续开阔时，由状态机提前 `PLAN_NEXT`，不等到导航 `blocked` | 前沿导航器、状态机 |
+| 边界代价加探索奖励 | 在 `nearest_frontier` 总代价中增加「距已访问质心」「距地图边缘未探索区」项，削弱纯路径最短 | `occupancy_grid` |
+| 局部大偏角加权 | `EXPLORE` 在开阔区提高大角度候选探索分，避免长期 0° 直行 | 局部规划器、`mission.yaml` |
+
+**验收建议：** 以 60 s `运行统计` 中覆盖率曲线、均速、边界/恢复次数为主；辅以地图快照查看四角与贴边未访问格是否减少。不宜仅以「能否回到物理原点」判断任务完成。
 
 ---
 
-## 7. 下一步计划
+### 6.2 固定障碍下起步朝向决定首条走廊（与覆盖率不同类）
 
-与 `重要原则.txt`「一天只解决一个问题」及 `plan.md` Issue 表一致：**先稳定通过，再提速**；每项单独实车、单独验收。
+**现象：** 场地物块位置固定时，同一段任务在不同起步 yaw 下行为分叉明显，且与最终覆盖率高低并非一一对应。朝向合适：能绕前排物块进入后方或侧向通道，后续探索有继续深入的可能。朝向不佳：可能只贴一侧绕过前排、始终进不了物块后方；或前排窄缝反复 `Boundary hit` 后在开阔地带绕圈，首段即耗尽在起点附近。两类结果都可能是「覆盖率低」，但根因是**首条可行走廊被起步姿态锁定**，而非车已深入场地后的扫图策略不足。
 
-| Issue | 目标 | 完成标准 | 允许改动 | 禁止 |
-|-------|------|----------|----------|------|
-| **Issue-1** | 块+墙缝稳定通过 | 同缝连续 3 次通过，无推块 | 通道评分、arm 条件、航向锁定、hold 放宽 | Planner、Recovery、深度 |
-| **Issue-2** | 缝内不断链 | 无 9 tick 级 arm→done 振荡 | 承诺持有（`CorridorCommit` / `min_hold_ticks`） | 同时改速度 |
-| **Issue-3** | 缝内速度 | 均速 ≥ 0.08 m/s | 仅 passage 速度参数 | Issue-1/2 未过关 |
-| **Issue-4** | 覆盖率长跑 | 连续 10 分钟稳定搜场 | 全局参数微调 | 前三项未过关 |
+**原因：**
 
-**Issue-1 实车步骤：**
+1. **首帧边界选点强依赖当前航向。** `nearest_frontier()` 在非逃离态下 `prefer_forward=True`：候选先按航向偏差排序，并丢弃超出 `forward_max_deg`（约 110°）的边界点。起步时地图几乎空白，排序与过滤实质上在「当前朝向扇区」内选最近边界，第一条全局路径即定下后续数分钟的推进走廊。
 
-1. `config/mission.yaml` 设 `nav_passage_channel_auto_arm: true`
-2. 编译部署后确认 `FSM init: build=20260706-corridor-commit-lifecycle`
-3. 仅测墙+物块缝，日志应见 `CorridorCommit start … channel` → `done reason=traverse`；不应见 `channel_auto_arm_disabled`、9 tick 级 `done`
+2. **早期地图稀疏放大路径偏差。** 物块刚被观测到时，栅格与 A* 对窄缝宽度、可通行性的估计不稳定；同一物理缝在不同 yaw 下可能一次通过、一次判为不可达，失败记忆与恢复后又因朝向约束重选相近方向，开阔区形成绕圈。
 
-**深度相机介入时机**（`重要原则.txt` 第二步）：Issue-1～4 与低姿态障碍推块仍失败时，深度仅补 `center/left/right` 测距，不参与规划评分。
+3. **缺少起步朝向无关的冷启动。** `bootstrap_local_plan` 默认关闭，无「先宽扇区局部试探再切边界」的缓冲；人工摆放误差直接传入 `PLAN_NEXT` 的第一次 `GlobalPlanner` / `nearest_frontier` 调用。
 
-**调参原则：** 先记录数十次真实运行日志，再调整 `mission.yaml`；优先验证行为闭环，而非并行改多个子系统。
+**与 §6.1 的区分：** §6.1 关注车**已进入某条走廊之后**如何面状扩展、扫角与提覆盖率；本节关注**任务前几十秒**能否选对入口。修复 §6.2 不保证覆盖率达标，但可减少「同一赛道、换摆放角度就完全进不了后方」的不可复现性。
 
----
+**待尝试方向（每次只改一项，须先记日志）：**
 
-## 8. 部署与日志核对
+| 方向 | 说明 | 涉及模块 |
+|------|------|----------|
+| 起步若干轮放宽前方过滤 | 前 N 次 `PLAN_NEXT` 设 `prefer_forward=False`，或临时提高 `forward_max_deg`，避免首点锁死在当前朝向 | 状态机、边界选点 |
+| 短程建图引导 | 启用 `bootstrap_local_plan`，在 `visited` 未达阈值前走 `EXPLORE` 宽扇区，再切边界探索 | 状态机 |
+| 受控绕场冷启动 | 短距离 `perimeter` 或固定角速度扫视，再进入 `frontier` 模式 | 全局规划器、状态机 |
+| 首段失败即强制逃离 | 起步后连续 K 次边界恢复仍困在起点邻域时，置 `_prefer_escape_frontier` 并放宽恢复后重规划偏角 | 状态机、局部规划器 |
 
-Python 包修改后须编译安装，不可仅替换文件夹：
-
-```bash
-cd ~/experiment_ws && catkin_make --pkg ooxx && source devel/setup.zsh
-```
-
-| 检查项 | 预期 |
-|--------|------|
-| 构建标识 | `FSM init: build=20260706-corridor-commit-lifecycle` |
-| 有效候选 | `LocalPlanner score breakdown`，非持续 `Selected: none` |
-| 恢复升级 | `升级至 level 1/2`，`unified level=N back=... turn=...` |
-| 成功判定 | `判定成功 ... gain≥0.05`（非仅 `disp`） |
-| 方向惩罚 | `记录边界候选偏角`、`恢复后刷新方向惩罚`、`pen=0.25` |
-| 脱离窗口 | **不应再出现** `脱离窗口：...前进` |
-| Bootstrap | `Bootstrap exit` **仅一次** |
-| 缝隙进入 | `PassageMode auto-arm` 或 `CorridorCommit start` |
-| 块+墙缝 | `channel=True`；**不应**长期 `channel_auto_arm_disabled`（验收时开关须为 true） |
-| 缝内完成 | `CorridorCommit done reason=traverse`（非 9 tick 级 `timeout`） |
-| 导航反馈 | `NavFeedback: status=... exec_cost=...` |
+**验收建议：** 固定物块布局，记录至少 3 组起步 yaw（如 0°、±45°、±90°），对比首 60 s 内是否进入物块后方、开阔绕圈次数及首条 `Frontier pick` 目标方位；不以单次长跑覆盖率为唯一指标。
 
 ---
 
-## 9. 主要配置索引
+### 6.3 其他残留
 
-| 配置项 | 含义 |
-|--------|------|
-| `recovery_backoff_levels` / `recovery_turn_levels` | 恢复后退与转角级别 |
-| `recovery_success_center_gain` | 恢复成功所需前方余量增益（米） |
-| `recovery_max_level_retries` | 最高级未达增益时的同级重试次数 |
-| `recent_collision_penalty*` | 近期撞障方向惩罚 |
-| `explore_no_candidate_frames` | 连续无候选帧数阈值 |
-| `local_plan_progress_dist_cap` | 进度评分距离上限 |
-| `local_plan_score_*` | 统一代价各分项权重 |
-| `failure_memory_*` | 失败记忆与热区降权 |
-| `planner_debug` | 是否输出候选分项日志 |
-| `nav_passage_*` | 缝隙模式阈值、主动进入、channel 几何与持有 |
-| `nav_passage_channel_auto_arm` | 块+墙 channel 自动 arm（验收期开关） |
-| `nav_corridor_commit_*` | 缝隙承诺距离、冷却、承诺期、航向 abort |
-
----
-
-## 10. 相关文档
-
-| 文档 | 内容 |
-|------|------|
-| `docs/01-architecture.md` | 控制权模型、构建版本表 |
-| `docs/02-call_chains.md` | 调用链 |
-| `docs/03-module_index.md` | 模块职责与状态一览 |
-| `重要原则.txt` | 文档语气、配置集中、深度边界、迭代节奏 |
-| `plan.md` | Issue 验收表与构建版本 |
-| `使用方法.txt` | 实车编译、启动与日志样例 |
-
----
-
-*文档版本：整理自 2026-07-04 ~ 2026-07-06 讨论、实车日志与代码现状；含 Issue-1 收尾与 CorridorCommit 生命周期；构建号以 `search_fsm.py` 源码为准。*
+| 项 | 说明 |
+|----|------|
+| `_handle_nav_blocked` 与导航器职责重叠 | 前方仍堵时状态机直接轻退，与导航受阻确认链部分重复（§2.5） |
+| 激光物理包络 | 前向外凸未完全进入窄扇区，贴障时偶发擦边（§2.8） |
+| 返航与完成条件 | 覆盖率未达标时不进入 `RETURN_HOME`；需与课程评分标准对齐预期 |
